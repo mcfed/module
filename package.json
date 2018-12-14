@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "@mcf for module",
   "module": "esm/mcf-module.js",
+  "main": "umd/mcf-module.js",
   "scripts": {
     "test": "jest",
     "dev": "rollup -c --watch",
