@@ -17,5 +17,24 @@
         "code": 3174
       }
     }
+  },
+  "esm/mcf-module.js": {
+    "bundled": 1647,
+    "minified": 857,
+    "gzipped": 417,
+    "treeshaked": {
+      "rollup": {
+        "code": 299,
+        "import_statements": 144
+      },
+      "webpack": {
+        "code": 1352
+      }
+    }
+  },
+  "umd/mcf-module.js": {
+    "bundled": 2238,
+    "minified": 1001,
+    "gzipped": 512
   }
 }

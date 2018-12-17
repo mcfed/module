@@ -11,6 +11,8 @@ const input = "./modules/index"
 
 const globals = {
   react: "React",
+  "react-actions":"createAction",
+  "react-actions":"handleActions",
   "prop-types":"PropTypes"
 };
 const babelOptionsCJS = {
