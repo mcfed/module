@@ -1,5 +1,4 @@
-import { ORM,createReducer } from 'redux-orm'
-import {reducerItemSelector,reducerListSelector} from './reducerSelector'
+export ORM,{createReducer } from 'redux-orm'
 
 ORM.prototype.getDatabase = function getDatabase() {
   this.db = this.createDatabase(this.generateSchemaSpec());
@@ -14,5 +13,5 @@ const emptyDBState = orm.getEmptyState()
 const session = orm.session(emptyDBState)
 
 
-export {orm,session,reducerItemSelector,reducerListSelector,createReducer}
+export {orm,session}
 export default orm

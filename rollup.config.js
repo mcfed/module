@@ -31,7 +31,6 @@ export default [{
   output: { file: `esm/${pkg.name}.js`, format: "esm" },
   external:Object.keys(globals),
   plugins: [nodeResolve({
-    jsnext:true,
   }),babel(babelOptionsESM),
    commonjs(commonjsOptions),
    sizeSnapshot()]
