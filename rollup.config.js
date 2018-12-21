@@ -11,8 +11,6 @@ const input = "./modules/index"
 
 const globals = {
   react: "React",
-  "react-actions":"createAction",
-  "react-actions":"handleActions",
   "prop-types":"PropTypes"
 };
 const babelOptionsCJS = {
@@ -32,7 +30,11 @@ export default [{
   input,
   output: { file: `esm/${pkg.name}.js`, format: "esm" },
   external:Object.keys(globals),
-  plugins: [nodeResolve(),babel(babelOptionsESM), sizeSnapshot()]
+  plugins: [nodeResolve({
+    jsnext:true,
+  }),babel(babelOptionsESM),
+   commonjs(commonjsOptions),
+   sizeSnapshot()]
 },{
    input,
    output: { file: `umd/${pkg.name}.js`, format: "umd", name, globals },
