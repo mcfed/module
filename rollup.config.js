@@ -5,14 +5,17 @@ import nodeResolve from "rollup-plugin-node-resolve"
 import { sizeSnapshot } from "rollup-plugin-size-snapshot"
 
 import pkg from "./package.json"
-const name = "CRUD";
+const name = "module";
 const input = "./modules/index"
 
 
 const globals = {
-  react: "React",
-  "react-actions":"createAction",
-  "react-actions":"handleActions",
+  "react": "React",
+  "redux-saga":"effects",
+  "invariant":"invariant",
+  "just-curry-it":"curry",
+  "to-camel-case":"camelCase",
+  "redux-types":"types",
   "prop-types":"PropTypes"
 };
 const babelOptionsCJS = {
@@ -21,7 +24,7 @@ const babelOptionsCJS = {
 const babelOptionsESM = {
   exclude: /node_modules/,
   runtimeHelpers: true,
-  plugins: [["@babel/transform-runtime", { useESModules: true }]]
+  plugins: [["@babel/transform-runtime", { useESModules: false }]]
 };
 const commonjsOptions = {
   include: /node_modules/
@@ -35,7 +38,7 @@ export default [{
   plugins: [nodeResolve(),babel(babelOptionsESM), sizeSnapshot()]
 },{
    input,
-   output: { file: `umd/${pkg.name}.js`, format: "umd", name, globals },
+   output: { file: `umd/${pkg.name}.js`, format: "umd", name },
    external: Object.keys(globals),
    plugins: [
      nodeResolve(),

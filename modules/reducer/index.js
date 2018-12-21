@@ -1,4 +1,4 @@
-import { handleActions as createReducer} from 'redux-actions'
+export { handleActions as createReducer} from 'redux-actions'
 
 export function reducerActionCreator(actions){
   const reducerAction={}

@@ -1,8 +1,10 @@
-export types from 'redux-types'
-export {createAction} from 'redux-actions'
+import actionTypes from 'redux-types/src/action-types'
+import createAction from 'redux-actions/es/createAction'
+
+export * from 'redux-actions'
 
 
-export const defaultType = [
+export const defaultTypes = [
   "LIST_ACTION", //列表行为
   "SAVE_LIST",  //保存列表
   "SAVE_ACTION", //保存行为
@@ -12,11 +14,9 @@ export const defaultType = [
   "ITEM_ACTION",   //获取信息
   "SAVE_PARAMS"   //保存参数
 ]
-export const TYPES = types(namespece, defaultType)
-
 
 export function actionCreator(TYPES){
-  return {
+  const result={
     listAction:createAction(TYPES.LIST_ACTION),
     saveList:createAction(TYPES.SAVE_LIST),
     itemAction:createAction(TYPES.ITEM_ACTION),
@@ -26,20 +26,10 @@ export function actionCreator(TYPES){
     deleteItem:createAction(TYPES.DELETE_ITEM),
     saveParams:createAction(TYPES.SAVE_PARAMS)
   }
+
+  return result
 }
 
 export function createTypes (namespece,typesArray){
-  return types(namespece,typesArray)
+  return actionTypes(namespece,typesArray)
 }
-
-export function createActions(types){
-  return actionCreator(types)
-}
-
-
-/*
-import {defaultType,createTypes} from 'mcf-module'
-
-let types = createTypes(defaultType)
-let actions = createAction(types)
-*/
