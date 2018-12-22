@@ -1,7 +1,7 @@
 
 import {bindActionCreators} from 'redux'
 export {connect} from 'react-redux'
-export {injectIntl} from 'react-intl'
+// export {injectIntl} from 'react-intl'
 export {reducerListSelector,reducerItemSelector} from "../Model/reducerSelector"
 
 const defaultMapStateToProps = (state,props) => {

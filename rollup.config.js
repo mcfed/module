@@ -5,7 +5,7 @@ import nodeResolve from "rollup-plugin-node-resolve"
 import { sizeSnapshot } from "rollup-plugin-size-snapshot"
 
 import pkg from "./package.json"
-const name = "CRUD";
+const name = "module";
 const input = "./modules/index"
 
 
