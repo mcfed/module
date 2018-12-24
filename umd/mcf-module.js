@@ -725,6 +725,15 @@
 
   var objectSpread = _objectSpread$1;
 
+  var defaultState = {
+    items: [],
+    item: {},
+    //page meta
+    page: {
+      total: 0,
+      current: 1
+    }
+  };
   function reducerActionCreator(actions) {
     var reducerAction = {};
 
@@ -764,6 +773,7 @@
   }
 
   var index$1 = /*#__PURE__*/Object.freeze({
+    defaultState: defaultState,
     reducerActionCreator: reducerActionCreator,
     reducerCreator: handleActions
   });
@@ -2362,9 +2372,9 @@
   // export * as model from './model'
   // export * as router from './router'
 
-  exports.moduleAction = index;
-  exports.moduleReducer = index$1;
-  exports.moduleSaga = index$2;
+  exports.ModuleAction = index;
+  exports.ModuleReducer = index$1;
+  exports.ModuleSaga = index$2;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

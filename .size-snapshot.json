@@ -19,22 +19,22 @@
     }
   },
   "esm/mcf-module.js": {
-    "bundled": 70747,
-    "minified": 31187,
-    "gzipped": 9278,
+    "bundled": 72097,
+    "minified": 31799,
+    "gzipped": 9442,
     "treeshaked": {
       "rollup": {
-        "code": 10442,
+        "code": 10719,
         "import_statements": 22
       },
       "webpack": {
-        "code": 11501
+        "code": 11778
       }
     }
   },
   "umd/mcf-module.js": {
-    "bundled": 74660,
-    "minified": 26598,
-    "gzipped": 8553
+    "bundled": 74816,
+    "minified": 26655,
+    "gzipped": 8577
   }
 }

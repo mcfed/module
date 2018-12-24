@@ -732,6 +732,15 @@ function _objectSpread$1(target) {
 
 var objectSpread = _objectSpread$1;
 
+var defaultState = {
+  items: [],
+  item: {},
+  //page meta
+  page: {
+    total: 0,
+    current: 1
+  }
+};
 function reducerActionCreator(actions) {
   var reducerAction = {};
 
@@ -771,6 +780,7 @@ function reducerActionCreator(actions) {
 }
 
 var index$1 = /*#__PURE__*/Object.freeze({
+  defaultState: defaultState,
   reducerActionCreator: reducerActionCreator,
   reducerCreator: handleActions
 });
@@ -2371,4 +2381,4 @@ var index$2 = /*#__PURE__*/Object.freeze({
 // export * as model from './model'
 // export * as router from './router'
 
-export { index as moduleAction, index$1 as moduleReducer, index$2 as moduleSaga };
+export { index as ModuleAction, index$1 as ModuleReducer, index$2 as ModuleSaga };

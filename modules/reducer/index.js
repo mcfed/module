@@ -1,6 +1,17 @@
 export { handleActions as reducerCreator } from 'redux-actions'
 
-export  function reducerActionCreator(actions){
+export const defaultState={
+    items: [],
+    item: {},
+    //page meta
+    page:{
+      total: 0,
+      current: 1
+    }
+}
+
+
+export function reducerActionCreator(actions){
   const reducerAction={}
     reducerAction[actions.saveParams]=(state,{payload})=>{
       return {

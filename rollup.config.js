@@ -11,6 +11,7 @@ const input = "./modules/index"
 
 const globals = {
   react: "React",
+  "react-is":"isValidElementType",
   "prop-types":"PropTypes"
 };
 const babelOptionsCJS = {
@@ -33,7 +34,8 @@ export default [{
   plugins: [nodeResolve({
   }),babel(babelOptionsESM),
    commonjs(commonjsOptions),
-   sizeSnapshot()]
+   // sizeSnapshot()
+ ]
 },{
    input,
    output: { file: `umd/${pkg.name}.js`, format: "umd", name },
