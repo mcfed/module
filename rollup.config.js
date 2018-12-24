@@ -10,12 +10,7 @@ const input = "./modules/index"
 
 
 const globals = {
-  "react": "React",
-  "redux-saga":"effects",
-  "invariant":"invariant",
-  "just-curry-it":"curry",
-  "to-camel-case":"camelCase",
-  "redux-types":"types",
+  react: "React",
   "prop-types":"PropTypes"
 };
 const babelOptionsCJS = {
@@ -35,7 +30,10 @@ export default [{
   input,
   output: { file: `esm/${pkg.name}.js`, format: "esm" },
   external:Object.keys(globals),
-  plugins: [nodeResolve(),babel(babelOptionsESM), sizeSnapshot()]
+  plugins: [nodeResolve({
+  }),babel(babelOptionsESM),
+   commonjs(commonjsOptions),
+   sizeSnapshot()]
 },{
    input,
    output: { file: `umd/${pkg.name}.js`, format: "umd", name },

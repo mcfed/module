@@ -1,21 +1,22 @@
-export {effects} from 'redux-saga'
+export * as effects from 'redux-saga/effects'
 
 export function sagaCreator(actions,Api){
+  // console.log(Object.)
   return {
-    fetchItem: function* fetchItem(action){
+    fetchItem: function* (action){
       const result = yield effects.call(Api.fetchItem, action.payload);
-      yield effects.put(actions.saveItem(result));
+      yield put(actions.saveItem(result));
     },
-    fetchList: function* fetchList(action) {
+    fetchList: function* (action) {
       //yield put(actions.saveParams(action.payload))
       const result = yield effects.call(Api.fetchList, action.payload);
-      yield effects.put(actions.saveList(result));
+      yield put(actions.saveList(result));
     },
-    fetchSave: function* fetchSave(action){
+    fetchSave: function* (action){
       const result = yield effects.call(Api.fetchSave, action.payload);
-      yield effects.put(actions.saveItem(result));
+      yield put(actions.saveItem(result));
     },
-    fetchDelete: function* fetchDelete(action){
+    fetchDelete: function* (action){
       const result = yield effects.call(Api.fetchDelete, {ids:[].concat(action.payload)});
     }
   }
