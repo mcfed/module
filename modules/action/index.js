@@ -1,5 +1,8 @@
 import actionTypes from 'redux-types/src/action-types'
 import createAction from 'redux-actions/es/createAction'
+import EventEmitter from 'events'
+
+export const eventEmitter = new EventEmitter()
 
 export * from 'redux-actions'
 

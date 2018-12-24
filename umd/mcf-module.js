@@ -1,8 +1,10 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('redux-orm')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'redux-orm'], factory) :
-  (factory((global.module = {}),global.reduxOrm));
-}(this, (function (exports,reduxOrm) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('events')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'events'], factory) :
+  (factory((global.module = {}),global.EventEmitter));
+}(this, (function (exports,EventEmitter) { 'use strict';
+
+  EventEmitter = EventEmitter && EventEmitter.hasOwnProperty('default') ? EventEmitter['default'] : EventEmitter;
 
   const UniquenessErrorMessage = 'Args must be uniques !';
   const TypeErrorMessage = 'Arguments must be strings';
@@ -645,6 +647,7 @@
     };
   }
 
+  var eventEmitter = new EventEmitter();
   var defaultTypes = ["LIST_ACTION", //列表行为
   "SAVE_LIST", //保存列表
   "SAVE_ACTION", //保存行为
@@ -672,6 +675,7 @@
   }
 
   var index = /*#__PURE__*/Object.freeze({
+    eventEmitter: eventEmitter,
     defaultTypes: defaultTypes,
     actionCreator: actionCreator,
     createTypes: createTypes,
@@ -760,7 +764,7 @@
   }
 
   var index$1 = /*#__PURE__*/Object.freeze({
-    default: reducerActionCreator,
+    reducerActionCreator: reducerActionCreator,
     reducerCreator: handleActions
   });
 
@@ -1740,7 +1744,7 @@
 
   var takem = /*#__PURE__*/deprecate(take.maybe, /*#__PURE__*/updateIncentive('takem', 'take.maybe'));
 
-  function put$1(channel, action) {
+  function put(channel, action) {
     if (arguments.length > 1) {
       check(channel, is.notUndef, 'put(channel, action): argument channel is undefined');
       check(channel, is.channel, 'put(channel, action): argument ' + channel + ' is not a valid channel');
@@ -1753,13 +1757,13 @@
     return effect(PUT, { channel: channel, action: action });
   }
 
-  put$1.resolve = function () {
-    var eff = put$1.apply(undefined, arguments);
+  put.resolve = function () {
+    var eff = put.apply(undefined, arguments);
     eff[PUT].resolve = true;
     return eff;
   };
 
-  put$1.sync = /*#__PURE__*/deprecate(put$1.resolve, /*#__PURE__*/updateIncentive('put.sync', 'put.resolve'));
+  put.sync = /*#__PURE__*/deprecate(put.resolve, /*#__PURE__*/updateIncentive('put.sync', 'put.resolve'));
 
   function all(effects) {
     return effect(ALL, effects);
@@ -2209,10 +2213,10 @@
 
 
 
-  var effects$1 = /*#__PURE__*/Object.freeze({
+  var effects = /*#__PURE__*/Object.freeze({
     take: take,
     takem: takem,
-    put: put$1,
+    put: put,
     all: all,
     race: race,
     call: call,
@@ -2234,7 +2238,6 @@
   });
 
   function sagaCreator(actions, Api) {
-    // console.log(Object.)
     return {
       fetchItem:
       /*#__PURE__*/
@@ -2245,14 +2248,20 @@
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return effects.call(Api.fetchItem, action.payload);
+                return call(Api.fetchItem, action.payload);
 
               case 2:
                 result = _context.sent;
-                _context.next = 5;
-                return put(actions.saveItem(result));
 
-              case 5:
+                if (!(result.code === 0)) {
+                  _context.next = 6;
+                  break;
+                }
+
+                _context.next = 6;
+                return put(actions.saveItem(result.data));
+
+              case 6:
               case "end":
                 return _context.stop();
             }
@@ -2268,14 +2277,20 @@
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return effects.call(Api.fetchList, action.payload);
+                return call(Api.fetchList, action.payload);
 
               case 2:
                 result = _context2.sent;
-                _context2.next = 5;
-                return put(actions.saveList(result));
 
-              case 5:
+                if (!(result.code === 0)) {
+                  _context2.next = 6;
+                  break;
+                }
+
+                _context2.next = 6;
+                return put(actions.saveList(result.data));
+
+              case 6:
               case "end":
                 return _context2.stop();
             }
@@ -2291,14 +2306,20 @@
             switch (_context3.prev = _context3.next) {
               case 0:
                 _context3.next = 2;
-                return effects.call(Api.fetchSave, action.payload);
+                return call(Api.fetchSave, action.payload);
 
               case 2:
                 result = _context3.sent;
-                _context3.next = 5;
-                return put(actions.saveItem(result));
 
-              case 5:
+                if (!(result.code === 0)) {
+                  _context3.next = 6;
+                  break;
+                }
+
+                _context3.next = 6;
+                return put(actions.saveItem(result.data));
+
+              case 6:
               case "end":
                 return _context3.stop();
             }
@@ -2314,14 +2335,16 @@
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.next = 2;
-                return effects.call(Api.fetchDelete, {
+                return call(Api.fetchDelete, {
                   ids: [].concat(action.payload)
                 });
 
               case 2:
                 result = _context4.sent;
 
-              case 3:
+                if (result.code === 0) ;
+
+              case 4:
               case "end":
                 return _context4.stop();
             }
@@ -2332,37 +2355,16 @@
   }
 
   var index$2 = /*#__PURE__*/Object.freeze({
-    effects: effects$1,
+    effects: effects,
     sagaCreator: sagaCreator
   });
 
-  reduxOrm.ORM.prototype.getDatabase = function getDatabase() {
-    this.db = this.createDatabase(this.generateSchemaSpec());
-    return this.db;
-  };
+  // export * as model from './model'
+  // export * as router from './router'
 
-  var orm = new reduxOrm.ORM();
-  var session = orm.session(orm.getEmptyState());
-
-  var index$3 = /*#__PURE__*/Object.freeze({
-    orm: orm,
-    session: session,
-    default: orm,
-    ORM: reduxOrm.ORM,
-    createReducer: reduxOrm.createReducer
-  });
-
-
-
-  var index$4 = /*#__PURE__*/Object.freeze({
-
-  });
-
-  exports.actions = index;
-  exports.reducer = index$1;
-  exports.saga = index$2;
-  exports.model = index$3;
-  exports.router = index$4;
+  exports.moduleAction = index;
+  exports.moduleReducer = index$1;
+  exports.moduleSaga = index$2;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

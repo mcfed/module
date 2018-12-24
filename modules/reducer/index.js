@@ -1,6 +1,6 @@
 export { handleActions as reducerCreator } from 'redux-actions'
 
-export default function reducerActionCreator(actions){
+export  function reducerActionCreator(actions){
   const reducerAction={}
     reducerAction[actions.saveParams]=(state,{payload})=>{
       return {
