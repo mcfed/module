@@ -1,4 +1,4 @@
-import reducerActionCreator from '../index'
+import {reducerActionCreator} from '../index'
 
 describe("reducerActionCreator", () => {
   const actions={

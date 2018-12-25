@@ -1,41 +1,109 @@
 import EventEmitter from 'events';
 
-const UniquenessErrorMessage = 'Args must be uniques !';
-const TypeErrorMessage = 'Arguments must be strings';
-const ConstantsTypeErrorMessage = 'Constants must be an array';
-const NamespaceTypeErrorMessage = 'Namespace must be strings';
+function unwrapExports (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
+}
 
-const isString = arg => typeof arg === 'string' || arg instanceof String;
-const isArray = arg => Array.isArray(arg);
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
 
-const matchTypeOrThrow = (element, testFunction, message) => {
+var errors = createCommonjsModule(function (module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var UniquenessErrorMessage = exports.UniquenessErrorMessage = 'Args must be uniques !';
+var TypeErrorMessage = exports.TypeErrorMessage = 'Arguments must be strings';
+var ConstantsTypeErrorMessage = exports.ConstantsTypeErrorMessage = 'Constants must be an array';
+var NamespaceTypeErrorMessage = exports.NamespaceTypeErrorMessage = 'Namespace must be strings';
+
+});
+
+unwrapExports(errors);
+var errors_1 = errors.UniquenessErrorMessage;
+var errors_2 = errors.TypeErrorMessage;
+var errors_3 = errors.ConstantsTypeErrorMessage;
+var errors_4 = errors.NamespaceTypeErrorMessage;
+
+var typesTesters = createCommonjsModule(function (module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var isString = exports.isString = function isString(arg) {
+  return typeof arg === 'string' || arg instanceof String;
+};
+var isArray = exports.isArray = function isArray(arg) {
+  return Array.isArray(arg);
+};
+
+});
+
+unwrapExports(typesTesters);
+var typesTesters_1 = typesTesters.isString;
+var typesTesters_2 = typesTesters.isArray;
+
+var errorRaisers = createCommonjsModule(function (module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.raiseErrorIfNotUnique = exports.matchTypeOrThrow = undefined;
+
+
+
+var matchTypeOrThrow = exports.matchTypeOrThrow = function matchTypeOrThrow(element, testFunction, message) {
   if (!testFunction(element)) throw new Error(message);
 };
 
-const raiseErrorIfNotUnique = array => {
-  const hash = {};
-  let duplicate = false;
-  for (let i = 0; i < array.length && !duplicate; i++) {
+var raiseErrorIfNotUnique = exports.raiseErrorIfNotUnique = function raiseErrorIfNotUnique(array) {
+  var hash = {};
+  var duplicate = false;
+  for (var i = 0; i < array.length && !duplicate; i++) {
     if (hash[array[i]]) {
       duplicate = true;
     }
     hash[array[i]] = true;
   }
-  if (duplicate) throw new Error(UniquenessErrorMessage);
+  if (duplicate) throw new Error(errors.UniquenessErrorMessage);
 };
 
-const actionTypes = (namespace, constants) => {
-  matchTypeOrThrow(namespace, isString, NamespaceTypeErrorMessage);
-  matchTypeOrThrow(constants, isArray, ConstantsTypeErrorMessage);
-  raiseErrorIfNotUnique(constants);
-  return Object.freeze(
-    constants.reduce((obj, constant) => {
-      matchTypeOrThrow(constant, isString, TypeErrorMessage);
-      obj[constant] = `${namespace}/${constant}`;
-      return obj;
-    }, {}),
-  );
+});
+
+unwrapExports(errorRaisers);
+var errorRaisers_1 = errorRaisers.raiseErrorIfNotUnique;
+var errorRaisers_2 = errorRaisers.matchTypeOrThrow;
+
+var actionTypes_1 = createCommonjsModule(function (module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+
+
+
+
+
+
+var actionTypes = function actionTypes(namespace, constants) {
+  (0, errorRaisers.matchTypeOrThrow)(namespace, typesTesters.isString, errors.NamespaceTypeErrorMessage);
+  (0, errorRaisers.matchTypeOrThrow)(constants, typesTesters.isArray, errors.ConstantsTypeErrorMessage);
+  (0, errorRaisers.raiseErrorIfNotUnique)(constants);
+  return Object.freeze(constants.reduce(function (obj, constant) {
+    (0, errorRaisers.matchTypeOrThrow)(constant, typesTesters.isString, errors.TypeErrorMessage);
+    obj[constant] = namespace + '/' + constant;
+    return obj;
+  }, {}));
 };
+exports.default = actionTypes;
+
+});
+
+unwrapExports(actionTypes_1);
+
+var reduxTypes = actionTypes_1;
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -91,6 +159,51 @@ var isFunction = (function (value) {
   return typeof value === 'function';
 });
 
+var isSymbol = (function (value) {
+  return typeof value === 'symbol' || typeof value === 'object' && Object.prototype.toString.call(value) === '[object Symbol]';
+});
+
+var isEmpty = (function (value) {
+  return value.length === 0;
+});
+
+var toString = (function (value) {
+  return value.toString();
+});
+
+var isString = (function (value) {
+  return typeof value === 'string';
+});
+
+var DEFAULT_NAMESPACE = '/';
+var ACTION_TYPE_DELIMITER = '||';
+
+function isValidActionType(type) {
+  return isString(type) || isFunction(type) || isSymbol(type);
+}
+
+function isValidActionTypes(types) {
+  if (isEmpty(types)) {
+    return false;
+  }
+
+  return types.every(isValidActionType);
+}
+
+function combineActions() {
+  for (var _len = arguments.length, actionsTypes = new Array(_len), _key = 0; _key < _len; _key++) {
+    actionsTypes[_key] = arguments[_key];
+  }
+
+  invariant_1(isValidActionTypes(actionsTypes), 'Expected action types to be strings, symbols, or action creators');
+  var combinedActionType = actionsTypes.map(toString).join(ACTION_TYPE_DELIMITER);
+  return {
+    toString: function toString$$1() {
+      return combinedActionType;
+    }
+  };
+}
+
 var identity = (function (value) {
   return value;
 });
@@ -143,51 +256,6 @@ function createAction(type, payloadCreator, metaCreator) {
   return actionCreator;
 }
 
-var isSymbol = (function (value) {
-  return typeof value === 'symbol' || typeof value === 'object' && Object.prototype.toString.call(value) === '[object Symbol]';
-});
-
-var isEmpty = (function (value) {
-  return value.length === 0;
-});
-
-var toString = (function (value) {
-  return value.toString();
-});
-
-var isString$1 = (function (value) {
-  return typeof value === 'string';
-});
-
-var DEFAULT_NAMESPACE = '/';
-var ACTION_TYPE_DELIMITER = '||';
-
-function isValidActionType(type) {
-  return isString$1(type) || isFunction(type) || isSymbol(type);
-}
-
-function isValidActionTypes(types) {
-  if (isEmpty(types)) {
-    return false;
-  }
-
-  return types.every(isValidActionType);
-}
-
-function combineActions() {
-  for (var _len = arguments.length, actionsTypes = new Array(_len), _key = 0; _key < _len; _key++) {
-    actionsTypes[_key] = arguments[_key];
-  }
-
-  invariant_1(isValidActionTypes(actionsTypes), 'Expected action types to be strings, symbols, or action creators');
-  var combinedActionType = actionsTypes.map(toString).join(ACTION_TYPE_DELIMITER);
-  return {
-    toString: function toString$$1() {
-      return combinedActionType;
-    }
-  };
-}
-
 var isPlainObject = (function (value) {
   if (typeof value !== 'object' || value === null) return false;
   var proto = value;
@@ -199,7 +267,7 @@ var isPlainObject = (function (value) {
   return Object.getPrototypeOf(value) === proto;
 });
 
-var isArray$1 = (function (value) {
+var isArray = (function (value) {
   return Array.isArray(value);
 });
 
@@ -452,9 +520,9 @@ function createActions(actionMap) {
   }
 
   var options = isPlainObject(getLastElement(identityActions)) ? identityActions.pop() : {};
-  invariant_1(identityActions.every(isString$1) && (isString$1(actionMap) || isPlainObject(actionMap)), 'Expected optional object followed by string action types');
+  invariant_1(identityActions.every(isString) && (isString(actionMap) || isPlainObject(actionMap)), 'Expected optional object followed by string action types');
 
-  if (isString$1(actionMap)) {
+  if (isString(actionMap)) {
     return actionCreatorsFromIdentityActions([actionMap].concat(identityActions), options);
   }
 
@@ -478,7 +546,7 @@ function actionMapToActionCreators(actionMap, _temp) {
       return true;
     }
 
-    if (isArray$1(actionMapValue)) {
+    if (isArray(actionMapValue)) {
       var _actionMapValue$ = actionMapValue[0],
           payload = _actionMapValue$ === void 0 ? identity : _actionMapValue$,
           meta = actionMapValue[1];
@@ -494,7 +562,7 @@ function actionMapToActionCreators(actionMap, _temp) {
     var actionMapValue = actionMap[type];
     invariant_1(isValidActionMapValue(actionMapValue), 'Expected function, undefined, null, or array with payload and meta ' + ("functions for " + type));
     var prefixedType = prefix ? "" + prefix + namespace + type : type;
-    var actionCreator = isArray$1(actionMapValue) ? createAction.apply(void 0, [prefixedType].concat(actionMapValue)) : createAction(prefixedType, actionMapValue);
+    var actionCreator = isArray(actionMapValue) ? createAction.apply(void 0, [prefixedType].concat(actionMapValue)) : createAction(prefixedType, actionMapValue);
     return _objectSpread({}, partialActionCreators, (_objectSpread2 = {}, _objectSpread2[type] = actionCreator, _objectSpread2));
   });
 }
@@ -654,44 +722,49 @@ function handleActions(handlers, defaultState, options) {
   };
 }
 
-var eventEmitter = new EventEmitter();
+var actionEmitter = new EventEmitter();
 var defaultTypes = ["LIST_ACTION", //列表行为
 "SAVE_LIST", //保存列表
 "SAVE_ACTION", //保存行为
 "SAVE_ITEM", //保存单一数据
 "DELETE_ACTION", //删除行为
 "DELETE_ITEM", //删除数据
-"ITEM_ACTION", //获取信息
-"SAVE_PARAMS" //保存参数
+"ITEM_ACTION" //获取信息
 ];
 function actionCreator(TYPES) {
-  var result = {
-    listAction: createAction(TYPES.LIST_ACTION),
-    saveList: createAction(TYPES.SAVE_LIST),
-    itemAction: createAction(TYPES.ITEM_ACTION),
-    saveAction: createAction(TYPES.SAVE_ACTION),
-    saveItem: createAction(TYPES.SAVE_ITEM),
-    deleteAction: createAction(TYPES.DELETE_ACTION),
-    deleteItem: createAction(TYPES.DELETE_ITEM),
-    saveParams: createAction(TYPES.SAVE_PARAMS)
-  };
-  return result;
+  var object = Object.create({});
+
+  for (var key in TYPES) {
+    object[TYPES[key]] = createAction(TYPES[key]);
+  }
+
+  return object;
 }
-function createTypes(namespece, typesArray) {
-  return actionTypes(namespece, typesArray);
+function createTypes(namespace, typesArray) {
+  console.log(reduxTypes);
+  return reduxTypes.default(namespace, typesArray);
+}
+function typesCreator(namespace, typesArray) {
+  console.log(reduxTypes);
+  return reduxTypes.default(namespace, typesArray);
+}
+function actionsTypeCreator(namespace, typesArray) {
+  return actionCreator(reduxTypes(namespace, typesArray));
 }
 
 var index = /*#__PURE__*/Object.freeze({
-  eventEmitter: eventEmitter,
-  defaultTypes: defaultTypes,
-  actionCreator: actionCreator,
-  createTypes: createTypes,
-  combineActions: combineActions,
-  createAction: createAction,
-  createActions: createActions,
-  createCurriedAction: createCurriedAction,
-  handleAction: handleAction,
-  handleActions: handleActions
+	actionEmitter: actionEmitter,
+	defaultTypes: defaultTypes,
+	actionCreator: actionCreator,
+	createTypes: createTypes,
+	typesCreator: typesCreator,
+	actionsTypeCreator: actionsTypeCreator,
+	combineActions: combineActions,
+	createAction: createAction,
+	createActions: createActions,
+	createCurriedAction: createCurriedAction,
+	handleAction: handleAction,
+	handleActions: handleActions
 });
 
 function _defineProperty$1(obj, key, value) {
@@ -741,7 +814,8 @@ var defaultState = {
     current: 1
   }
 };
-function reducerActionCreator(actions) {
+function reducerActionCreator(actions, TYPES) {
+  console.log(TYPES.SAVE_LIST);
   var reducerAction = {};
 
   reducerAction[actions.saveParams] = function (state, _ref) {
@@ -752,7 +826,7 @@ function reducerActionCreator(actions) {
   }; //保存列表数据和分页信息
 
 
-  reducerAction[actions.saveList] = function (state, _ref2) {
+  reducerAction[TYPES.SAVE_LIST] = function (state, _ref2) {
     var payload = _ref2.payload;
     return objectSpread({}, state, {
       items: payload.items,
@@ -780,14 +854,10 @@ function reducerActionCreator(actions) {
 }
 
 var index$1 = /*#__PURE__*/Object.freeze({
-  defaultState: defaultState,
-  reducerActionCreator: reducerActionCreator,
-  reducerCreator: handleActions
+	defaultState: defaultState,
+	reducerActionCreator: reducerActionCreator,
+	reducerCreator: handleActions
 });
-
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
 
 var runtime = createCommonjsModule(function (module) {
 /**
@@ -2233,30 +2303,30 @@ function throttle$2(ms, pattern, worker) {
 
 
 var effects = /*#__PURE__*/Object.freeze({
-  take: take,
-  takem: takem,
-  put: put,
-  all: all,
-  race: race,
-  call: call,
-  apply: apply,
-  cps: cps,
-  fork: fork,
-  spawn: spawn,
-  join: join,
-  cancel: cancel,
-  select: select,
-  actionChannel: actionChannel,
-  cancelled: cancelled,
-  flush: flush,
-  getContext: getContext,
-  setContext: setContext,
-  takeEvery: takeEvery$2,
-  takeLatest: takeLatest$2,
-  throttle: throttle$2
+	take: take,
+	takem: takem,
+	put: put,
+	all: all,
+	race: race,
+	call: call,
+	apply: apply,
+	cps: cps,
+	fork: fork,
+	spawn: spawn,
+	join: join,
+	cancel: cancel,
+	select: select,
+	actionChannel: actionChannel,
+	cancelled: cancelled,
+	flush: flush,
+	getContext: getContext,
+	setContext: setContext,
+	takeEvery: takeEvery$2,
+	takeLatest: takeLatest$2,
+	throttle: throttle$2
 });
 
-function sagaCreator(actions, Api) {
+function sagaCreator(actions, Api, types, emitter) {
   return {
     fetchItem:
     /*#__PURE__*/
@@ -2273,7 +2343,7 @@ function sagaCreator(actions, Api) {
               result = _context.sent;
 
               if (!(result.code === 0)) {
-                _context.next = 6;
+                _context.next = 9;
                 break;
               }
 
@@ -2281,6 +2351,14 @@ function sagaCreator(actions, Api) {
               return put(actions.saveItem(result.data));
 
             case 6:
+              emitter.emit('success', result.code);
+              _context.next = 10;
+              break;
+
+            case 9:
+              emitter.emit('fail', result.code);
+
+            case 10:
             case "end":
               return _context.stop();
           }
@@ -2302,14 +2380,22 @@ function sagaCreator(actions, Api) {
               result = _context2.sent;
 
               if (!(result.code === 0)) {
-                _context2.next = 6;
+                _context2.next = 9;
                 break;
               }
 
               _context2.next = 6;
-              return put(actions.saveList(result.data));
+              return put(actions[types.SAVE_LIST](result.data));
 
             case 6:
+              emitter.emit('success', result.code);
+              _context2.next = 10;
+              break;
+
+            case 9:
+              emitter.emit('fail', result.code);
+
+            case 10:
             case "end":
               return _context2.stop();
           }
@@ -2331,7 +2417,7 @@ function sagaCreator(actions, Api) {
               result = _context3.sent;
 
               if (!(result.code === 0)) {
-                _context3.next = 6;
+                _context3.next = 9;
                 break;
               }
 
@@ -2339,6 +2425,14 @@ function sagaCreator(actions, Api) {
               return put(actions.saveItem(result.data));
 
             case 6:
+              emitter.emit('success', result.code);
+              _context3.next = 10;
+              break;
+
+            case 9:
+              emitter.emit('fail', result.code);
+
+            case 10:
             case "end":
               return _context3.stop();
           }
@@ -2361,7 +2455,11 @@ function sagaCreator(actions, Api) {
             case 2:
               result = _context4.sent;
 
-              if (result.code === 0) ;
+              if (result.code === 0) {
+                emitter.emit('success', result.code);
+              } else {
+                emitter.emit('fail', result.code);
+              }
 
             case 4:
             case "end":
@@ -2374,8 +2472,8 @@ function sagaCreator(actions, Api) {
 }
 
 var index$2 = /*#__PURE__*/Object.freeze({
-  effects: effects,
-  sagaCreator: sagaCreator
+	effects: effects,
+	sagaCreator: sagaCreator
 });
 
 // export * as model from './model'
