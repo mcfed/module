@@ -2256,7 +2256,7 @@ var effects = /*#__PURE__*/Object.freeze({
   throttle: throttle$2
 });
 
-function sagaCreator(actions, Api) {
+function sagaCreator(actions, Api, emitter) {
   return {
     fetchItem:
     /*#__PURE__*/
@@ -2273,7 +2273,7 @@ function sagaCreator(actions, Api) {
               result = _context.sent;
 
               if (!(result.code === 0)) {
-                _context.next = 6;
+                _context.next = 9;
                 break;
               }
 
@@ -2281,6 +2281,14 @@ function sagaCreator(actions, Api) {
               return put(actions.saveItem(result.data));
 
             case 6:
+              emitter.emit('success', result.code);
+              _context.next = 10;
+              break;
+
+            case 9:
+              emitter.emit('message', result.code);
+
+            case 10:
             case "end":
               return _context.stop();
           }
@@ -2302,7 +2310,7 @@ function sagaCreator(actions, Api) {
               result = _context2.sent;
 
               if (!(result.code === 0)) {
-                _context2.next = 6;
+                _context2.next = 9;
                 break;
               }
 
@@ -2310,6 +2318,14 @@ function sagaCreator(actions, Api) {
               return put(actions.saveList(result.data));
 
             case 6:
+              emitter.emit('success', result.code);
+              _context2.next = 10;
+              break;
+
+            case 9:
+              emitter.emit('message', result.code);
+
+            case 10:
             case "end":
               return _context2.stop();
           }
@@ -2331,7 +2347,7 @@ function sagaCreator(actions, Api) {
               result = _context3.sent;
 
               if (!(result.code === 0)) {
-                _context3.next = 6;
+                _context3.next = 9;
                 break;
               }
 
@@ -2339,6 +2355,14 @@ function sagaCreator(actions, Api) {
               return put(actions.saveItem(result.data));
 
             case 6:
+              emitter.emit('success', result.code);
+              _context3.next = 10;
+              break;
+
+            case 9:
+              emitter.emit('message', result.code);
+
+            case 10:
             case "end":
               return _context3.stop();
           }
@@ -2361,7 +2385,11 @@ function sagaCreator(actions, Api) {
             case 2:
               result = _context4.sent;
 
-              if (result.code === 0) ;
+              if (result.code === 0) {
+                emitter.emit('success', result.code);
+              } else {
+                emitter.emit('message', result.code);
+              }
 
             case 4:
             case "end":
