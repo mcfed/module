@@ -1,15 +1,15 @@
 import * as effects from 'redux-saga/effects'
 export * as effects from 'redux-saga/effects'
 
-export function sagaCreator(actions,Api,emitter){
+export  function sagaCreator(actions,Api,emitter){
   return {
     fetchItem: function* (action){
       const result = yield effects.call(Api.fetchItem, action.payload);
       if(result.code === 0){
         yield effects.put(actions.saveItem(result.data));
-        emitter.emit('message',result.code)
+        emitter.emit('success', result.code)
       }else{
-        emitter.emit('message', result.code)
+        emitter.emit('fail', result.code)
       }
     },
     fetchList: function* (action) {
@@ -17,9 +17,9 @@ export function sagaCreator(actions,Api,emitter){
       const result = yield effects.call(Api.fetchList, action.payload);
       if(result.code === 0){
         yield effects.put(actions.saveList(result.data));
-        emitter.emit('message',result.code)
+        emitter.emit('success', result.code)
       }else{
-        emitter.emit('message', result.code)
+        emitter.emit('fail',result.code)
       }
     },
     fetchSave: function* (action){
@@ -27,17 +27,17 @@ export function sagaCreator(actions,Api,emitter){
 
       if(result.code === 0){
         yield effects.put(actions.saveItem(result.data));
-        emitter.emit('message',result.code)
+        emitter.emit('success', result.code)
       }else{
-        emitter.emit('message', result.code)
+        emitter.emit('fail',result.code)
       }
     },
     fetchDelete: function* (action){
       const result = yield effects.call(Api.fetchDelete, {ids:[].concat(action.payload)});
       if(result.code === 0){
-        emitter.emit('message',result.code)
+        emitter.emit('success', result.code)
       }else{
-        emitter.emit('message', result.code)
+        emitter.emit('fail',result.code)
       }
     }
   }
