@@ -22,13 +22,10 @@ export function actionCreator(TYPES){
 }
 
 export function createTypes(namespace,typesArray){
-  console.log(actionTypes)
   return actionTypes.default(namespace,typesArray)
 }
 
 export function typesCreator(namespace,typesArray){
-
-  console.log(actionTypes)
   return actionTypes.default(namespace,typesArray)
 }
 

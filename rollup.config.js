@@ -11,7 +11,6 @@ const input = "./modules/index"
 
 const globals = {
   react: "React",
-  "react-is":"isValidElementType",
   "prop-types":"PropTypes"
 };
 const babelOptionsCJS = {
@@ -23,7 +22,10 @@ const babelOptionsESM = {
   plugins: [["@babel/transform-runtime", { useESModules: false }]]
 };
 const commonjsOptions = {
-  include: /node_modules/
+  // include: /node_modules/
+  namedExports: {
+     "node_modules/react-redux/node_modules/react-is/index.js": ["isValidElementType"]
+  }
 };
 const external = id => !id.startsWith(".") && !id.startsWith("\/");
 
