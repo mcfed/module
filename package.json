@@ -46,7 +46,7 @@
     "prop-types": "^15.6.2",
     "react": "^16.0.0",
     "react-dom": "16.0.0",
-    "react-redux": "^6.0.0",
+    "react-redux": "5.1.0",
     "redux": "^4.0.1",
     "redux-actions": "^2.6.4",
     "redux-orm": "^0.12.2",
