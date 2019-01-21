@@ -19,6 +19,20 @@ export function actionCreator(TYPES){
     object[TYPES[key]]=createAction(TYPES[key])
   }
   return object
+  /*
+  const result={
+    listAction:createAction(TYPES.LIST_ACTION),
+    saveList:createAction(TYPES.SAVE_LIST),
+    itemAction:createAction(TYPES.ITEM_ACTION),
+    saveAction:createAction(TYPES.SAVE_ACTION),
+    saveItem:createAction(TYPES.SAVE_ITEM),
+    deleteAction:createAction(TYPES.DELETE_ACTION),
+    deleteItem:createAction(TYPES.DELETE_ITEM),
+    // saveParams:createAction(TYPES.SAVE_PARAMS)
+  }
+
+  return result
+  */
 }
 
 export function createTypes(namespace,typesArray){
@@ -30,5 +44,5 @@ export function typesCreator(namespace,typesArray){
 }
 
 export function actionsTypeCreator(namespace,typesArray){
-  return actionCreator(actionTypes(namespace,typesArray))
+  return actionCreator(typesCreator(namespace,typesArray))
 }

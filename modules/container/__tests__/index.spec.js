@@ -12,7 +12,7 @@ describe("ModuleContainer", () => {
   const defaultMapDispatchToProps=function(state,ownProp){
       return {}
   }
-  it('ModuleContainer connectContainer',(done)=>{
+  it.skip('ModuleContainer connectContainer',(done)=>{
     done()
     expect(ModuleContainer.connectContainer(defaultMapStateToProps,defaultMapDispatchToProps)(component))
   })

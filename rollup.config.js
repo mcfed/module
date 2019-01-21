@@ -24,7 +24,7 @@ const babelOptionsESM = {
 const commonjsOptions = {
   // include: /node_modules/
   namedExports: {
-     "node_modules/react-redux/node_modules/react-is/index.js": ["isValidElementType"]
+     "node_modules/react-is/index.js": ["isValidElementType"]
   }
 };
 const external = id => !id.startsWith(".") && !id.startsWith("\/");

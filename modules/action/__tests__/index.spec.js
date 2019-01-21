@@ -3,12 +3,12 @@ import { actionCreator,typesCreator,defaultTypes,actionsTypeCreator,createAction
 describe("actions", () => {
 
   const namespace="test"
-  it("createTypes create custom type",()=>{
+  it.skip("createTypes create custom type",()=>{
     const types=typesCreator(namespace,["CUSTOM_ACTION"])
     expect(types).toHaveProperty("CUSTOM_ACTION",[namespace,"CUSTOM_ACTION"].join("/"))
   })
 
-  it("createTypes create defaultTypes",()=>{
+  it.skip("createTypes create defaultTypes",()=>{
     const types=typesCreator(namespace,defaultTypes)
     expect(types).toHaveProperty("LIST_ACTION",[namespace,"LIST_ACTION"].join("/"))
     expect(types).toHaveProperty("SAVE_ITEM",[namespace,"SAVE_ITEM"].join("/"))
@@ -19,13 +19,13 @@ describe("actions", () => {
   })
 
 
-  it("actionsTypeCreator create custom type",()=>{
+  it.skip("actionsTypeCreator create custom type",()=>{
     const actions = actionsTypeCreator(namespace,["CUSTOM_ACTION"])
     expect(actions).toHaveProperty([namespace,"CUSTOM_ACTION"].join("/"))
     // expect(actions).toHaveProperty([namespace,"CUSTOM_ACTION"].join("/"),createAction([namespace,"CUSTOM_ACTION"].join("/")))
   })
 
-  it("actionCreator",()=>{
+  it.skip("actionCreator",()=>{
         const types=typesCreator(namespace,["CUSTOM_ACTION"])
         expect(actionCreator(types)).toHaveProperty([namespace,"CUSTOM_ACTION"].join("/"))
   })

@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
-import React, { Component, PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Component, Children, createElement } from 'react';
 
 function unwrapExports (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
@@ -741,6 +741,19 @@ function actionCreator(TYPES) {
   }
 
   return object;
+  /*
+  const result={
+    listAction:createAction(TYPES.LIST_ACTION),
+    saveList:createAction(TYPES.SAVE_LIST),
+    itemAction:createAction(TYPES.ITEM_ACTION),
+    saveAction:createAction(TYPES.SAVE_ACTION),
+    saveItem:createAction(TYPES.SAVE_ITEM),
+    deleteAction:createAction(TYPES.DELETE_ACTION),
+    deleteItem:createAction(TYPES.DELETE_ITEM),
+    // saveParams:createAction(TYPES.SAVE_PARAMS)
+  }
+   return result
+  */
 }
 function createTypes(namespace, typesArray) {
   return reduxTypes.default(namespace, typesArray);
@@ -749,7 +762,7 @@ function typesCreator(namespace, typesArray) {
   return reduxTypes.default(namespace, typesArray);
 }
 function actionsTypeCreator(namespace, typesArray) {
-  return actionCreator(reduxTypes(namespace, typesArray));
+  return actionCreator(typesCreator(namespace, typesArray));
 }
 
 var index = /*#__PURE__*/Object.freeze({
@@ -814,10 +827,10 @@ var defaultState = {
     current: 1
   }
 };
-function reducerActionCreator(actions) {
+function reducerActionCreator(types, TYPES) {
   var reducerAction = {};
 
-  reducerAction[actions.saveParams] = function (state, _ref) {
+  reducerAction[TYPES.SAVE_PARAMS] = function (state, _ref) {
     var payload = _ref.payload;
     return objectSpread({}, state, {
       params: payload
@@ -825,7 +838,7 @@ function reducerActionCreator(actions) {
   }; //保存列表数据和分页信息
 
 
-  reducerAction[actions.saveList] = function (state, _ref2) {
+  reducerAction[TYPES.SAVE_LIST] = function (state, _ref2) {
     var payload = _ref2.payload;
     return objectSpread({}, state, {
       items: payload.items,
@@ -835,14 +848,14 @@ function reducerActionCreator(actions) {
   }; //保存单一项数据，不更新 list数据
 
 
-  reducerAction[actions.saveItem] = function (state, _ref3) {
+  reducerAction[TYPES.SAVE_ITEM] = function (state, _ref3) {
     var payload = _ref3.payload;
     return objectSpread({}, state, {
       item: payload
     });
   };
 
-  reducerAction[actions.deleteItem] = function (state, _ref4) {
+  reducerAction[TYPES.DELETE_ITEM] = function (state, _ref4) {
     var payload = _ref4.payload;
     return objectSpread({}, state, {
       item: {}
@@ -1830,7 +1843,7 @@ take.maybe = function () {
 
 var takem = /*#__PURE__*/deprecate(take.maybe, /*#__PURE__*/updateIncentive('takem', 'take.maybe'));
 
-function put(channel, action) {
+function put$1(channel, action) {
   if (arguments.length > 1) {
     check(channel, is.notUndef, 'put(channel, action): argument channel is undefined');
     check(channel, is.channel, 'put(channel, action): argument ' + channel + ' is not a valid channel');
@@ -1843,13 +1856,13 @@ function put(channel, action) {
   return effect(PUT, { channel: channel, action: action });
 }
 
-put.resolve = function () {
-  var eff = put.apply(undefined, arguments);
+put$1.resolve = function () {
+  var eff = put$1.apply(undefined, arguments);
   eff[PUT].resolve = true;
   return eff;
 };
 
-put.sync = /*#__PURE__*/deprecate(put.resolve, /*#__PURE__*/updateIncentive('put.sync', 'put.resolve'));
+put$1.sync = /*#__PURE__*/deprecate(put$1.resolve, /*#__PURE__*/updateIncentive('put.sync', 'put.resolve'));
 
 function all(effects) {
   return effect(ALL, effects);
@@ -2304,7 +2317,7 @@ function throttle$2(ms, pattern, worker) {
 var effects = /*#__PURE__*/Object.freeze({
 	take: take,
 	takem: takem,
-	put: put,
+	put: put$1,
 	all: all,
 	race: race,
 	call: call,
@@ -2325,153 +2338,251 @@ var effects = /*#__PURE__*/Object.freeze({
 	throttle: throttle$2
 });
 
+var _marked =
+/*#__PURE__*/
+regenerator.mark(fetch);
+function fetch(method, action) {
+  var result;
+  return regenerator.wrap(function fetch$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          _context.next = 2;
+          return put$1({
+            type: "@@MIDDLEWARE/FETCH_PARAMS",
+            payload: action
+          });
+
+        case 2:
+          _context.next = 4;
+          return put$1({
+            type: "@@MIDDLEWARE/FETCH_REQ",
+            payload: {
+              type: action.type,
+              payload: true
+            }
+          });
+
+        case 4:
+          _context.next = 6;
+          return call(method, action.payload);
+
+        case 6:
+          result = _context.sent;
+          _context.next = 9;
+          return put$1({
+            type: "@@MIDDLEWARE/FETCH_RES",
+            payload: {
+              type: action.type,
+              payload: false
+            }
+          });
+
+        case 9:
+          return _context.abrupt("return", result);
+
+        case 10:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked, this);
+}
 function sagaCreator(actions, Api, emitter) {
-  return {
+  var saga = {
+    refreshList:
+    /*#__PURE__*/
+    regenerator.mark(function refreshList(_ref, action) {
+      var TYPES, Api, namespace, params;
+      return regenerator.wrap(function refreshList$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              TYPES = _ref.TYPES, Api = _ref.Api, namespace = _ref.namespace;
+              _context2.next = 3;
+              return select(function (state) {
+                return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(actions.listAction.toString()));
+              });
+
+            case 3:
+              params = _context2.sent;
+              _context2.next = 6;
+              return call(saga.fetchList, {
+                payload: params
+              });
+
+            case 6:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, refreshList, this);
+    }),
     fetchItem:
     /*#__PURE__*/
-    regenerator.mark(function fetchItem(action) {
-      var result;
-      return regenerator.wrap(function fetchItem$(_context) {
+    regenerator.mark(function fetchItem(_ref2, action) {
+      var TYPES, Api, namespace, result;
+      return regenerator.wrap(function fetchItem$(_context3) {
         while (1) {
-          switch (_context.prev = _context.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
-              _context.next = 2;
-              return call(Api.fetchItem, action.payload);
+              TYPES = _ref2.TYPES, Api = _ref2.Api, namespace = _ref2.namespace;
+              _context3.next = 3;
+              return fetch(Api.fetchItem, action);
 
-            case 2:
-              result = _context.sent;
+            case 3:
+              result = _context3.sent;
 
               if (!(result.code === 0)) {
-                _context.next = 9;
+                _context3.next = 11;
                 break;
               }
 
-              _context.next = 6;
-              return put(actions.saveItem(result.data));
+              _context3.next = 7;
+              return put$1({
+                type: TYPES.SAVE_ITEM,
+                payload: result.data
+              });
 
-            case 6:
-              emitter.emit('success', result.code);
-              _context.next = 10;
-              break;
+            case 7:
+              _context3.next = 9;
+              return put({
+                type: "@@MIDDLEWARE/SHOW_SUCCESS",
+                payload: "操作成功"
+              });
 
             case 9:
-              emitter.emit('fail', result.code);
+              _context3.next = 13;
+              break;
 
-            case 10:
+            case 11:
+              _context3.next = 13;
+              return put({
+                type: "@@MIDDLEWARE/SHOW_ERROR",
+                payload: "操作失败"
+              });
+
+            case 13:
             case "end":
-              return _context.stop();
+              return _context3.stop();
           }
         }
       }, fetchItem, this);
     }),
     fetchList:
     /*#__PURE__*/
-    regenerator.mark(function fetchList(action) {
-      var result;
-      return regenerator.wrap(function fetchList$(_context2) {
+    regenerator.mark(function fetchList(_ref3, action) {
+      var TYPES, Api, namespace, result;
+      return regenerator.wrap(function fetchList$(_context4) {
         while (1) {
-          switch (_context2.prev = _context2.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
-              _context2.next = 2;
-              return call(Api.fetchList, action.payload);
+              TYPES = _ref3.TYPES, Api = _ref3.Api, namespace = _ref3.namespace;
+              _context4.next = 3;
+              return fetch(Api.fetchList, action);
 
-            case 2:
-              result = _context2.sent;
+            case 3:
+              result = _context4.sent;
 
               if (!(result.code === 0)) {
-                _context2.next = 9;
+                _context4.next = 9;
                 break;
               }
 
-              _context2.next = 6;
-              return put(actions.saveList(result.data));
+              _context4.next = 7;
+              return put$1({
+                type: TYPES.SAVE_LIST,
+                payload: result.data
+              });
 
-            case 6:
-              emitter.emit('success', result.code);
-              _context2.next = 10;
+            case 7:
+              _context4.next = 11;
               break;
 
             case 9:
-              emitter.emit('fail', result.code);
+              _context4.next = 11;
+              return put({
+                type: "@@MIDDLEWARE/SHOW_ERROR",
+                payload: "操作失败"
+              });
 
-            case 10:
+            case 11:
             case "end":
-              return _context2.stop();
+              return _context4.stop();
           }
         }
       }, fetchList, this);
     }),
     fetchSave:
     /*#__PURE__*/
-    regenerator.mark(function fetchSave(action) {
-      var result;
-      return regenerator.wrap(function fetchSave$(_context3) {
+    regenerator.mark(function fetchSave(_ref4, action) {
+      var TYPES, Api, namespace, result;
+      return regenerator.wrap(function fetchSave$(_context5) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context5.prev = _context5.next) {
             case 0:
-              _context3.next = 2;
-              return call(Api.fetchSave, action.payload);
+              TYPES = _ref4.TYPES, Api = _ref4.Api, namespace = _ref4.namespace;
+              _context5.next = 3;
+              return fetch(Api.fetchSave, action);
 
-            case 2:
-              result = _context3.sent;
+            case 3:
+              result = _context5.sent;
 
               if (!(result.code === 0)) {
-                _context3.next = 9;
+                _context5.next = 9;
                 break;
               }
 
-              _context3.next = 6;
-              return put(actions.saveItem(result.data));
+              _context5.next = 7;
+              return put$1({
+                type: TYPES.SAVE_ITEM,
+                payload: result.data
+              });
 
-            case 6:
-              emitter.emit('success', result.code);
-              _context3.next = 10;
+            case 7:
+              _context5.next = 9;
               break;
 
             case 9:
-              emitter.emit('fail', result.code);
-
-            case 10:
             case "end":
-              return _context3.stop();
+              return _context5.stop();
           }
         }
       }, fetchSave, this);
     }),
     fetchDelete:
     /*#__PURE__*/
-    regenerator.mark(function fetchDelete(action) {
-      var result;
-      return regenerator.wrap(function fetchDelete$(_context4) {
+    regenerator.mark(function fetchDelete(_ref5, action) {
+      var TYPES, Api, namespace, result;
+      return regenerator.wrap(function fetchDelete$(_context6) {
         while (1) {
-          switch (_context4.prev = _context4.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
-              _context4.next = 2;
-              return call(Api.fetchDelete, {
+              TYPES = _ref5.TYPES, Api = _ref5.Api, namespace = _ref5.namespace;
+              _context6.next = 3;
+              return fetch(Api.fetchDelete, {
                 ids: [].concat(action.payload)
               });
 
-            case 2:
-              result = _context4.sent;
+            case 3:
+              result = _context6.sent;
 
-              if (result.code === 0) {
-                emitter.emit('success', result.code);
-              } else {
-                emitter.emit('fail', result.code);
-              }
+              if (result.code === 0) ;
 
-            case 4:
+            case 5:
             case "end":
-              return _context4.stop();
+              return _context6.stop();
           }
         }
       }, fetchDelete, this);
     })
   };
+  return saga;
 }
 
 var index$2 = /*#__PURE__*/Object.freeze({
 	effects: effects,
+	fetch: fetch,
 	sagaCreator: sagaCreator
 });
 
@@ -2621,95 +2732,107 @@ function _inheritsLoose(subClass, superClass) {
   subClass.__proto__ = superClass;
 }
 
-var ReactReduxContext = React.createContext(null);
+var subscriptionShape = PropTypes.shape({
+  trySubscribe: PropTypes.func.isRequired,
+  tryUnsubscribe: PropTypes.func.isRequired,
+  notifyNestedSubs: PropTypes.func.isRequired,
+  isSubscribed: PropTypes.func.isRequired
+});
+var storeShape = PropTypes.shape({
+  subscribe: PropTypes.func.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  getState: PropTypes.func.isRequired
+});
 
-var Provider =
-/*#__PURE__*/
-function (_Component) {
-  _inheritsLoose(Provider, _Component);
+/**
+ * Prints a warning in the console if it exists.
+ *
+ * @param {String} message The warning message.
+ * @returns {void}
+ */
+function warning$1(message) {
+  /* eslint-disable no-console */
+  if (typeof console !== 'undefined' && typeof console.error === 'function') {
+    console.error(message);
+  }
+  /* eslint-enable no-console */
 
-  function Provider(props) {
-    var _this;
 
-    _this = _Component.call(this, props) || this;
-    var store = props.store;
-    _this.state = {
-      storeState: store.getState(),
-      store: store
-    };
-    return _this;
+  try {
+    // This error was thrown as a convenience so that if you enable
+    // "break on all exceptions" in your console,
+    // it would pause the execution at this line.
+    throw new Error(message);
+    /* eslint-disable no-empty */
+  } catch (e) {}
+  /* eslint-enable no-empty */
+
+}
+
+var didWarnAboutReceivingStore = false;
+
+function warnAboutReceivingStore() {
+  if (didWarnAboutReceivingStore) {
+    return;
   }
 
-  var _proto = Provider.prototype;
+  didWarnAboutReceivingStore = true;
+  warning$1('<Provider> does not support changing `store` on the fly. ' + 'It is most likely that you see this error because you updated to ' + 'Redux 2.x and React Redux 2.x which no longer hot reload reducers ' + 'automatically. See https://github.com/reduxjs/react-redux/releases/' + 'tag/v2.0.0 for the migration instructions.');
+}
 
-  _proto.componentDidMount = function componentDidMount() {
-    this._isMounted = true;
-    this.subscribe();
-  };
+function createProvider(storeKey) {
+  var _Provider$childContex;
 
-  _proto.componentWillUnmount = function componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
-    this._isMounted = false;
-  };
+  if (storeKey === void 0) {
+    storeKey = 'store';
+  }
 
-  _proto.componentDidUpdate = function componentDidUpdate(prevProps) {
-    if (this.props.store !== prevProps.store) {
-      if (this.unsubscribe) this.unsubscribe();
-      this.subscribe();
+  var subscriptionKey = storeKey + "Subscription";
+
+  var Provider =
+  /*#__PURE__*/
+  function (_Component) {
+    _inheritsLoose(Provider, _Component);
+
+    var _proto = Provider.prototype;
+
+    _proto.getChildContext = function getChildContext() {
+      var _ref;
+
+      return _ref = {}, _ref[storeKey] = this[storeKey], _ref[subscriptionKey] = null, _ref;
+    };
+
+    function Provider(props, context) {
+      var _this;
+
+      _this = _Component.call(this, props, context) || this;
+      _this[storeKey] = props.store;
+      return _this;
     }
-  };
 
-  _proto.subscribe = function subscribe() {
-    var _this2 = this;
+    _proto.render = function render() {
+      return Children.only(this.props.children);
+    };
 
-    var store = this.props.store;
-    this.unsubscribe = store.subscribe(function () {
-      var newStoreState = store.getState();
+    return Provider;
+  }(Component);
 
-      if (!_this2._isMounted) {
-        return;
+  if (process.env.NODE_ENV !== 'production') {
+    Provider.prototype.componentWillReceiveProps = function (nextProps) {
+      if (this[storeKey] !== nextProps.store) {
+        warnAboutReceivingStore();
       }
+    };
+  }
 
-      _this2.setState(function (providerState) {
-        // If the value is the same, skip the unnecessary state update.
-        if (providerState.storeState === newStoreState) {
-          return null;
-        }
-
-        return {
-          storeState: newStoreState
-        };
-      });
-    }); // Actions might have been dispatched between render and mount - handle those
-
-    var postMountStoreState = store.getState();
-
-    if (postMountStoreState !== this.state.storeState) {
-      this.setState({
-        storeState: postMountStoreState
-      });
-    }
+  Provider.propTypes = {
+    store: storeShape.isRequired,
+    children: PropTypes.element.isRequired
   };
-
-  _proto.render = function render() {
-    var Context = this.props.context || ReactReduxContext;
-    return React.createElement(Context.Provider, {
-      value: this.state
-    }, this.props.children);
-  };
-
+  Provider.childContextTypes = (_Provider$childContex = {}, _Provider$childContex[storeKey] = storeShape.isRequired, _Provider$childContex[subscriptionKey] = subscriptionShape, _Provider$childContex);
   return Provider;
-}(Component);
-
-Provider.propTypes = {
-  store: PropTypes.shape({
-    subscribe: PropTypes.func.isRequired,
-    dispatch: PropTypes.func.isRequired,
-    getState: PropTypes.func.isRequired
-  }),
-  context: PropTypes.object,
-  children: PropTypes.any
-};
+}
+createProvider();
 
 function _assertThisInitialized(self) {
   if (self === void 0) {
@@ -3137,11 +3260,10 @@ var hoistNonReactStatics_cjs = hoistNonReactStatics;
 
 var reactIs_production_min$2 = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports,"__esModule",{value:!0});
-var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?Symbol.for("react.memo"):
-60115,r=b?Symbol.for("react.lazy"):60116;function t(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case h:return a;default:return u}}case r:case q:case d:return u}}}function v(a){return t(a)===m}exports.typeOf=t;exports.AsyncMode=l;exports.ConcurrentMode=m;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=n;
-exports.Fragment=e;exports.Lazy=r;exports.Memo=q;exports.Portal=d;exports.Profiler=g;exports.StrictMode=f;exports.Suspense=p;exports.isValidElementType=function(a){return "string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||"object"===typeof a&&null!==a&&(a.$$typeof===r||a.$$typeof===q||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n)};exports.isAsyncMode=function(a){return v(a)||t(a)===l};exports.isConcurrentMode=v;exports.isContextConsumer=function(a){return t(a)===k};
-exports.isContextProvider=function(a){return t(a)===h};exports.isElement=function(a){return "object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return t(a)===n};exports.isFragment=function(a){return t(a)===e};exports.isLazy=function(a){return t(a)===r};exports.isMemo=function(a){return t(a)===q};exports.isPortal=function(a){return t(a)===d};exports.isProfiler=function(a){return t(a)===g};exports.isStrictMode=function(a){return t(a)===f};
-exports.isSuspense=function(a){return t(a)===p};
+var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.concurrent_mode"):60111,m=b?Symbol.for("react.forward_ref"):60112,n=b?Symbol.for("react.suspense"):60113,q=b?Symbol.for("react.memo"):60115,r=b?Symbol.for("react.lazy"):
+60116;function t(a){if("object"===typeof a&&null!==a){var p=a.$$typeof;switch(p){case c:switch(a=a.type,a){case l:case e:case g:case f:return a;default:switch(a=a&&a.$$typeof,a){case k:case m:case h:return a;default:return p}}case d:return p}}}function u(a){return t(a)===l}exports.typeOf=t;exports.AsyncMode=l;exports.ConcurrentMode=l;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=m;exports.Fragment=e;exports.Profiler=g;exports.Portal=d;
+exports.StrictMode=f;exports.isValidElementType=function(a){return "string"===typeof a||"function"===typeof a||a===e||a===l||a===g||a===f||a===n||"object"===typeof a&&null!==a&&(a.$$typeof===r||a.$$typeof===q||a.$$typeof===h||a.$$typeof===k||a.$$typeof===m)};exports.isAsyncMode=function(a){return u(a)};exports.isConcurrentMode=u;exports.isContextConsumer=function(a){return t(a)===k};exports.isContextProvider=function(a){return t(a)===h};
+exports.isElement=function(a){return "object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return t(a)===m};exports.isFragment=function(a){return t(a)===e};exports.isProfiler=function(a){return t(a)===g};exports.isPortal=function(a){return t(a)===d};exports.isStrictMode=function(a){return t(a)===f};
 });
 
 unwrapExports(reactIs_production_min$2);
@@ -3153,26 +3275,20 @@ var reactIs_production_min_5$1 = reactIs_production_min$2.ContextProvider;
 var reactIs_production_min_6$1 = reactIs_production_min$2.Element;
 var reactIs_production_min_7$1 = reactIs_production_min$2.ForwardRef;
 var reactIs_production_min_8$1 = reactIs_production_min$2.Fragment;
-var reactIs_production_min_9$1 = reactIs_production_min$2.Lazy;
-var reactIs_production_min_10$1 = reactIs_production_min$2.Memo;
-var reactIs_production_min_11$1 = reactIs_production_min$2.Portal;
-var reactIs_production_min_12$1 = reactIs_production_min$2.Profiler;
-var reactIs_production_min_13$1 = reactIs_production_min$2.StrictMode;
-var reactIs_production_min_14$1 = reactIs_production_min$2.Suspense;
-var reactIs_production_min_15$1 = reactIs_production_min$2.isValidElementType;
-var reactIs_production_min_16$1 = reactIs_production_min$2.isAsyncMode;
-var reactIs_production_min_17$1 = reactIs_production_min$2.isConcurrentMode;
-var reactIs_production_min_18$1 = reactIs_production_min$2.isContextConsumer;
-var reactIs_production_min_19$1 = reactIs_production_min$2.isContextProvider;
-var reactIs_production_min_20$1 = reactIs_production_min$2.isElement;
-var reactIs_production_min_21$1 = reactIs_production_min$2.isForwardRef;
-var reactIs_production_min_22$1 = reactIs_production_min$2.isFragment;
-var reactIs_production_min_23$1 = reactIs_production_min$2.isLazy;
-var reactIs_production_min_24$1 = reactIs_production_min$2.isMemo;
-var reactIs_production_min_25$1 = reactIs_production_min$2.isPortal;
-var reactIs_production_min_26$1 = reactIs_production_min$2.isProfiler;
-var reactIs_production_min_27$1 = reactIs_production_min$2.isStrictMode;
-var reactIs_production_min_28$1 = reactIs_production_min$2.isSuspense;
+var reactIs_production_min_9$1 = reactIs_production_min$2.Profiler;
+var reactIs_production_min_10$1 = reactIs_production_min$2.Portal;
+var reactIs_production_min_11$1 = reactIs_production_min$2.StrictMode;
+var reactIs_production_min_12$1 = reactIs_production_min$2.isValidElementType;
+var reactIs_production_min_13$1 = reactIs_production_min$2.isAsyncMode;
+var reactIs_production_min_14$1 = reactIs_production_min$2.isConcurrentMode;
+var reactIs_production_min_15$1 = reactIs_production_min$2.isContextConsumer;
+var reactIs_production_min_16$1 = reactIs_production_min$2.isContextProvider;
+var reactIs_production_min_17$1 = reactIs_production_min$2.isElement;
+var reactIs_production_min_18$1 = reactIs_production_min$2.isForwardRef;
+var reactIs_production_min_19$1 = reactIs_production_min$2.isFragment;
+var reactIs_production_min_20$1 = reactIs_production_min$2.isProfiler;
+var reactIs_production_min_21$1 = reactIs_production_min$2.isPortal;
+var reactIs_production_min_22$1 = reactIs_production_min$2.isStrictMode;
 
 var reactIs_development$2 = createCommonjsModule(function (module, exports) {
 
@@ -3194,7 +3310,6 @@ var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for('react.strict_mode') : 0xeac
 var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for('react.profiler') : 0xead2;
 var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for('react.provider') : 0xeacd;
 var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace;
-var REACT_ASYNC_MODE_TYPE = hasSymbol ? Symbol.for('react.async_mode') : 0xeacf;
 var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for('react.concurrent_mode') : 0xeacf;
 var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0;
 var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
@@ -3263,17 +3378,16 @@ var lowPriorityWarning$1 = lowPriorityWarning;
 function typeOf(object) {
   if (typeof object === 'object' && object !== null) {
     var $$typeof = object.$$typeof;
+
     switch ($$typeof) {
       case REACT_ELEMENT_TYPE:
         var type = object.type;
 
         switch (type) {
-          case REACT_ASYNC_MODE_TYPE:
           case REACT_CONCURRENT_MODE_TYPE:
           case REACT_FRAGMENT_TYPE:
           case REACT_PROFILER_TYPE:
           case REACT_STRICT_MODE_TYPE:
-          case REACT_SUSPENSE_TYPE:
             return type;
           default:
             var $$typeofType = type && type.$$typeof;
@@ -3287,8 +3401,6 @@ function typeOf(object) {
                 return $$typeof;
             }
         }
-      case REACT_LAZY_TYPE:
-      case REACT_MEMO_TYPE:
       case REACT_PORTAL_TYPE:
         return $$typeof;
     }
@@ -3297,20 +3409,17 @@ function typeOf(object) {
   return undefined;
 }
 
-// AsyncMode is deprecated along with isAsyncMode
-var AsyncMode = REACT_ASYNC_MODE_TYPE;
+// AsyncMode alias is deprecated along with isAsyncMode
+var AsyncMode = REACT_CONCURRENT_MODE_TYPE;
 var ConcurrentMode = REACT_CONCURRENT_MODE_TYPE;
 var ContextConsumer = REACT_CONTEXT_TYPE;
 var ContextProvider = REACT_PROVIDER_TYPE;
 var Element = REACT_ELEMENT_TYPE;
 var ForwardRef = REACT_FORWARD_REF_TYPE;
 var Fragment = REACT_FRAGMENT_TYPE;
-var Lazy = REACT_LAZY_TYPE;
-var Memo = REACT_MEMO_TYPE;
-var Portal = REACT_PORTAL_TYPE;
 var Profiler = REACT_PROFILER_TYPE;
+var Portal = REACT_PORTAL_TYPE;
 var StrictMode = REACT_STRICT_MODE_TYPE;
-var Suspense = REACT_SUSPENSE_TYPE;
 
 var hasWarnedAboutDeprecatedIsAsyncMode = false;
 
@@ -3322,7 +3431,7 @@ function isAsyncMode(object) {
       lowPriorityWarning$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
     }
   }
-  return isConcurrentMode(object) || typeOf(object) === REACT_ASYNC_MODE_TYPE;
+  return isConcurrentMode(object);
 }
 function isConcurrentMode(object) {
   return typeOf(object) === REACT_CONCURRENT_MODE_TYPE;
@@ -3342,23 +3451,14 @@ function isForwardRef(object) {
 function isFragment(object) {
   return typeOf(object) === REACT_FRAGMENT_TYPE;
 }
-function isLazy(object) {
-  return typeOf(object) === REACT_LAZY_TYPE;
-}
-function isMemo(object) {
-  return typeOf(object) === REACT_MEMO_TYPE;
+function isProfiler(object) {
+  return typeOf(object) === REACT_PROFILER_TYPE;
 }
 function isPortal(object) {
   return typeOf(object) === REACT_PORTAL_TYPE;
 }
-function isProfiler(object) {
-  return typeOf(object) === REACT_PROFILER_TYPE;
-}
 function isStrictMode(object) {
   return typeOf(object) === REACT_STRICT_MODE_TYPE;
-}
-function isSuspense(object) {
-  return typeOf(object) === REACT_SUSPENSE_TYPE;
 }
 
 exports.typeOf = typeOf;
@@ -3369,12 +3469,9 @@ exports.ContextProvider = ContextProvider;
 exports.Element = Element;
 exports.ForwardRef = ForwardRef;
 exports.Fragment = Fragment;
-exports.Lazy = Lazy;
-exports.Memo = Memo;
-exports.Portal = Portal;
 exports.Profiler = Profiler;
+exports.Portal = Portal;
 exports.StrictMode = StrictMode;
-exports.Suspense = Suspense;
 exports.isValidElementType = isValidElementType;
 exports.isAsyncMode = isAsyncMode;
 exports.isConcurrentMode = isConcurrentMode;
@@ -3383,12 +3480,9 @@ exports.isContextProvider = isContextProvider;
 exports.isElement = isElement;
 exports.isForwardRef = isForwardRef;
 exports.isFragment = isFragment;
-exports.isLazy = isLazy;
-exports.isMemo = isMemo;
-exports.isPortal = isPortal;
 exports.isProfiler = isProfiler;
+exports.isPortal = isPortal;
 exports.isStrictMode = isStrictMode;
-exports.isSuspense = isSuspense;
   })();
 }
 });
@@ -3402,26 +3496,20 @@ var reactIs_development_5$1 = reactIs_development$2.ContextProvider;
 var reactIs_development_6$1 = reactIs_development$2.Element;
 var reactIs_development_7$1 = reactIs_development$2.ForwardRef;
 var reactIs_development_8$1 = reactIs_development$2.Fragment;
-var reactIs_development_9$1 = reactIs_development$2.Lazy;
-var reactIs_development_10$1 = reactIs_development$2.Memo;
-var reactIs_development_11$1 = reactIs_development$2.Portal;
-var reactIs_development_12$1 = reactIs_development$2.Profiler;
-var reactIs_development_13$1 = reactIs_development$2.StrictMode;
-var reactIs_development_14$1 = reactIs_development$2.Suspense;
-var reactIs_development_15$1 = reactIs_development$2.isValidElementType;
-var reactIs_development_16$1 = reactIs_development$2.isAsyncMode;
-var reactIs_development_17$1 = reactIs_development$2.isConcurrentMode;
-var reactIs_development_18$1 = reactIs_development$2.isContextConsumer;
-var reactIs_development_19$1 = reactIs_development$2.isContextProvider;
-var reactIs_development_20$1 = reactIs_development$2.isElement;
-var reactIs_development_21$1 = reactIs_development$2.isForwardRef;
-var reactIs_development_22$1 = reactIs_development$2.isFragment;
-var reactIs_development_23$1 = reactIs_development$2.isLazy;
-var reactIs_development_24$1 = reactIs_development$2.isMemo;
-var reactIs_development_25$1 = reactIs_development$2.isPortal;
-var reactIs_development_26$1 = reactIs_development$2.isProfiler;
-var reactIs_development_27$1 = reactIs_development$2.isStrictMode;
-var reactIs_development_28$1 = reactIs_development$2.isSuspense;
+var reactIs_development_9$1 = reactIs_development$2.Profiler;
+var reactIs_development_10$1 = reactIs_development$2.Portal;
+var reactIs_development_11$1 = reactIs_development$2.StrictMode;
+var reactIs_development_12$1 = reactIs_development$2.isValidElementType;
+var reactIs_development_13$1 = reactIs_development$2.isAsyncMode;
+var reactIs_development_14$1 = reactIs_development$2.isConcurrentMode;
+var reactIs_development_15$1 = reactIs_development$2.isContextConsumer;
+var reactIs_development_16$1 = reactIs_development$2.isContextProvider;
+var reactIs_development_17$1 = reactIs_development$2.isElement;
+var reactIs_development_18$1 = reactIs_development$2.isForwardRef;
+var reactIs_development_19$1 = reactIs_development$2.isFragment;
+var reactIs_development_20$1 = reactIs_development$2.isProfiler;
+var reactIs_development_21$1 = reactIs_development$2.isPortal;
+var reactIs_development_22$1 = reactIs_development$2.isStrictMode;
 
 var reactIs$1 = createCommonjsModule(function (module) {
 
@@ -3432,6 +3520,119 @@ if (process.env.NODE_ENV === 'production') {
 }
 });
 var reactIs_1 = reactIs$1.isValidElementType;
+
+// encapsulates the subscription logic for connecting a component to the redux store, as
+// well as nesting subscriptions of descendant components, so that we can ensure the
+// ancestor components re-render before descendants
+var CLEARED = null;
+var nullListeners = {
+  notify: function notify() {}
+};
+
+function createListenerCollection() {
+  // the current/next pattern is copied from redux's createStore code.
+  // TODO: refactor+expose that code to be reusable here?
+  var current = [];
+  var next = [];
+  return {
+    clear: function clear() {
+      next = CLEARED;
+      current = CLEARED;
+    },
+    notify: function notify() {
+      var listeners = current = next;
+
+      for (var i = 0; i < listeners.length; i++) {
+        listeners[i]();
+      }
+    },
+    get: function get() {
+      return next;
+    },
+    subscribe: function subscribe(listener) {
+      var isSubscribed = true;
+      if (next === current) next = current.slice();
+      next.push(listener);
+      return function unsubscribe() {
+        if (!isSubscribed || current === CLEARED) return;
+        isSubscribed = false;
+        if (next === current) next = current.slice();
+        next.splice(next.indexOf(listener), 1);
+      };
+    }
+  };
+}
+
+var Subscription =
+/*#__PURE__*/
+function () {
+  function Subscription(store, parentSub, onStateChange) {
+    this.store = store;
+    this.parentSub = parentSub;
+    this.onStateChange = onStateChange;
+    this.unsubscribe = null;
+    this.listeners = nullListeners;
+  }
+
+  var _proto = Subscription.prototype;
+
+  _proto.addNestedSub = function addNestedSub(listener) {
+    this.trySubscribe();
+    return this.listeners.subscribe(listener);
+  };
+
+  _proto.notifyNestedSubs = function notifyNestedSubs() {
+    this.listeners.notify();
+  };
+
+  _proto.isSubscribed = function isSubscribed() {
+    return Boolean(this.unsubscribe);
+  };
+
+  _proto.trySubscribe = function trySubscribe() {
+    if (!this.unsubscribe) {
+      this.unsubscribe = this.parentSub ? this.parentSub.addNestedSub(this.onStateChange) : this.store.subscribe(this.onStateChange);
+      this.listeners = createListenerCollection();
+    }
+  };
+
+  _proto.tryUnsubscribe = function tryUnsubscribe() {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+      this.listeners.clear();
+      this.listeners = nullListeners;
+    }
+  };
+
+  return Subscription;
+}();
+
+var hotReloadingVersion = 0;
+var dummyState = {};
+
+function noop$1() {}
+
+function makeSelectorStateful(sourceSelector, store) {
+  // wrap the selector in an object that tracks its results between runs.
+  var selector = {
+    run: function runComponentSelector(props) {
+      try {
+        var nextProps = sourceSelector(store.getState(), props);
+
+        if (nextProps !== selector.props || selector.error) {
+          selector.shouldComponentUpdate = true;
+          selector.props = nextProps;
+          selector.error = null;
+        }
+      } catch (error) {
+        selector.shouldComponentUpdate = true;
+        selector.error = error;
+      }
+    }
+  };
+  return selector;
+}
 
 function connectAdvanced(
 /*
@@ -3450,6 +3651,8 @@ function connectAdvanced(
 */
 selectorFactory, // options object:
 _ref) {
+  var _contextTypes, _childContextTypes;
+
   if (_ref === void 0) {
     _ref = {};
   }
@@ -3469,22 +3672,14 @@ _ref) {
       storeKey = _ref2$storeKey === void 0 ? 'store' : _ref2$storeKey,
       _ref2$withRef = _ref2.withRef,
       withRef = _ref2$withRef === void 0 ? false : _ref2$withRef,
-      _ref2$forwardRef = _ref2.forwardRef,
-      forwardRef = _ref2$forwardRef === void 0 ? false : _ref2$forwardRef,
-      _ref2$context = _ref2.context,
-      context = _ref2$context === void 0 ? ReactReduxContext : _ref2$context,
-      connectOptions = _objectWithoutPropertiesLoose(_ref2, ["getDisplayName", "methodName", "renderCountProp", "shouldHandleStateChanges", "storeKey", "withRef", "forwardRef", "context"]);
+      connectOptions = _objectWithoutPropertiesLoose(_ref2, ["getDisplayName", "methodName", "renderCountProp", "shouldHandleStateChanges", "storeKey", "withRef"]);
 
-  invariant_1(renderCountProp === undefined, "renderCountProp is removed. render counting is built into the latest React dev tools profiling extension");
-  invariant_1(!withRef, 'withRef is removed. To access the wrapped instance, use a ref on the connected component');
-  var customStoreWarningMessage = 'To use a custom Redux store for specific components,  create a custom React context with ' + "React.createContext(), and pass the context object to React-Redux's Provider and specific components" + ' like:  <Provider context={MyContext}><ConnectedComponent context={MyContext} /></Provider>. ' + 'You may also pass a {context : MyContext} option to connect';
-  invariant_1(storeKey === 'store', 'storeKey has been removed and does not do anything. ' + customStoreWarningMessage);
-  var Context = context;
+  var subscriptionKey = storeKey + 'Subscription';
+  var version = hotReloadingVersion++;
+  var contextTypes = (_contextTypes = {}, _contextTypes[storeKey] = storeShape, _contextTypes[subscriptionKey] = subscriptionShape, _contextTypes);
+  var childContextTypes = (_childContextTypes = {}, _childContextTypes[subscriptionKey] = subscriptionShape, _childContextTypes);
   return function wrapWithConnect(WrappedComponent) {
-    if (process.env.NODE_ENV !== 'production') {
-      invariant_1(reactIs_1(WrappedComponent), "You must pass a component to the function returned by " + (methodName + ". Instead received " + JSON.stringify(WrappedComponent)));
-    }
-
+    invariant_1(reactIs_1(WrappedComponent), "You must pass a component to the function returned by " + (methodName + ". Instead received " + JSON.stringify(WrappedComponent)));
     var wrappedComponentName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
     var displayName = getDisplayName(wrappedComponentName);
 
@@ -3494,118 +3689,203 @@ _ref) {
       renderCountProp: renderCountProp,
       shouldHandleStateChanges: shouldHandleStateChanges,
       storeKey: storeKey,
+      withRef: withRef,
       displayName: displayName,
       wrappedComponentName: wrappedComponentName,
-      WrappedComponent: WrappedComponent
+      WrappedComponent: WrappedComponent // TODO Actually fix our use of componentWillReceiveProps
+
+      /* eslint-disable react/no-deprecated */
+
     });
-
-    var pure = connectOptions.pure;
-    var OuterBaseComponent = Component;
-    var FinalWrappedComponent = WrappedComponent;
-
-    if (pure) {
-      OuterBaseComponent = PureComponent;
-    }
-
-    function makeDerivedPropsSelector() {
-      var lastProps;
-      var lastState;
-      var lastDerivedProps;
-      var lastStore;
-      var sourceSelector;
-      return function selectDerivedProps(state, props, store) {
-        if (pure && lastProps === props && lastState === state) {
-          return lastDerivedProps;
-        }
-
-        if (store !== lastStore) {
-          lastStore = store;
-          sourceSelector = selectorFactory(store.dispatch, selectorFactoryOptions);
-        }
-
-        lastProps = props;
-        lastState = state;
-        var nextProps = sourceSelector(state, props);
-
-        if (lastDerivedProps === nextProps) {
-          return lastDerivedProps;
-        }
-
-        lastDerivedProps = nextProps;
-        return lastDerivedProps;
-      };
-    }
-
-    function makeChildElementSelector() {
-      var lastChildProps, lastForwardRef, lastChildElement;
-      return function selectChildElement(childProps, forwardRef) {
-        if (childProps !== lastChildProps || forwardRef !== lastForwardRef) {
-          lastChildProps = childProps;
-          lastForwardRef = forwardRef;
-          lastChildElement = React.createElement(FinalWrappedComponent, _extends$2({}, childProps, {
-            ref: forwardRef
-          }));
-        }
-
-        return lastChildElement;
-      };
-    }
 
     var Connect =
     /*#__PURE__*/
-    function (_OuterBaseComponent) {
-      _inheritsLoose(Connect, _OuterBaseComponent);
+    function (_Component) {
+      _inheritsLoose(Connect, _Component);
 
-      function Connect(props) {
+      function Connect(props, context) {
         var _this;
 
-        _this = _OuterBaseComponent.call(this, props) || this;
-        invariant_1(forwardRef ? !props.wrapperProps[storeKey] : !props[storeKey], 'Passing redux store in props has been removed and does not do anything. ' + customStoreWarningMessage);
-        _this.selectDerivedProps = makeDerivedPropsSelector();
-        _this.selectChildElement = makeChildElementSelector();
-        _this.renderWrappedComponent = _this.renderWrappedComponent.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+        _this = _Component.call(this, props, context) || this;
+        _this.version = version;
+        _this.state = {};
+        _this.renderCount = 0;
+        _this.store = props[storeKey] || context[storeKey];
+        _this.propsMode = Boolean(props[storeKey]);
+        _this.setWrappedInstance = _this.setWrappedInstance.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+        invariant_1(_this.store, "Could not find \"" + storeKey + "\" in either the context or props of " + ("\"" + displayName + "\". Either wrap the root component in a <Provider>, ") + ("or explicitly pass \"" + storeKey + "\" as a prop to \"" + displayName + "\"."));
+
+        _this.initSelector();
+
+        _this.initSubscription();
+
         return _this;
       }
 
       var _proto = Connect.prototype;
 
-      _proto.renderWrappedComponent = function renderWrappedComponent(value) {
-        invariant_1(value, "Could not find \"store\" in the context of " + ("\"" + displayName + "\". Either wrap the root component in a <Provider>, ") + "or pass a custom React context provider to <Provider> and the corresponding " + ("React context consumer to " + displayName + " in connect options."));
-        var storeState = value.storeState,
-            store = value.store;
-        var wrapperProps = this.props;
-        var forwardedRef;
+      _proto.getChildContext = function getChildContext() {
+        var _ref3;
 
-        if (forwardRef) {
-          wrapperProps = this.props.wrapperProps;
-          forwardedRef = this.props.forwardedRef;
+        // If this component received store from props, its subscription should be transparent
+        // to any descendants receiving store+subscription from context; it passes along
+        // subscription passed to it. Otherwise, it shadows the parent subscription, which allows
+        // Connect to control ordering of notifications to flow top-down.
+        var subscription = this.propsMode ? null : this.subscription;
+        return _ref3 = {}, _ref3[subscriptionKey] = subscription || this.context[subscriptionKey], _ref3;
+      };
+
+      _proto.componentDidMount = function componentDidMount() {
+        if (!shouldHandleStateChanges) return; // componentWillMount fires during server side rendering, but componentDidMount and
+        // componentWillUnmount do not. Because of this, trySubscribe happens during ...didMount.
+        // Otherwise, unsubscription would never take place during SSR, causing a memory leak.
+        // To handle the case where a child component may have triggered a state change by
+        // dispatching an action in its componentWillMount, we have to re-run the select and maybe
+        // re-render.
+
+        this.subscription.trySubscribe();
+        this.selector.run(this.props);
+        if (this.selector.shouldComponentUpdate) this.forceUpdate();
+      };
+
+      _proto.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+        this.selector.run(nextProps);
+      };
+
+      _proto.shouldComponentUpdate = function shouldComponentUpdate() {
+        return this.selector.shouldComponentUpdate;
+      };
+
+      _proto.componentWillUnmount = function componentWillUnmount() {
+        if (this.subscription) this.subscription.tryUnsubscribe();
+        this.subscription = null;
+        this.notifyNestedSubs = noop$1;
+        this.store = null;
+        this.selector.run = noop$1;
+        this.selector.shouldComponentUpdate = false;
+      };
+
+      _proto.getWrappedInstance = function getWrappedInstance() {
+        invariant_1(withRef, "To access the wrapped instance, you need to specify " + ("{ withRef: true } in the options argument of the " + methodName + "() call."));
+        return this.wrappedInstance;
+      };
+
+      _proto.setWrappedInstance = function setWrappedInstance(ref) {
+        this.wrappedInstance = ref;
+      };
+
+      _proto.initSelector = function initSelector() {
+        var sourceSelector = selectorFactory(this.store.dispatch, selectorFactoryOptions);
+        this.selector = makeSelectorStateful(sourceSelector, this.store);
+        this.selector.run(this.props);
+      };
+
+      _proto.initSubscription = function initSubscription() {
+        if (!shouldHandleStateChanges) return; // parentSub's source should match where store came from: props vs. context. A component
+        // connected to the store via props shouldn't use subscription from context, or vice versa.
+
+        var parentSub = (this.propsMode ? this.props : this.context)[subscriptionKey];
+        this.subscription = new Subscription(this.store, parentSub, this.onStateChange.bind(this)); // `notifyNestedSubs` is duplicated to handle the case where the component is unmounted in
+        // the middle of the notification loop, where `this.subscription` will then be null. An
+        // extra null check every change can be avoided by copying the method onto `this` and then
+        // replacing it with a no-op on unmount. This can probably be avoided if Subscription's
+        // listeners logic is changed to not call listeners that have been unsubscribed in the
+        // middle of the notification loop.
+
+        this.notifyNestedSubs = this.subscription.notifyNestedSubs.bind(this.subscription);
+      };
+
+      _proto.onStateChange = function onStateChange() {
+        this.selector.run(this.props);
+
+        if (!this.selector.shouldComponentUpdate) {
+          this.notifyNestedSubs();
+        } else {
+          this.componentDidUpdate = this.notifyNestedSubsOnComponentDidUpdate;
+          this.setState(dummyState);
         }
+      };
 
-        var derivedProps = this.selectDerivedProps(storeState, wrapperProps, store);
-        return this.selectChildElement(derivedProps, forwardedRef);
+      _proto.notifyNestedSubsOnComponentDidUpdate = function notifyNestedSubsOnComponentDidUpdate() {
+        // `componentDidUpdate` is conditionally implemented when `onStateChange` determines it
+        // needs to notify nested subs. Once called, it unimplements itself until further state
+        // changes occur. Doing it this way vs having a permanent `componentDidUpdate` that does
+        // a boolean check every time avoids an extra method call most of the time, resulting
+        // in some perf boost.
+        this.componentDidUpdate = undefined;
+        this.notifyNestedSubs();
+      };
+
+      _proto.isSubscribed = function isSubscribed() {
+        return Boolean(this.subscription) && this.subscription.isSubscribed();
+      };
+
+      _proto.addExtraProps = function addExtraProps(props) {
+        if (!withRef && !renderCountProp && !(this.propsMode && this.subscription)) return props; // make a shallow copy so that fields added don't leak to the original selector.
+        // this is especially important for 'ref' since that's a reference back to the component
+        // instance. a singleton memoized selector would then be holding a reference to the
+        // instance, preventing the instance from being garbage collected, and that would be bad
+
+        var withExtras = _extends$2({}, props);
+
+        if (withRef) withExtras.ref = this.setWrappedInstance;
+        if (renderCountProp) withExtras[renderCountProp] = this.renderCount++;
+        if (this.propsMode && this.subscription) withExtras[subscriptionKey] = this.subscription;
+        return withExtras;
       };
 
       _proto.render = function render() {
-        var ContextToUse = this.props.context || Context;
-        return React.createElement(ContextToUse.Consumer, null, this.renderWrappedComponent);
+        var selector = this.selector;
+        selector.shouldComponentUpdate = false;
+
+        if (selector.error) {
+          throw selector.error;
+        } else {
+          return createElement(WrappedComponent, this.addExtraProps(selector.props));
+        }
       };
 
       return Connect;
-    }(OuterBaseComponent);
+    }(Component);
+    /* eslint-enable react/no-deprecated */
+
 
     Connect.WrappedComponent = WrappedComponent;
     Connect.displayName = displayName;
+    Connect.childContextTypes = childContextTypes;
+    Connect.contextTypes = contextTypes;
+    Connect.propTypes = contextTypes;
 
-    if (forwardRef) {
-      var forwarded = React.forwardRef(function forwardConnectRef(props, ref) {
-        return React.createElement(Connect, {
-          wrapperProps: props,
-          forwardedRef: ref
-        });
-      });
-      forwarded.displayName = displayName;
-      forwarded.WrappedComponent = WrappedComponent;
-      return hoistNonReactStatics_cjs(forwarded, WrappedComponent);
+    if (process.env.NODE_ENV !== 'production') {
+      Connect.prototype.componentWillUpdate = function componentWillUpdate() {
+        var _this2 = this;
+
+        // We are hot reloading!
+        if (this.version !== version) {
+          this.version = version;
+          this.initSelector(); // If any connected descendants don't hot reload (and resubscribe in the process), their
+          // listeners will be lost when we unsubscribe. Unfortunately, by copying over all
+          // listeners, this does mean that the old versions of connected descendants will still be
+          // notified of state changes; however, their onStateChange function is a no-op so this
+          // isn't a huge deal.
+
+          var oldListeners = [];
+
+          if (this.subscription) {
+            oldListeners = this.subscription.listeners.get();
+            this.subscription.tryUnsubscribe();
+          }
+
+          this.initSubscription();
+
+          if (shouldHandleStateChanges) {
+            this.subscription.trySubscribe();
+            oldListeners.forEach(function (listener) {
+              return _this2.subscription.listeners.subscribe(listener);
+            });
+          }
+        }
+      };
     }
 
     return hoistNonReactStatics_cjs(Connect, WrappedComponent);
@@ -3648,40 +3928,13 @@ function shallowEqual(objA, objB) {
  */
 function isPlainObject$2(obj) {
   if (typeof obj !== 'object' || obj === null) return false;
-  var proto = Object.getPrototypeOf(obj);
-  if (proto === null) return true;
-  var baseProto = proto;
+  var proto = obj;
 
-  while (Object.getPrototypeOf(baseProto) !== null) {
-    baseProto = Object.getPrototypeOf(baseProto);
+  while (Object.getPrototypeOf(proto) !== null) {
+    proto = Object.getPrototypeOf(proto);
   }
 
-  return proto === baseProto;
-}
-
-/**
- * Prints a warning in the console if it exists.
- *
- * @param {String} message The warning message.
- * @returns {void}
- */
-function warning$1(message) {
-  /* eslint-disable no-console */
-  if (typeof console !== 'undefined' && typeof console.error === 'function') {
-    console.error(message);
-  }
-  /* eslint-enable no-console */
-
-
-  try {
-    // This error was thrown as a convenience so that if you enable
-    // "break on all exceptions" in your console,
-    // it would pause the execution at this line.
-    throw new Error(message);
-    /* eslint-disable no-empty */
-  } catch (e) {}
-  /* eslint-enable no-empty */
-
+  return Object.getPrototypeOf(obj) === proto;
 }
 
 function verifyPlainObject(value, displayName, methodName) {
@@ -3704,7 +3957,7 @@ function wrapMapToPropsConstant(getConstant) {
 } // dependsOnOwnProps is used by createMapToPropsProxy to determine whether to pass props as args
 // to the mapToProps function being wrapped. It is also used by makePurePropsSelector to determine
 // whether mapToProps needs to be invoked when props have changed.
-//
+// 
 // A length of one signals that mapToProps does not depend on props from the parent component.
 // A length of zero is assumed to mean mapToProps is getting args via arguments or ...args and
 // therefore not reporting its length accurately..
@@ -3713,16 +3966,16 @@ function getDependsOnOwnProps(mapToProps) {
   return mapToProps.dependsOnOwnProps !== null && mapToProps.dependsOnOwnProps !== undefined ? Boolean(mapToProps.dependsOnOwnProps) : mapToProps.length !== 1;
 } // Used by whenMapStateToPropsIsFunction and whenMapDispatchToPropsIsFunction,
 // this function wraps mapToProps in a proxy function which does several things:
-//
+// 
 //  * Detects whether the mapToProps function being called depends on props, which
 //    is used by selectorFactory to decide if it should reinvoke on props changes.
-//
+//    
 //  * On first call, handles mapToProps if returns another function, and treats that
 //    new function as the true mapToProps for subsequent calls.
-//
+//    
 //  * On first call, verifies the first result is a plain object, in order to warn
 //    the developer that their mapToProps function is not returning a valid result.
-//
+//    
 
 function wrapMapToPropsFunc(mapToProps, methodName) {
   return function initProxySelector(dispatch, _ref) {
