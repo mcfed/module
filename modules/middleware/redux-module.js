@@ -30,7 +30,7 @@
    //  return state
  }
 
- export default function moduleMiddleware() {
+ export default function createModule() {
    return ({ getState, dispatch }) => (next) =>
      (action) => {
        next(action)
