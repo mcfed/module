@@ -1,4 +1,3 @@
-import EventEmitter from 'events';
 import PropTypes from 'prop-types';
 import { Component, Children, createElement } from 'react';
 
@@ -19,7 +18,7 @@ var UniquenessErrorMessage = exports.UniquenessErrorMessage = 'Args must be uniq
 var TypeErrorMessage = exports.TypeErrorMessage = 'Arguments must be strings';
 var ConstantsTypeErrorMessage = exports.ConstantsTypeErrorMessage = 'Constants must be an array';
 var NamespaceTypeErrorMessage = exports.NamespaceTypeErrorMessage = 'Namespace must be strings';
-
+//# sourceMappingURL=errors.js.map
 });
 
 unwrapExports(errors);
@@ -39,7 +38,7 @@ var isString = exports.isString = function isString(arg) {
 var isArray = exports.isArray = function isArray(arg) {
   return Array.isArray(arg);
 };
-
+//# sourceMappingURL=types-testers.js.map
 });
 
 unwrapExports(typesTesters);
@@ -70,7 +69,7 @@ var raiseErrorIfNotUnique = exports.raiseErrorIfNotUnique = function raiseErrorI
   }
   if (duplicate) throw new Error(errors.UniquenessErrorMessage);
 };
-
+//# sourceMappingURL=error-raisers.js.map
 });
 
 unwrapExports(errorRaisers);
@@ -100,7 +99,7 @@ var actionTypes = function actionTypes(namespace, constants) {
   }, {}));
 };
 exports.default = actionTypes;
-
+//# sourceMappingURL=action-types.js.map
 });
 
 unwrapExports(actionTypes_1);
@@ -724,7 +723,6 @@ function handleActions(handlers, defaultState, options) {
   };
 }
 
-var actionEmitter = new EventEmitter();
 var defaultTypes = ["LIST_ACTION", //列表行为
 "SAVE_LIST", //保存列表
 "SAVE_ACTION", //保存行为
@@ -766,7 +764,6 @@ function actionsTypeCreator(namespace, typesArray) {
 }
 
 var index = /*#__PURE__*/Object.freeze({
-	actionEmitter: actionEmitter,
 	defaultTypes: defaultTypes,
 	actionCreator: actionCreator,
 	createTypes: createTypes,
@@ -2501,9 +2498,9 @@ function sagaCreator(actions, Api, emitter) {
 
             case 9:
               _context4.next = 11;
-              return put({
+              return put$1({
                 type: "@@MIDDLEWARE/SHOW_ERROR",
-                payload: "操作失败"
+                payload: result.message
               });
 
             case 11:
@@ -2529,7 +2526,7 @@ function sagaCreator(actions, Api, emitter) {
               result = _context5.sent;
 
               if (!(result.code === 0)) {
-                _context5.next = 9;
+                _context5.next = 11;
                 break;
               }
 
@@ -2541,9 +2538,23 @@ function sagaCreator(actions, Api, emitter) {
 
             case 7:
               _context5.next = 9;
-              break;
+              return put$1({
+                type: "@@MIDDLEWARE/SHOW_SUCCESS",
+                payload: "操作成功"
+              });
 
             case 9:
+              _context5.next = 13;
+              break;
+
+            case 11:
+              _context5.next = 13;
+              return put({
+                type: "@@MIDDLEWARE/SHOW_ERROR",
+                payload: result.message
+              });
+
+            case 13:
             case "end":
               return _context5.stop();
           }
@@ -2553,23 +2564,46 @@ function sagaCreator(actions, Api, emitter) {
     fetchDelete:
     /*#__PURE__*/
     regenerator.mark(function fetchDelete(_ref5, action) {
-      var TYPES, Api, namespace, result;
+      var TYPES, Api, namespace, payload, result;
       return regenerator.wrap(function fetchDelete$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
             case 0:
               TYPES = _ref5.TYPES, Api = _ref5.Api, namespace = _ref5.namespace;
-              _context6.next = 3;
-              return fetch(Api.fetchDelete, {
+              payload = {
                 ids: [].concat(action.payload)
-              });
+              };
+              _context6.next = 4;
+              return fetch(Api.fetchDelete, Object.assign(action, {
+                payload: payload
+              }));
 
-            case 3:
+            case 4:
               result = _context6.sent;
 
-              if (result.code === 0) ;
+              if (!(result.code === 0)) {
+                _context6.next = 10;
+                break;
+              }
 
-            case 5:
+              _context6.next = 8;
+              return put$1({
+                type: "@@MIDDLEWARE/SHOW_SUCCESS",
+                payload: "操作成功"
+              });
+
+            case 8:
+              _context6.next = 12;
+              break;
+
+            case 10:
+              _context6.next = 12;
+              return put$1({
+                type: "@@MIDDLEWARE/SHOW_ERROR",
+                payload: result.message
+              });
+
+            case 12:
             case "end":
               return _context6.stop();
           }
@@ -4309,6 +4343,149 @@ var index$3 = /*#__PURE__*/Object.freeze({
 	connect: connect
 });
 
+function fetchingReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+    fetching: new Map(),
+    params: new Map()
+  };
+
+  var _ref = arguments.length > 1 ? arguments[1] : undefined,
+      type = _ref.type,
+      payload = _ref.payload;
+
+  var fetching = state.fetching,
+      params = state.params;
+
+  switch (type) {
+    case '@@MIDDLEWARE/FETCH_PARAMS':
+      return objectSpread({}, state, {
+        params: params.set(payload.type, payload.payload)
+      });
+
+    case '@@MIDDLEWARE/FETCH_REQ':
+      return objectSpread({}, state, {
+        fetching: new Map(fetching.set(payload.type, payload.payload))
+      });
+
+    case '@@MIDDLEWARE/FETCH_RES':
+      return objectSpread({}, state, {
+        fetching: new Map(fetching.set(payload.type, payload.payload))
+      });
+
+    default:
+      return state;
+  } //  return state
+
+}
+
+function createFetching(_ref2
+/*fetchRegexp:regexp,paramsRegexp:regexp */
+) {
+  var fetchRegexp = _ref2.fetchRegexp,
+      paramsRegexp = _ref2.paramsRegexp;
+  return function (_ref3) {
+    var getState = _ref3.getState,
+        dispatch = _ref3.dispatch;
+    return function (next) {
+      return function (action) {
+        /*
+        if (new RegExp(paramsRegexp).test(action.type)) {
+          dispatch({ type: 'FETCH_PARAMS', payload: action })
+        }
+        */
+        // if (new RegExp(fetchRegexp).test(action.type)) {
+        //   setTimeout(function(){
+        //     dispatch({ type: '@@MIDDLEWARE/FETCH_REQ', payload: { type: action.type, payload: true } })
+        //   },0)
+        //   //const returnValue = next(action);
+        //   next(action);
+        //   setTimeout(function(){
+        //     dispatch({ type: "@@MIDDLEWARE/FETCH_SUCCESS", payload: { type: action.type, payload: false } });
+        //   },0)
+        // } else {
+        return next(action); // }
+      };
+    };
+  };
+}
+
+// import {message} from 'antd'
+function createMessage(message) {
+  return function (_ref) {
+    var getState = _ref.getState,
+        dispatch = _ref.dispatch;
+    return function (next) {
+      return function (action) {
+        if ("@@MIDDLEWARE/SHOW_SUCCESS" === action.type) {
+          message.success(action.payload);
+        } else if ("@@MIDDLEWARE/SHOW_ERROR" === action.type) {
+          message.error(action.payload);
+        }
+
+        return next(action);
+      };
+    };
+  };
+}
+
+function globalReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+    dicts: {},
+    bizCodes: {}
+  };
+
+  var _ref = arguments.length > 1 ? arguments[1] : undefined,
+      type = _ref.type,
+      payload = _ref.payload;
+
+  var fetching = state.fetching,
+      params = state.params;
+
+  switch (type) {
+    case '@@MIDDLEWARE/UPGRADE_DICT':
+      return objectSpread({}, state, {
+        dicts: payload
+      });
+
+    case '@@MIDDLEWARE/UPGRADE_BIZCODE':
+      return objectSpread({}, state, {
+        bizCodes: payload
+      });
+
+    case '@@MIDDLEWARE/UPGRADE_USER':
+      return objectSpread({}, state);
+
+    case '@@MIDDLEWARE/UPGRADE_AUTHS':
+      return objectSpread({}, state);
+
+    default:
+      return state;
+  } //  return state
+
+}
+
+function createModule() {
+  return function (_ref2) {
+    var getState = _ref2.getState,
+        dispatch = _ref2.dispatch;
+    return function (next) {
+      return function (action) {
+        next(action);
+      };
+    };
+  };
+}
+
+
+
+var index$4 = /*#__PURE__*/Object.freeze({
+	createFetching: createFetching,
+	fetchingReducer: fetchingReducer,
+	createMessage: createMessage,
+	createModule: createModule,
+	globalReducer: globalReducer
+});
+
 // export * as router from './router'
 
-export { index as ModuleAction, index$1 as ModuleReducer, index$2 as ModuleSaga, index$3 as ModuleContainer };
+export { index as ModuleAction, index$1 as ModuleReducer, index$2 as ModuleSaga, index$3 as ModuleContainer, index$4 as ModuleMiddleware };

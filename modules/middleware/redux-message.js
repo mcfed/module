@@ -1,5 +1,5 @@
-import {message} from 'antd'
-export default function createMessage() {
+// import {message} from 'antd'
+export default function createMessage(message) {
   return ({ getState, dispatch }) => (next) =>
     (action) => {
       if ("@@MIDDLEWARE/SHOW_SUCCESS"===action.type) {

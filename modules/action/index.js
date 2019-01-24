@@ -1,9 +1,9 @@
 import actionTypes from 'redux-types'
 import {createAction} from 'redux-actions'
-import EventEmitter from 'events'
+// import EventEmitter from 'events'
 export * from 'redux-actions'
 
-export const actionEmitter = new EventEmitter()
+// export const actionEmitter = new EventEmitter()
 export const defaultTypes = [
   "LIST_ACTION", //列表行为
   "SAVE_LIST",  //保存列表
