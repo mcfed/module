@@ -18,10 +18,11 @@ export function* fetch(method,action){
 export function sagaCreator(actions,Api,emitter){
   const saga= {
     refreshList:function* ({TYPES,Api,namespace},action){
+      console.log(TYPES,Api,namespace)
       const params = yield effects.select((state)=>{
         return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(actions.listAction.toString()))
       })
-      yield effects.call(saga.fetchList,{payload:params})
+      yield effects.call(saga.fetchList,{TYPES,Api,namespace},{type:TYPES.LIST_ACTION,payload:params})
     },
     fetchItem: function* ({TYPES,Api,namespace},action){
       const result = yield fetch(Api.fetchItem, action);
@@ -54,6 +55,7 @@ export function sagaCreator(actions,Api,emitter){
       const payload = {ids:[].concat(action.payload)}
       const result = yield fetch(Api.fetchDelete, Object.assign(action,{payload}));
       if(result.code === 0){
+        yield saga.refreshList({TYPES,Api,namespace},action)
         yield effects.put({type:"@@MIDDLEWARE/SHOW_SUCCESS",payload:"操作成功"})
       }else{
         yield effects.put({type:"@@MIDDLEWARE/SHOW_ERROR",payload:result.message})

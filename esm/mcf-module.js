@@ -2396,19 +2396,25 @@ function sagaCreator(actions, Api, emitter) {
           switch (_context2.prev = _context2.next) {
             case 0:
               TYPES = _ref.TYPES, Api = _ref.Api, namespace = _ref.namespace;
-              _context2.next = 3;
+              console.log(TYPES, Api, namespace);
+              _context2.next = 4;
               return select(function (state) {
                 return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(actions.listAction.toString()));
               });
 
-            case 3:
+            case 4:
               params = _context2.sent;
-              _context2.next = 6;
+              _context2.next = 7;
               return call(saga.fetchList, {
+                TYPES: TYPES,
+                Api: Api,
+                namespace: namespace
+              }, {
+                type: TYPES.LIST_ACTION,
                 payload: params
               });
 
-            case 6:
+            case 7:
             case "end":
               return _context2.stop();
           }
@@ -2582,28 +2588,36 @@ function sagaCreator(actions, Api, emitter) {
               result = _context6.sent;
 
               if (!(result.code === 0)) {
-                _context6.next = 10;
+                _context6.next = 12;
                 break;
               }
 
               _context6.next = 8;
+              return saga.refreshList({
+                TYPES: TYPES,
+                Api: Api,
+                namespace: namespace
+              }, action);
+
+            case 8:
+              _context6.next = 10;
               return put$1({
                 type: "@@MIDDLEWARE/SHOW_SUCCESS",
                 payload: "操作成功"
               });
 
-            case 8:
-              _context6.next = 12;
+            case 10:
+              _context6.next = 14;
               break;
 
-            case 10:
-              _context6.next = 12;
+            case 12:
+              _context6.next = 14;
               return put$1({
                 type: "@@MIDDLEWARE/SHOW_ERROR",
                 payload: result.message
               });
 
-            case 12:
+            case 14:
             case "end":
               return _context6.stop();
           }
