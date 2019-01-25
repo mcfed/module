@@ -4321,7 +4321,7 @@ var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) 
       return state.fetchingReducer.params.get(type) || {};
     },
     locale: function locale(type, value) {
-      return state.intl && state.intl.formatMessage(messages[type], value);
+      return state.intl && state.intl.formatMessage(state.messages[type], value);
     }
   });
 };

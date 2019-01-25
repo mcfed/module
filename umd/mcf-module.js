@@ -4307,7 +4307,7 @@
 	      return state.fetchingReducer.params.get(type) || {};
 	    },
 	    locale: function locale(type, value) {
-	      return state.intl && state.intl.formatMessage(messages[type], value);
+	      return state.intl && state.intl.formatMessage(state.messages[type], value);
 	    }
 	  });
 	};
