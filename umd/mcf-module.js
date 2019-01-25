@@ -4296,50 +4296,47 @@
 	}
 	var connect = createConnect();
 
-	var defaultMapStateToProps = function defaultMapStateToProps(state, props) {
-	  return {
-	    fetchingReducer: state.fetchingReducer,
-	    spins: function spins(type) {
-	      return state.fetchingReducer.fetching.get(type);
-	    },
-	    querys: function querys(type) {
-	      return state.fetchingReducer.params.get(type) || {};
-	    }
-	  };
-	};
+	// export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"
+
 	var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) {
 	  return Object.assign({}, ownProps, state, dispatch, {
-	    items: state.reducer.items,
-	    item: state.reducer.item,
 	    spins: function spins(type) {
 	      return state.fetchingReducer.fetching.get(type);
 	    },
 	    querys: function querys(type) {
 	      return state.fetchingReducer.params.get(type) || {};
+	    },
+	    locale: function locale(type, value) {
+	      return state.intl && state.intl.formatMessage(messages[type], value);
 	    }
 	  });
 	};
-	var maspActionDispatchToProps = function maspActionDispatchToProps(action) {
-	  var TYPES = action.TYPES,
-	      actions = action.actions;
-	  return function (dispatch, props) {
+	/*
+	export const mapActionDispatchToProps = (dispatch,props,action)=>{
+	  console.log(arguments)
+	  console.log(action)
+	  const { TYPES, actions } =action
+	  return (dispatch,props) => {
 	    return {
 	      types: TYPES,
 	      actions: bindActionCreators(actions, dispatch),
-	      dispatch: dispatch
+	      dispatch
 	    };
-	  };
-	};
+	  }
+	}
+	*/
+
 	/*
-	export function connectContainer(mapStateToProps,mapDispatchToProps,component){
-	  return connect(defaultMapStateToProps,mapDispatchToProps)(component)
+	export function connectContainer(component,mapStateToProps,mapDispatchToProps,defaultMergeProps){
+	  console.log(connect)
+	  console.log("component",component,mapStateToProps,mapDispatchToProps,defaultMergeProps)
+	  return injectIntl(connect(mapStateToProps,mapDispatchToProps,defaultMergeProps)(component))
 	}
 	*/
 
 	var index$3 = /*#__PURE__*/Object.freeze({
-		defaultMapStateToProps: defaultMapStateToProps,
 		defaultMergeProps: defaultMergeProps$1,
-		maspActionDispatchToProps: maspActionDispatchToProps,
+		bindActionCreators: bindActionCreators,
 		connect: connect
 	});
 

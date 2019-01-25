@@ -1,37 +1,30 @@
-
-import {bindActionCreators} from 'redux'
-// console.log(bindActionCreators)
+export {bindActionCreators} from 'redux'
 export {connect} from 'react-redux'
+// import {injectIntl} from 'react-intl'
 // export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"
 
 
-export const defaultMapStateToProps = (state,props) => {
-  return {
-    fetchingReducer:state.fetchingReducer,
-    spins:function(type){
-      return state.fetchingReducer.fetching.get(type)
-    },
-    querys:function(type){
-      return state.fetchingReducer.params.get(type) || {}
-    }
-  }
-}
-
 export const defaultMergeProps=(state, dispatch, ownProps)=>{
   return Object.assign({}, ownProps, state, dispatch,{
-    items: state.reducer.items,
-    item: state.reducer.item,
     spins:function(type){
       return state.fetchingReducer.fetching.get(type)
     },
     querys:function(type){
       return state.fetchingReducer.params.get(type) || {}
+    },
+    locale:function(type,value){
+      return state.intl && state.intl.formatMessage(messages[type],value)
     }
   })
 }
 
-export const maspActionDispatchToProps = (action)=>{
-  const { TYPES, actions } = action
+
+
+/*
+export const mapActionDispatchToProps = (dispatch,props,action)=>{
+  console.log(arguments)
+  console.log(action)
+  const { TYPES, actions } =action
   return (dispatch,props) => {
     return {
       types: TYPES,
@@ -40,8 +33,11 @@ export const maspActionDispatchToProps = (action)=>{
     };
   }
 }
+*/
 /*
-export function connectContainer(mapStateToProps,mapDispatchToProps,component){
-  return connect(defaultMapStateToProps,mapDispatchToProps)(component)
+export function connectContainer(component,mapStateToProps,mapDispatchToProps,defaultMergeProps){
+  console.log(connect)
+  console.log("component",component,mapStateToProps,mapDispatchToProps,defaultMergeProps)
+  return injectIntl(connect(mapStateToProps,mapDispatchToProps,defaultMergeProps)(component))
 }
 */
