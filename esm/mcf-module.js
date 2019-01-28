@@ -18,7 +18,7 @@ var UniquenessErrorMessage = exports.UniquenessErrorMessage = 'Args must be uniq
 var TypeErrorMessage = exports.TypeErrorMessage = 'Arguments must be strings';
 var ConstantsTypeErrorMessage = exports.ConstantsTypeErrorMessage = 'Constants must be an array';
 var NamespaceTypeErrorMessage = exports.NamespaceTypeErrorMessage = 'Namespace must be strings';
-//# sourceMappingURL=errors.js.map
+
 });
 
 unwrapExports(errors);
@@ -38,7 +38,7 @@ var isString = exports.isString = function isString(arg) {
 var isArray = exports.isArray = function isArray(arg) {
   return Array.isArray(arg);
 };
-//# sourceMappingURL=types-testers.js.map
+
 });
 
 unwrapExports(typesTesters);
@@ -69,7 +69,7 @@ var raiseErrorIfNotUnique = exports.raiseErrorIfNotUnique = function raiseErrorI
   }
   if (duplicate) throw new Error(errors.UniquenessErrorMessage);
 };
-//# sourceMappingURL=error-raisers.js.map
+
 });
 
 unwrapExports(errorRaisers);
@@ -99,7 +99,7 @@ var actionTypes = function actionTypes(namespace, constants) {
   }, {}));
 };
 exports.default = actionTypes;
-//# sourceMappingURL=action-types.js.map
+
 });
 
 unwrapExports(actionTypes_1);
@@ -1840,7 +1840,7 @@ take.maybe = function () {
 
 var takem = /*#__PURE__*/deprecate(take.maybe, /*#__PURE__*/updateIncentive('takem', 'take.maybe'));
 
-function put$1(channel, action) {
+function put(channel, action) {
   if (arguments.length > 1) {
     check(channel, is.notUndef, 'put(channel, action): argument channel is undefined');
     check(channel, is.channel, 'put(channel, action): argument ' + channel + ' is not a valid channel');
@@ -1853,13 +1853,13 @@ function put$1(channel, action) {
   return effect(PUT, { channel: channel, action: action });
 }
 
-put$1.resolve = function () {
-  var eff = put$1.apply(undefined, arguments);
+put.resolve = function () {
+  var eff = put.apply(undefined, arguments);
   eff[PUT].resolve = true;
   return eff;
 };
 
-put$1.sync = /*#__PURE__*/deprecate(put$1.resolve, /*#__PURE__*/updateIncentive('put.sync', 'put.resolve'));
+put.sync = /*#__PURE__*/deprecate(put.resolve, /*#__PURE__*/updateIncentive('put.sync', 'put.resolve'));
 
 function all(effects) {
   return effect(ALL, effects);
@@ -2314,7 +2314,7 @@ function throttle$2(ms, pattern, worker) {
 var effects = /*#__PURE__*/Object.freeze({
 	take: take,
 	takem: takem,
-	put: put$1,
+	put: put,
 	all: all,
 	race: race,
 	call: call,
@@ -2345,14 +2345,14 @@ function fetch(method, action) {
       switch (_context.prev = _context.next) {
         case 0:
           _context.next = 2;
-          return put$1({
+          return put({
             type: "@@MIDDLEWARE/FETCH_PARAMS",
             payload: action
           });
 
         case 2:
           _context.next = 4;
-          return put$1({
+          return put({
             type: "@@MIDDLEWARE/FETCH_REQ",
             payload: {
               type: action.type,
@@ -2367,7 +2367,7 @@ function fetch(method, action) {
         case 6:
           result = _context.sent;
           _context.next = 9;
-          return put$1({
+          return put({
             type: "@@MIDDLEWARE/FETCH_RES",
             payload: {
               type: action.type,
@@ -2396,15 +2396,14 @@ function sagaCreator(actions, Api, emitter) {
           switch (_context2.prev = _context2.next) {
             case 0:
               TYPES = _ref.TYPES, Api = _ref.Api, namespace = _ref.namespace;
-              console.log(TYPES, Api, namespace);
-              _context2.next = 4;
+              _context2.next = 3;
               return select(function (state) {
                 return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(actions.listAction.toString()));
               });
 
-            case 4:
+            case 3:
               params = _context2.sent;
-              _context2.next = 7;
+              _context2.next = 6;
               return call(saga.fetchList, {
                 TYPES: TYPES,
                 Api: Api,
@@ -2414,7 +2413,7 @@ function sagaCreator(actions, Api, emitter) {
                 payload: params
               });
 
-            case 7:
+            case 6:
             case "end":
               return _context2.stop();
           }
@@ -2442,7 +2441,7 @@ function sagaCreator(actions, Api, emitter) {
               }
 
               _context3.next = 7;
-              return put$1({
+              return put({
                 type: TYPES.SAVE_ITEM,
                 payload: result.data
               });
@@ -2493,7 +2492,7 @@ function sagaCreator(actions, Api, emitter) {
               }
 
               _context4.next = 7;
-              return put$1({
+              return put({
                 type: TYPES.SAVE_LIST,
                 payload: result.data
               });
@@ -2504,7 +2503,7 @@ function sagaCreator(actions, Api, emitter) {
 
             case 9:
               _context4.next = 11;
-              return put$1({
+              return put({
                 type: "@@MIDDLEWARE/SHOW_ERROR",
                 payload: result.message
               });
@@ -2537,14 +2536,14 @@ function sagaCreator(actions, Api, emitter) {
               }
 
               _context5.next = 7;
-              return put$1({
+              return put({
                 type: TYPES.SAVE_ITEM,
                 payload: result.data
               });
 
             case 7:
               _context5.next = 9;
-              return put$1({
+              return put({
                 type: "@@MIDDLEWARE/SHOW_SUCCESS",
                 payload: "操作成功"
               });
@@ -2601,7 +2600,7 @@ function sagaCreator(actions, Api, emitter) {
 
             case 8:
               _context6.next = 10;
-              return put$1({
+              return put({
                 type: "@@MIDDLEWARE/SHOW_SUCCESS",
                 payload: "操作成功"
               });
@@ -2612,7 +2611,7 @@ function sagaCreator(actions, Api, emitter) {
 
             case 12:
               _context6.next = 14;
-              return put$1({
+              return put({
                 type: "@@MIDDLEWARE/SHOW_ERROR",
                 payload: result.message
               });

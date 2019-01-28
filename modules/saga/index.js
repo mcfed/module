@@ -18,7 +18,7 @@ export function* fetch(method,action){
 export function sagaCreator(actions,Api,emitter){
   const saga= {
     refreshList:function* ({TYPES,Api,namespace},action){
-      console.log(TYPES,Api,namespace)
+      // console.log(TYPES,Api,namespace)
       const params = yield effects.select((state)=>{
         return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(actions.listAction.toString()))
       })
@@ -28,9 +28,9 @@ export function sagaCreator(actions,Api,emitter){
       const result = yield fetch(Api.fetchItem, action);
       if(result.code === 0){
         yield effects.put({type:TYPES.SAVE_ITEM,payload:result.data});
-        yield put({type:"@@MIDDLEWARE/SHOW_SUCCESS",payload:"操作成功"})
+        yield effects.put({type:"@@MIDDLEWARE/SHOW_SUCCESS",payload:"操作成功"})
       } else {
-        yield put({type:"@@MIDDLEWARE/SHOW_ERROR",payload:"操作失败"})
+        yield effects.put({type:"@@MIDDLEWARE/SHOW_ERROR",payload:"操作失败"})
       }
     },
     fetchList: function* ({TYPES,Api,namespace},action) {
@@ -48,7 +48,7 @@ export function sagaCreator(actions,Api,emitter){
         yield effects.put({type:TYPES.SAVE_ITEM,payload:result.data});
         yield effects.put({type:"@@MIDDLEWARE/SHOW_SUCCESS",payload:"操作成功"})
       }else{
-        yield put({type:"@@MIDDLEWARE/SHOW_ERROR",payload:result.message})
+        yield effects.put({type:"@@MIDDLEWARE/SHOW_ERROR",payload:result.message})
       }
     },
     fetchDelete: function* ({TYPES,Api,namespace},action){
