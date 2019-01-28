@@ -1,3 +1,3 @@
-export { default as createFetching,fetchingReducer } from './redux-fetching'
-export { default as createMessage } from './redux-message'
+export { default as createFetching,fetchingReducer,fetchReq,fetchRes,fetchParams } from './redux-fetching'
+export { default as createMessage,showSuccess,showError } from './redux-message'
 export { default as createModule,globalReducer } from './redux-module'

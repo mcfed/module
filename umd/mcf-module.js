@@ -2325,6 +2325,189 @@
 		throttle: throttle$2
 	});
 
+	var FETCH_PARAMS = "@@MIDDLEWARE/FETCH_PARAMS";
+	var FETCH_REQ = "@@MIDDLEWARE/FETCH_REQ";
+	var FETCH_RES = "@@MIDDLEWARE/FETCH_RES";
+	function fetchReq(payload) {
+	  return {
+	    type: FETCH_REQ,
+	    payload: payload
+	  };
+	}
+	function fetchRes(payload) {
+	  return {
+	    type: FETCH_RES,
+	    payload: payload
+	  };
+	}
+	function fetchParams(payload) {
+	  return {
+	    type: FETCH_PARAMS,
+	    payload: payload
+	  };
+	}
+
+	function fetchingReducer() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+	    fetching: new Map(),
+	    params: new Map()
+	  };
+
+	  var _ref = arguments.length > 1 ? arguments[1] : undefined,
+	      type = _ref.type,
+	      payload = _ref.payload;
+
+	  var fetching = state.fetching,
+	      params = state.params;
+
+	  switch (type) {
+	    case FETCH_PARAMS:
+	      return objectSpread({}, state, {
+	        params: params.set(payload.type, payload.payload)
+	      });
+
+	    case FETCH_REQ:
+	      return objectSpread({}, state, {
+	        fetching: new Map(fetching.set(payload.type, payload.payload))
+	      });
+
+	    case FETCH_RES:
+	      return objectSpread({}, state, {
+	        fetching: new Map(fetching.set(payload.type, payload.payload))
+	      });
+
+	    default:
+	      return state;
+	  } //  return state
+
+	}
+
+	function createFetching(_ref2
+	/*fetchRegexp:regexp,paramsRegexp:regexp */
+	) {
+	  var fetchRegexp = _ref2.fetchRegexp,
+	      paramsRegexp = _ref2.paramsRegexp;
+	  return function (_ref3) {
+	    var getState = _ref3.getState,
+	        dispatch = _ref3.dispatch;
+	    return function (next) {
+	      return function (action) {
+	        /*
+	        if (new RegExp(paramsRegexp).test(action.type)) {
+	          dispatch({ type: 'FETCH_PARAMS', payload: action })
+	        }
+	        */
+	        // if (new RegExp(fetchRegexp).test(action.type)) {
+	        //   setTimeout(function(){
+	        //     dispatch({ type: '@@MIDDLEWARE/FETCH_REQ', payload: { type: action.type, payload: true } })
+	        //   },0)
+	        //   //const returnValue = next(action);
+	        //   next(action);
+	        //   setTimeout(function(){
+	        //     dispatch({ type: "@@MIDDLEWARE/FETCH_SUCCESS", payload: { type: action.type, payload: false } });
+	        //   },0)
+	        // } else {
+	        return next(action); // }
+	      };
+	    };
+	  };
+	}
+
+	var SHOW_SUCCESS = "@@MIDDLEWARE/SHOW_SUCCESS";
+	var SHOW_ERROR = "@@MIDDLEWARE/SHOW_ERROR";
+	function showSuccess(payload) {
+	  return {
+	    type: SHOW_SUCCESS,
+	    payload: payload
+	  };
+	}
+	function showError(payload) {
+	  return {
+	    type: SHOW_Error,
+	    payload: payload
+	  };
+	}
+	function createMessage(message) {
+	  return function (_ref) {
+	    var getState = _ref.getState,
+	        dispatch = _ref.dispatch;
+	    return function (next) {
+	      return function (action) {
+	        if (SHOW_SUCCESS === action.type) {
+	          message.success(action.payload);
+	        } else if (SHOW_ERROR === action.type) {
+	          message.error(action.payload);
+	        }
+
+	        return next(action);
+	      };
+	    };
+	  };
+	}
+
+	function globalReducer() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+	    dicts: {},
+	    bizCodes: {}
+	  };
+
+	  var _ref = arguments.length > 1 ? arguments[1] : undefined,
+	      type = _ref.type,
+	      payload = _ref.payload;
+
+	  var fetching = state.fetching,
+	      params = state.params;
+
+	  switch (type) {
+	    case '@@MIDDLEWARE/UPGRADE_DICT':
+	      return objectSpread({}, state, {
+	        dicts: payload
+	      });
+
+	    case '@@MIDDLEWARE/UPGRADE_BIZCODE':
+	      return objectSpread({}, state, {
+	        bizCodes: payload
+	      });
+
+	    case '@@MIDDLEWARE/UPGRADE_USER':
+	      return objectSpread({}, state);
+
+	    case '@@MIDDLEWARE/UPGRADE_AUTHS':
+	      return objectSpread({}, state);
+
+	    default:
+	      return state;
+	  } //  return state
+
+	}
+
+	function createModule() {
+	  return function (_ref2) {
+	    var getState = _ref2.getState,
+	        dispatch = _ref2.dispatch;
+	    return function (next) {
+	      return function (action) {
+	        next(action);
+	      };
+	    };
+	  };
+	}
+
+
+
+	var index$2 = /*#__PURE__*/Object.freeze({
+		createFetching: createFetching,
+		fetchingReducer: fetchingReducer,
+		fetchReq: fetchReq,
+		fetchRes: fetchRes,
+		fetchParams: fetchParams,
+		createMessage: createMessage,
+		showSuccess: showSuccess,
+		showError: showError,
+		createModule: createModule,
+		globalReducer: globalReducer
+	});
+
 	var _marked =
 	/*#__PURE__*/
 	regenerator.mark(fetch);
@@ -2335,20 +2518,14 @@
 	      switch (_context.prev = _context.next) {
 	        case 0:
 	          _context.next = 2;
-	          return put({
-	            type: "@@MIDDLEWARE/FETCH_PARAMS",
-	            payload: action
-	          });
+	          return put(fetchParams(action));
 
 	        case 2:
 	          _context.next = 4;
-	          return put({
-	            type: "@@MIDDLEWARE/FETCH_REQ",
-	            payload: {
-	              type: action.type,
-	              payload: true
-	            }
-	          });
+	          return put(fetchReq({
+	            type: action.type,
+	            payload: true
+	          }));
 
 	        case 4:
 	          _context.next = 6;
@@ -2357,13 +2534,10 @@
 	        case 6:
 	          result = _context.sent;
 	          _context.next = 9;
-	          return put({
-	            type: "@@MIDDLEWARE/FETCH_RES",
-	            payload: {
-	              type: action.type,
-	              payload: false
-	            }
-	          });
+	          return put(fetchRes({
+	            type: action.type,
+	            payload: false
+	          }));
 
 	        case 9:
 	          return _context.abrupt("return", result);
@@ -2426,7 +2600,7 @@
 	              result = _context3.sent;
 
 	              if (!(result.code === 0)) {
-	                _context3.next = 11;
+	                _context3.next = 9;
 	                break;
 	              }
 
@@ -2437,24 +2611,14 @@
 	              });
 
 	            case 7:
-	              _context3.next = 9;
-	              return put({
-	                type: "@@MIDDLEWARE/SHOW_SUCCESS",
-	                payload: "操作成功"
-	              });
-
-	            case 9:
-	              _context3.next = 13;
+	              _context3.next = 11;
 	              break;
 
-	            case 11:
-	              _context3.next = 13;
-	              return put({
-	                type: "@@MIDDLEWARE/SHOW_ERROR",
-	                payload: "操作失败"
-	              });
+	            case 9:
+	              _context3.next = 11;
+	              return put(showError(result.message));
 
-	            case 13:
+	            case 11:
 	            case "end":
 	              return _context3.stop();
 	          }
@@ -2493,10 +2657,7 @@
 
 	            case 9:
 	              _context4.next = 11;
-	              return put({
-	                type: "@@MIDDLEWARE/SHOW_ERROR",
-	                payload: result.message
-	              });
+	              return put(showError(result.message));
 
 	            case 11:
 	            case "end":
@@ -2533,10 +2694,7 @@
 
 	            case 7:
 	              _context5.next = 9;
-	              return put({
-	                type: "@@MIDDLEWARE/SHOW_SUCCESS",
-	                payload: "操作成功"
-	              });
+	              return put(showSuccess("操作成功"));
 
 	            case 9:
 	              _context5.next = 13;
@@ -2544,10 +2702,7 @@
 
 	            case 11:
 	              _context5.next = 13;
-	              return put({
-	                type: "@@MIDDLEWARE/SHOW_ERROR",
-	                payload: result.message
-	              });
+	              return put(showError(result.message));
 
 	            case 13:
 	            case "end":
@@ -2590,10 +2745,7 @@
 
 	            case 8:
 	              _context6.next = 10;
-	              return put({
-	                type: "@@MIDDLEWARE/SHOW_SUCCESS",
-	                payload: "操作成功"
-	              });
+	              return put(showSuccess("操作成功"));
 
 	            case 10:
 	              _context6.next = 14;
@@ -2601,10 +2753,7 @@
 
 	            case 12:
 	              _context6.next = 14;
-	              return put({
-	                type: "@@MIDDLEWARE/SHOW_ERROR",
-	                payload: result.message
-	              });
+	              return put(showError(result.message));
 
 	            case 14:
 	            case "end":
@@ -2617,7 +2766,7 @@
 	  return saga;
 	}
 
-	var index$2 = /*#__PURE__*/Object.freeze({
+	var index$3 = /*#__PURE__*/Object.freeze({
 		effects: effects,
 		fetch: fetch,
 		sagaCreator: sagaCreator
@@ -4333,162 +4482,19 @@
 	}
 	*/
 
-	var index$3 = /*#__PURE__*/Object.freeze({
+	var index$4 = /*#__PURE__*/Object.freeze({
 		defaultMergeProps: defaultMergeProps$1,
 		bindActionCreators: bindActionCreators,
 		connect: connect
-	});
-
-	function fetchingReducer() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-	    fetching: new Map(),
-	    params: new Map()
-	  };
-
-	  var _ref = arguments.length > 1 ? arguments[1] : undefined,
-	      type = _ref.type,
-	      payload = _ref.payload;
-
-	  var fetching = state.fetching,
-	      params = state.params;
-
-	  switch (type) {
-	    case '@@MIDDLEWARE/FETCH_PARAMS':
-	      return objectSpread({}, state, {
-	        params: params.set(payload.type, payload.payload)
-	      });
-
-	    case '@@MIDDLEWARE/FETCH_REQ':
-	      return objectSpread({}, state, {
-	        fetching: new Map(fetching.set(payload.type, payload.payload))
-	      });
-
-	    case '@@MIDDLEWARE/FETCH_RES':
-	      return objectSpread({}, state, {
-	        fetching: new Map(fetching.set(payload.type, payload.payload))
-	      });
-
-	    default:
-	      return state;
-	  } //  return state
-
-	}
-
-	function createFetching(_ref2
-	/*fetchRegexp:regexp,paramsRegexp:regexp */
-	) {
-	  var fetchRegexp = _ref2.fetchRegexp,
-	      paramsRegexp = _ref2.paramsRegexp;
-	  return function (_ref3) {
-	    var getState = _ref3.getState,
-	        dispatch = _ref3.dispatch;
-	    return function (next) {
-	      return function (action) {
-	        /*
-	        if (new RegExp(paramsRegexp).test(action.type)) {
-	          dispatch({ type: 'FETCH_PARAMS', payload: action })
-	        }
-	        */
-	        // if (new RegExp(fetchRegexp).test(action.type)) {
-	        //   setTimeout(function(){
-	        //     dispatch({ type: '@@MIDDLEWARE/FETCH_REQ', payload: { type: action.type, payload: true } })
-	        //   },0)
-	        //   //const returnValue = next(action);
-	        //   next(action);
-	        //   setTimeout(function(){
-	        //     dispatch({ type: "@@MIDDLEWARE/FETCH_SUCCESS", payload: { type: action.type, payload: false } });
-	        //   },0)
-	        // } else {
-	        return next(action); // }
-	      };
-	    };
-	  };
-	}
-
-	// import {message} from 'antd'
-	function createMessage(message) {
-	  return function (_ref) {
-	    var getState = _ref.getState,
-	        dispatch = _ref.dispatch;
-	    return function (next) {
-	      return function (action) {
-	        if ("@@MIDDLEWARE/SHOW_SUCCESS" === action.type) {
-	          message.success(action.payload);
-	        } else if ("@@MIDDLEWARE/SHOW_ERROR" === action.type) {
-	          message.error(action.payload);
-	        }
-
-	        return next(action);
-	      };
-	    };
-	  };
-	}
-
-	function globalReducer() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-	    dicts: {},
-	    bizCodes: {}
-	  };
-
-	  var _ref = arguments.length > 1 ? arguments[1] : undefined,
-	      type = _ref.type,
-	      payload = _ref.payload;
-
-	  var fetching = state.fetching,
-	      params = state.params;
-
-	  switch (type) {
-	    case '@@MIDDLEWARE/UPGRADE_DICT':
-	      return objectSpread({}, state, {
-	        dicts: payload
-	      });
-
-	    case '@@MIDDLEWARE/UPGRADE_BIZCODE':
-	      return objectSpread({}, state, {
-	        bizCodes: payload
-	      });
-
-	    case '@@MIDDLEWARE/UPGRADE_USER':
-	      return objectSpread({}, state);
-
-	    case '@@MIDDLEWARE/UPGRADE_AUTHS':
-	      return objectSpread({}, state);
-
-	    default:
-	      return state;
-	  } //  return state
-
-	}
-
-	function createModule() {
-	  return function (_ref2) {
-	    var getState = _ref2.getState,
-	        dispatch = _ref2.dispatch;
-	    return function (next) {
-	      return function (action) {
-	        next(action);
-	      };
-	    };
-	  };
-	}
-
-
-
-	var index$4 = /*#__PURE__*/Object.freeze({
-		createFetching: createFetching,
-		fetchingReducer: fetchingReducer,
-		createMessage: createMessage,
-		createModule: createModule,
-		globalReducer: globalReducer
 	});
 
 	// export * as router from './router'
 
 	exports.ModuleAction = index;
 	exports.ModuleReducer = index$1;
-	exports.ModuleSaga = index$2;
-	exports.ModuleContainer = index$3;
-	exports.ModuleMiddleware = index$4;
+	exports.ModuleSaga = index$3;
+	exports.ModuleContainer = index$4;
+	exports.ModuleMiddleware = index$2;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 
