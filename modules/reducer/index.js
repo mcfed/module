@@ -11,16 +11,16 @@ export const defaultState={
 }
 
 
-export function reducerActionCreator(types,TYPES){
+export function reducerActionCreator(actionTypes){
   const reducerAction={}
-    reducerAction[TYPES.SAVE_PARAMS]=(state,{payload})=>{
+    reducerAction[actionTypes.SAVE_PARAMS]=(state,{payload})=>{
       return {
         ...state,
         params:payload
       }
     }
     //保存列表数据和分页信息
-    reducerAction[TYPES.SAVE_LIST]=(state,{payload})=>{
+    reducerAction[actionTypes.SAVE_LIST]=(state,{payload})=>{
       return {
         ...state,
         items:payload.items,
@@ -29,14 +29,14 @@ export function reducerActionCreator(types,TYPES){
       }
     }
     //保存单一项数据，不更新 list数据
-    reducerAction[TYPES.SAVE_ITEM]=(state,{payload})=>{
+    reducerAction[actionTypes.SAVE_ITEM]=(state,{payload})=>{
       return {
         ...state,
         item:payload
       }
     }
 
-    reducerAction[TYPES.DELETE_ITEM]=(state,{payload})=>{
+    reducerAction[actionTypes.DELETE_ITEM]=(state,{payload})=>{
       return {
         ...state,
         item:{}

@@ -6139,7 +6139,7 @@ var UniquenessErrorMessage = exports.UniquenessErrorMessage = 'Args must be uniq
 var TypeErrorMessage = exports.TypeErrorMessage = 'Arguments must be strings';
 var ConstantsTypeErrorMessage = exports.ConstantsTypeErrorMessage = 'Constants must be an array';
 var NamespaceTypeErrorMessage = exports.NamespaceTypeErrorMessage = 'Namespace must be strings';
-
+//# sourceMappingURL=errors.js.map
 });
 
 unwrapExports(errors);
@@ -6159,7 +6159,7 @@ var isString = exports.isString = function isString(arg) {
 var isArray = exports.isArray = function isArray(arg) {
   return Array.isArray(arg);
 };
-
+//# sourceMappingURL=types-testers.js.map
 });
 
 unwrapExports(typesTesters);
@@ -6190,7 +6190,7 @@ var raiseErrorIfNotUnique = exports.raiseErrorIfNotUnique = function raiseErrorI
   }
   if (duplicate) throw new Error(errors.UniquenessErrorMessage);
 };
-
+//# sourceMappingURL=error-raisers.js.map
 });
 
 unwrapExports(errorRaisers);
@@ -6220,7 +6220,7 @@ var actionTypes = function actionTypes(namespace, constants) {
   }, {}));
 };
 exports.default = actionTypes;
-
+//# sourceMappingURL=action-types.js.map
 });
 
 unwrapExports(actionTypes_1);
@@ -6794,7 +6794,7 @@ function handleActions(handlers, defaultState, options) {
   };
 }
 
-var defaultTypes = ["LIST_ACTION", //列表行为
+var defaultTypes = ["fetchList", //列表行为
 "SAVE_LIST", //保存列表
 "SAVE_ACTION", //保存行为
 "SAVE_ITEM", //保存单一数据
@@ -6802,27 +6802,14 @@ var defaultTypes = ["LIST_ACTION", //列表行为
 "DELETE_ITEM", //删除数据
 "ITEM_ACTION" //获取信息
 ];
-function actionCreator(TYPES) {
+function actionCreator(actionTypes) {
   var object = Object.create({});
 
-  for (var key in TYPES) {
-    object[TYPES[key]] = createAction(TYPES[key]);
+  for (var key in actionTypes) {
+    object[actionTypes[key]] = createAction(actionTypes[key]);
   }
 
   return object;
-  /*
-  const result={
-    listAction:createAction(TYPES.LIST_ACTION),
-    saveList:createAction(TYPES.SAVE_LIST),
-    itemAction:createAction(TYPES.ITEM_ACTION),
-    saveAction:createAction(TYPES.SAVE_ACTION),
-    saveItem:createAction(TYPES.SAVE_ITEM),
-    deleteAction:createAction(TYPES.DELETE_ACTION),
-    deleteItem:createAction(TYPES.DELETE_ITEM),
-    // saveParams:createAction(TYPES.SAVE_PARAMS)
-  }
-   return result
-  */
 }
 function createTypes(namespace, typesArray) {
   return reduxTypes.default(namespace, typesArray);
@@ -6895,10 +6882,10 @@ var defaultState = {
     current: 1
   }
 };
-function reducerActionCreator(types, TYPES) {
+function reducerActionCreator(actionTypes) {
   var reducerAction = {};
 
-  reducerAction[TYPES.SAVE_PARAMS] = function (state, _ref) {
+  reducerAction[actionTypes.SAVE_PARAMS] = function (state, _ref) {
     var payload = _ref.payload;
     return objectSpread({}, state, {
       params: payload
@@ -6906,7 +6893,7 @@ function reducerActionCreator(types, TYPES) {
   }; //保存列表数据和分页信息
 
 
-  reducerAction[TYPES.SAVE_LIST] = function (state, _ref2) {
+  reducerAction[actionTypes.SAVE_LIST] = function (state, _ref2) {
     var payload = _ref2.payload;
     return objectSpread({}, state, {
       items: payload.items,
@@ -6916,14 +6903,14 @@ function reducerActionCreator(types, TYPES) {
   }; //保存单一项数据，不更新 list数据
 
 
-  reducerAction[TYPES.SAVE_ITEM] = function (state, _ref3) {
+  reducerAction[actionTypes.SAVE_ITEM] = function (state, _ref3) {
     var payload = _ref3.payload;
     return objectSpread({}, state, {
       item: payload
     });
   };
 
-  reducerAction[TYPES.DELETE_ITEM] = function (state, _ref4) {
+  reducerAction[actionTypes.DELETE_ITEM] = function (state, _ref4) {
     var payload = _ref4.payload;
     return objectSpread({}, state, {
       item: {}
@@ -8449,12 +8436,12 @@ function fetchingReducer() {
 
     case FETCH_REQ:
       return objectSpread({}, state, {
-        fetching: new Map(fetching.set(payload.type, payload.payload))
+        fetching: new Map(fetching.set(payload.type, true))
       });
 
     case FETCH_RES:
       return objectSpread({}, state, {
-        fetching: new Map(fetching.set(payload.type, payload.payload))
+        fetching: new Map(fetching.set(payload.type, false))
       });
 
     default:
@@ -8504,7 +8491,7 @@ function showSuccess(payload) {
 }
 function showError(payload) {
   return {
-    type: SHOW_Error,
+    type: SHOW_ERROR,
     payload: payload
   };
 }
@@ -8529,7 +8516,8 @@ function createMessage(message) {
 function globalReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
     dicts: {},
-    bizCodes: {}
+    bizCodes: {},
+    config: {}
   };
 
   var _ref = arguments.length > 1 ? arguments[1] : undefined,
@@ -8548,6 +8536,11 @@ function globalReducer() {
     case '@@MIDDLEWARE/UPGRADE_BIZCODE':
       return objectSpread({}, state, {
         bizCodes: payload
+      });
+
+    case '@@MIDDLEWARE/UPGRADE_CONFIG':
+      return objectSpread({}, state, {
+        config: Object.assign({}, state.config, payload)
       });
 
     case '@@MIDDLEWARE/UPGRADE_USER':
@@ -8603,27 +8596,13 @@ function fetch(method, action) {
 
         case 2:
           _context.next = 4;
-          return put(fetchReq({
-            type: action.type,
-            payload: true
-          }));
-
-        case 4:
-          _context.next = 6;
           return call(method, action.payload);
 
-        case 6:
+        case 4:
           result = _context.sent;
-          _context.next = 9;
-          return put(fetchRes({
-            type: action.type,
-            payload: false
-          }));
-
-        case 9:
           return _context.abrupt("return", result);
 
-        case 10:
+        case 6:
         case "end":
           return _context.stop();
       }
@@ -8635,12 +8614,12 @@ function sagaCreator(actions, Api, emitter) {
     refreshList:
     /*#__PURE__*/
     regenerator.mark(function refreshList(_ref, action) {
-      var TYPES, Api, namespace, params;
+      var actionTypes, Api, namespace, params;
       return regenerator.wrap(function refreshList$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              TYPES = _ref.TYPES, Api = _ref.Api, namespace = _ref.namespace;
+              actionTypes = _ref.actionTypes, Api = _ref.Api, namespace = _ref.namespace;
               _context2.next = 3;
               return select(function (state) {
                 return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(actions.listAction.toString()));
@@ -8650,11 +8629,11 @@ function sagaCreator(actions, Api, emitter) {
               params = _context2.sent;
               _context2.next = 6;
               return call(saga.fetchList, {
-                TYPES: TYPES,
+                actionTypes: actionTypes,
                 Api: Api,
                 namespace: namespace
               }, {
-                type: TYPES.LIST_ACTION,
+                type: actionTypes.LIST_ACTION,
                 payload: params
               });
 
@@ -8668,12 +8647,12 @@ function sagaCreator(actions, Api, emitter) {
     fetchItem:
     /*#__PURE__*/
     regenerator.mark(function fetchItem(_ref2, action) {
-      var TYPES, Api, namespace, result;
+      var actionTypes, Api, namespace, result;
       return regenerator.wrap(function fetchItem$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
-              TYPES = _ref2.TYPES, Api = _ref2.Api, namespace = _ref2.namespace;
+              actionTypes = _ref2.actionTypes, Api = _ref2.Api, namespace = _ref2.namespace;
               _context3.next = 3;
               return fetch(Api.fetchItem, action);
 
@@ -8687,7 +8666,7 @@ function sagaCreator(actions, Api, emitter) {
 
               _context3.next = 7;
               return put({
-                type: TYPES.SAVE_ITEM,
+                type: actionTypes.SAVE_ITEM,
                 payload: result.data
               });
 
@@ -8709,14 +8688,14 @@ function sagaCreator(actions, Api, emitter) {
     fetchList:
     /*#__PURE__*/
     regenerator.mark(function fetchList(_ref3, action) {
-      var TYPES, Api, namespace, result;
+      var actionTypes, Api, namespace, result;
       return regenerator.wrap(function fetchList$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
-              TYPES = _ref3.TYPES, Api = _ref3.Api, namespace = _ref3.namespace;
+              actionTypes = _ref3.actionTypes, Api = _ref3.Api, namespace = _ref3.namespace;
               _context4.next = 3;
-              return fetch(Api.fetchList, action);
+              return call(Api.fetchList, action.payload);
 
             case 3:
               result = _context4.sent;
@@ -8728,7 +8707,7 @@ function sagaCreator(actions, Api, emitter) {
 
               _context4.next = 7;
               return put({
-                type: TYPES.SAVE_LIST,
+                type: actionTypes.SAVE_LIST,
                 payload: result.data
               });
 
@@ -8750,12 +8729,12 @@ function sagaCreator(actions, Api, emitter) {
     fetchSave:
     /*#__PURE__*/
     regenerator.mark(function fetchSave(_ref4, action) {
-      var TYPES, Api, namespace, result;
+      var actionTypes, Api, namespace, result;
       return regenerator.wrap(function fetchSave$(_context5) {
         while (1) {
           switch (_context5.prev = _context5.next) {
             case 0:
-              TYPES = _ref4.TYPES, Api = _ref4.Api, namespace = _ref4.namespace;
+              actionTypes = _ref4.actionTypes, Api = _ref4.Api, namespace = _ref4.namespace;
               _context5.next = 3;
               return fetch(Api.fetchSave, action);
 
@@ -8769,7 +8748,7 @@ function sagaCreator(actions, Api, emitter) {
 
               _context5.next = 7;
               return put({
-                type: TYPES.SAVE_ITEM,
+                type: actionTypes.SAVE_ITEM,
                 payload: result.data
               });
 
@@ -8795,12 +8774,12 @@ function sagaCreator(actions, Api, emitter) {
     fetchDelete:
     /*#__PURE__*/
     regenerator.mark(function fetchDelete(_ref5, action) {
-      var TYPES, Api, namespace, payload, result;
+      var actionTypes, Api, namespace, payload, result;
       return regenerator.wrap(function fetchDelete$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
             case 0:
-              TYPES = _ref5.TYPES, Api = _ref5.Api, namespace = _ref5.namespace;
+              actionTypes = _ref5.actionTypes, Api = _ref5.Api, namespace = _ref5.namespace;
               payload = {
                 ids: [].concat(action.payload)
               };
@@ -8819,7 +8798,7 @@ function sagaCreator(actions, Api, emitter) {
 
               _context6.next = 8;
               return saga.refreshList({
-                TYPES: TYPES,
+                actionTypes: actionTypes,
                 Api: Api,
                 namespace: namespace
               }, action);

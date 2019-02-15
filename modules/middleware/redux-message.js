@@ -10,7 +10,7 @@ export function showSuccess(payload){
 
 export function showError(payload){
   return {
-    type:SHOW_Error,
+    type:SHOW_ERROR,
     payload:payload
   }
 }

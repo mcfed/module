@@ -5,7 +5,7 @@ export * from 'redux-actions'
 
 // export const actionEmitter = new EventEmitter()
 export const defaultTypes = [
-  "LIST_ACTION", //列表行为
+  "fetchList", //列表行为
   "SAVE_LIST",  //保存列表
   "SAVE_ACTION", //保存行为
   "SAVE_ITEM",   //保存单一数据
@@ -13,26 +13,12 @@ export const defaultTypes = [
   "DELETE_ITEM",  //删除数据
   "ITEM_ACTION"   //获取信息
 ]
-export function actionCreator(TYPES){
+export function actionCreator(actionTypes){
   const object=Object.create({})
-  for(var key in TYPES){
-    object[TYPES[key]]=createAction(TYPES[key])
+  for(var key in actionTypes){
+    object[actionTypes[key]]=createAction(actionTypes[key])
   }
   return object
-  /*
-  const result={
-    listAction:createAction(TYPES.LIST_ACTION),
-    saveList:createAction(TYPES.SAVE_LIST),
-    itemAction:createAction(TYPES.ITEM_ACTION),
-    saveAction:createAction(TYPES.SAVE_ACTION),
-    saveItem:createAction(TYPES.SAVE_ITEM),
-    deleteAction:createAction(TYPES.DELETE_ACTION),
-    deleteItem:createAction(TYPES.DELETE_ITEM),
-    // saveParams:createAction(TYPES.SAVE_PARAMS)
-  }
-
-  return result
-  */
 }
 
 export function createTypes(namespace,typesArray){
