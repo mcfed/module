@@ -8855,16 +8855,27 @@ var index$6 = /*#__PURE__*/Object.freeze({
 var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) {
   return Object.assign({}, ownProps, state, dispatch, {
     spins: function spins(type) {
-      return state.fetchingReducer.fetching.get(type);
+      return state.fetchingReducer.fetching.get(type.toString ? type.toString() : type);
     },
     querys: function querys(type) {
-      return state.fetchingReducer.params.get(type) || {};
+      return state.fetchingReducer.params.get(type.toString ? type.toString() : type) || {};
     },
     locale: function locale(type, value) {
       return state.intl && state.intl.formatMessage(state.messages[type], value);
     }
   });
 };
+function bindActionCreators$1(actions, dispatch) {
+  var newActions = bindActionCreators(actions, dispatch);
+
+  for (var a in actions) {
+    // console.log(actions[a])
+    newActions[a].toString = actions[a].toString;
+  } // console.log(newActions)
+
+
+  return newActions;
+}
 /*
 export const mapActionDispatchToProps = (dispatch,props,action)=>{
   console.log(arguments)
@@ -8890,7 +8901,7 @@ export function connectContainer(component,mapStateToProps,mapDispatchToProps,de
 
 var index$7 = /*#__PURE__*/Object.freeze({
 	defaultMergeProps: defaultMergeProps$1,
-	bindActionCreators: bindActionCreators,
+	bindActionCreators: bindActionCreators$1,
 	connect: connect
 });
 
