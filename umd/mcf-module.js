@@ -6196,8 +6196,6 @@
 
 	unwrapExports(actionTypes_1);
 
-	var reduxTypes = actionTypes_1;
-
 	var isFunction = (function (value) {
 	  return typeof value === 'function';
 	});
@@ -6765,39 +6763,31 @@
 	  };
 	}
 
-	var defaultTypes = ["fetchList", //列表行为
-	"SAVE_LIST", //保存列表
-	"SAVE_ACTION", //保存行为
-	"SAVE_ITEM", //保存单一数据
-	"DELETE_ACTION", //删除行为
-	"DELETE_ITEM", //删除数据
-	"ITEM_ACTION" //获取信息
-	];
-	function actionCreator(actionTypes) {
-	  var object = Object.create({});
+	var payloadFn = function payloadFn(payload, meta) {
+	  return payload;
+	};
 
-	  for (var key in actionTypes) {
-	    object[actionTypes[key]] = createAction(actionTypes[key]);
+	var metaFN = function metaFN(payload) {
+	  return {
+	    sagaAction: true
+	  };
+	};
+
+	function defineActions(obj) {
+	  var defineObj = {};
+
+	  for (var o in obj) {
+	    // newObj[o]=payloadFn
+	    Object.defineProperty(defineObj, o, {
+	      value: [payloadFn, metaFN]
+	    });
 	  }
 
-	  return object;
-	}
-	function createTypes(namespace, typesArray) {
-	  return reduxTypes.default(namespace, typesArray);
-	}
-	function typesCreator(namespace, typesArray) {
-	  return reduxTypes.default(namespace, typesArray);
-	}
-	function actionsTypeCreator(namespace, typesArray) {
-	  return actionCreator(typesCreator(namespace, typesArray));
+	  return defineObj;
 	}
 
 	var index$3 = /*#__PURE__*/Object.freeze({
-		defaultTypes: defaultTypes,
-		actionCreator: actionCreator,
-		createTypes: createTypes,
-		typesCreator: typesCreator,
-		actionsTypeCreator: actionsTypeCreator,
+		defineActions: defineActions,
 		combineActions: combineActions,
 		createAction: createAction,
 		createActions: createActions,
@@ -6844,6 +6834,15 @@
 
 	var objectSpread = _objectSpread$2;
 
+	function megerActionReducer(reducers, reducerTypes) {
+	  var newReducer = {};
+
+	  for (var r in reducers) {
+	    newReducer[reducerTypes[r]] = reducers[r];
+	  }
+
+	  return newReducer;
+	}
 	var defaultState = {
 	  items: [],
 	  item: {},
@@ -6853,47 +6852,35 @@
 	    current: 1
 	  }
 	};
-	function reducerActionCreator(actionTypes) {
-	  var reducerAction = {};
-
-	  reducerAction[actionTypes.SAVE_PARAMS] = function (state, _ref) {
-	    var payload = _ref.payload;
-	    return objectSpread({}, state, {
-	      params: payload
-	    });
-	  }; //保存列表数据和分页信息
-
-
-	  reducerAction[actionTypes.SAVE_LIST] = function (state, _ref2) {
-	    var payload = _ref2.payload;
-	    return objectSpread({}, state, {
-	      items: payload.items,
-	      total: payload.totalCount,
-	      current: payload.currentPage
-	    });
-	  }; //保存单一项数据，不更新 list数据
-
-
-	  reducerAction[actionTypes.SAVE_ITEM] = function (state, _ref3) {
-	    var payload = _ref3.payload;
-	    return objectSpread({}, state, {
-	      item: payload
-	    });
+	function defaultReducer() {
+	  return {
+	    saveList: function saveList(state, _ref) {
+	      var payload = _ref.payload;
+	      return objectSpread({}, state, {
+	        items: payload.items,
+	        total: payload.totalCount,
+	        current: payload.currentPage
+	      });
+	    },
+	    saveItem: function saveItem(state, _ref2) {
+	      var payload = _ref2.payload;
+	      return objectSpread({}, state, {
+	        item: payload
+	      });
+	    },
+	    deleteItem: function deleteItem(state, _ref3) {
+	      var payload = _ref3.payload;
+	      return objectSpread({}, state, {
+	        item: {}
+	      });
+	    }
 	  };
-
-	  reducerAction[actionTypes.DELETE_ITEM] = function (state, _ref4) {
-	    var payload = _ref4.payload;
-	    return objectSpread({}, state, {
-	      item: {}
-	    });
-	  };
-
-	  return reducerAction;
 	}
 
 	var index$4 = /*#__PURE__*/Object.freeze({
+		megerActionReducer: megerActionReducer,
 		defaultState: defaultState,
-		reducerActionCreator: reducerActionCreator,
+		defaultReducer: defaultReducer,
 		reducerCreator: handleActions
 	});
 
@@ -8554,6 +8541,7 @@
 	var _marked =
 	/*#__PURE__*/
 	regenerator.mark(fetch);
+	var goBack = lib_15;
 	function fetch(method, action) {
 	  var result;
 	  return regenerator.wrap(function fetch$(_context) {
@@ -8578,35 +8566,28 @@
 	    }
 	  }, _marked, this);
 	}
-	function sagaCreator(actions, Api, emitter) {
+	function defaultSaga(actions, Api) {
 	  var saga = {
 	    refreshList:
 	    /*#__PURE__*/
-	    regenerator.mark(function refreshList(_ref, action) {
-	      var actionTypes, Api, namespace, params;
+	    regenerator.mark(function refreshList(action, namespaceSelector) {
+	      var params;
 	      return regenerator.wrap(function refreshList$(_context2) {
 	        while (1) {
 	          switch (_context2.prev = _context2.next) {
 	            case 0:
-	              actionTypes = _ref.actionTypes, Api = _ref.Api, namespace = _ref.namespace;
-	              _context2.next = 3;
+	              _context2.next = 2;
 	              return select(function (state) {
-	                return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(actions.listAction.toString()));
+	                //    return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(actions.listAction.toString()))
+	                return {};
 	              });
 
-	            case 3:
+	            case 2:
 	              params = _context2.sent;
-	              _context2.next = 6;
-	              return call(saga.fetchList, {
-	                actionTypes: actionTypes,
-	                Api: Api,
-	                namespace: namespace
-	              }, {
-	                type: actionTypes.LIST_ACTION,
-	                payload: params
-	              });
+	              _context2.next = 5;
+	              return call(saga.fetchList, params);
 
-	            case 6:
+	            case 5:
 	            case "end":
 	              return _context2.stop();
 	          }
@@ -8615,39 +8596,35 @@
 	    }),
 	    fetchItem:
 	    /*#__PURE__*/
-	    regenerator.mark(function fetchItem(_ref2, action) {
-	      var actionTypes, Api, namespace, result;
+	    regenerator.mark(function fetchItem(action) {
+	      var result;
 	      return regenerator.wrap(function fetchItem$(_context3) {
 	        while (1) {
 	          switch (_context3.prev = _context3.next) {
 	            case 0:
-	              actionTypes = _ref2.actionTypes, Api = _ref2.Api, namespace = _ref2.namespace;
-	              _context3.next = 3;
+	              _context3.next = 2;
 	              return fetch(Api.fetchItem, action);
 
-	            case 3:
+	            case 2:
 	              result = _context3.sent;
 
 	              if (!(result.code === 0)) {
-	                _context3.next = 9;
+	                _context3.next = 8;
 	                break;
 	              }
 
-	              _context3.next = 7;
-	              return put({
-	                type: actionTypes.SAVE_ITEM,
-	                payload: result.data
-	              });
+	              _context3.next = 6;
+	              return put(actions.saveItem(result.data));
 
-	            case 7:
-	              _context3.next = 11;
+	            case 6:
+	              _context3.next = 10;
 	              break;
 
-	            case 9:
-	              _context3.next = 11;
+	            case 8:
+	              _context3.next = 10;
 	              return put(showError(result.message));
 
-	            case 11:
+	            case 10:
 	            case "end":
 	              return _context3.stop();
 	          }
@@ -8656,39 +8633,35 @@
 	    }),
 	    fetchList:
 	    /*#__PURE__*/
-	    regenerator.mark(function fetchList(_ref3, action) {
-	      var actionTypes, Api, namespace, result;
+	    regenerator.mark(function fetchList(action) {
+	      var result;
 	      return regenerator.wrap(function fetchList$(_context4) {
 	        while (1) {
 	          switch (_context4.prev = _context4.next) {
 	            case 0:
-	              actionTypes = _ref3.actionTypes, Api = _ref3.Api, namespace = _ref3.namespace;
-	              _context4.next = 3;
+	              _context4.next = 2;
 	              return call(Api.fetchList, action.payload);
 
-	            case 3:
+	            case 2:
 	              result = _context4.sent;
 
 	              if (!(result.code === 0)) {
-	                _context4.next = 9;
+	                _context4.next = 8;
 	                break;
 	              }
 
-	              _context4.next = 7;
-	              return put({
-	                type: actionTypes.SAVE_LIST,
-	                payload: result.data
-	              });
+	              _context4.next = 6;
+	              return put(actions.saveList(result.data));
 
-	            case 7:
-	              _context4.next = 11;
+	            case 6:
+	              _context4.next = 10;
 	              break;
 
-	            case 9:
-	              _context4.next = 11;
+	            case 8:
+	              _context4.next = 10;
 	              return put(showError(result.message));
 
-	            case 11:
+	            case 10:
 	            case "end":
 	              return _context4.stop();
 	          }
@@ -8697,43 +8670,43 @@
 	    }),
 	    fetchSave:
 	    /*#__PURE__*/
-	    regenerator.mark(function fetchSave(_ref4, action) {
-	      var actionTypes, Api, namespace, result;
+	    regenerator.mark(function fetchSave(action) {
+	      var result;
 	      return regenerator.wrap(function fetchSave$(_context5) {
 	        while (1) {
 	          switch (_context5.prev = _context5.next) {
 	            case 0:
-	              actionTypes = _ref4.actionTypes, Api = _ref4.Api, namespace = _ref4.namespace;
-	              _context5.next = 3;
+	              _context5.next = 2;
 	              return fetch(Api.fetchSave, action);
 
-	            case 3:
+	            case 2:
 	              result = _context5.sent;
 
 	              if (!(result.code === 0)) {
-	                _context5.next = 11;
+	                _context5.next = 12;
 	                break;
 	              }
 
-	              _context5.next = 7;
-	              return put({
-	                type: actionTypes.SAVE_ITEM,
-	                payload: result.data
-	              });
+	              _context5.next = 6;
+	              return put(actions.saveItem(result.data));
 
-	            case 7:
-	              _context5.next = 9;
+	            case 6:
+	              _context5.next = 8;
 	              return put(showSuccess("操作成功"));
 
-	            case 9:
-	              _context5.next = 13;
+	            case 8:
+	              _context5.next = 10;
+	              return put(goBack());
+
+	            case 10:
+	              _context5.next = 14;
 	              break;
 
-	            case 11:
-	              _context5.next = 13;
+	            case 12:
+	              _context5.next = 14;
 	              return put(showError(result.message));
 
-	            case 13:
+	            case 14:
 	            case "end":
 	              return _context5.stop();
 	          }
@@ -8742,49 +8715,44 @@
 	    }),
 	    fetchDelete:
 	    /*#__PURE__*/
-	    regenerator.mark(function fetchDelete(_ref5, action) {
-	      var actionTypes, Api, namespace, payload, result;
+	    regenerator.mark(function fetchDelete(action) {
+	      var payload, result;
 	      return regenerator.wrap(function fetchDelete$(_context6) {
 	        while (1) {
 	          switch (_context6.prev = _context6.next) {
 	            case 0:
-	              actionTypes = _ref5.actionTypes, Api = _ref5.Api, namespace = _ref5.namespace;
 	              payload = {
 	                ids: [].concat(action.payload)
 	              };
-	              _context6.next = 4;
+	              _context6.next = 3;
 	              return fetch(Api.fetchDelete, Object.assign(action, {
 	                payload: payload
 	              }));
 
-	            case 4:
+	            case 3:
 	              result = _context6.sent;
 
 	              if (!(result.code === 0)) {
-	                _context6.next = 12;
+	                _context6.next = 11;
 	                break;
 	              }
 
-	              _context6.next = 8;
-	              return saga.refreshList({
-	                actionTypes: actionTypes,
-	                Api: Api,
-	                namespace: namespace
-	              }, action);
+	              _context6.next = 7;
+	              return saga.refreshList(action);
 
-	            case 8:
-	              _context6.next = 10;
+	            case 7:
+	              _context6.next = 9;
 	              return put(showSuccess("操作成功"));
 
-	            case 10:
-	              _context6.next = 14;
+	            case 9:
+	              _context6.next = 13;
 	              break;
 
-	            case 12:
-	              _context6.next = 14;
+	            case 11:
+	              _context6.next = 13;
 	              return put(showError(result.message));
 
-	            case 14:
+	            case 13:
 	            case "end":
 	              return _context6.stop();
 	          }
@@ -8794,11 +8762,61 @@
 	  };
 	  return saga;
 	}
+	function takeSagas(saga, sagaTypes) {
+	  var optimize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	  return (
+	    /*#__PURE__*/
+	    regenerator.mark(function _callee() {
+	      var s;
+	      return regenerator.wrap(function _callee$(_context7) {
+	        while (1) {
+	          switch (_context7.prev = _context7.next) {
+	            case 0:
+	              _context7.t0 = regenerator.keys(saga);
+
+	            case 1:
+	              if ((_context7.t1 = _context7.t0()).done) {
+	                _context7.next = 12;
+	                break;
+	              }
+
+	              s = _context7.t1.value;
+
+	              if (!optimize[s]) {
+	                _context7.next = 8;
+	                break;
+	              }
+
+	              _context7.next = 6;
+	              return optimize[s](sagaTypes[s].toString(), saga[s]);
+
+	            case 6:
+	              _context7.next = 10;
+	              break;
+
+	            case 8:
+	              _context7.next = 10;
+	              return takeEvery$2(sagaTypes[s].toString(), saga[s]);
+
+	            case 10:
+	              _context7.next = 1;
+	              break;
+
+	            case 12:
+	            case "end":
+	              return _context7.stop();
+	          }
+	        }
+	      }, _callee, this);
+	    })
+	  );
+	}
 
 	var index$6 = /*#__PURE__*/Object.freeze({
 		effects: effects,
 		fetch: fetch,
-		sagaCreator: sagaCreator
+		defaultSaga: defaultSaga,
+		takeSagas: takeSagas
 	});
 
 	// export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"

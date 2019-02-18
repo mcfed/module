@@ -1,5 +1,13 @@
 export { handleActions as reducerCreator } from 'redux-actions'
 
+export function megerActionReducer(reducers,reducerTypes){
+  const newReducer={}
+  for(var r in reducers){
+    newReducer[reducerTypes[r]]=reducers[r]
+  }
+  return newReducer
+}
+
 export const defaultState={
     items: [],
     item: {},
@@ -11,36 +19,27 @@ export const defaultState={
 }
 
 
-export function reducerActionCreator(actionTypes){
-  const reducerAction={}
-    reducerAction[actionTypes.SAVE_PARAMS]=(state,{payload})=>{
-      return {
-        ...state,
-        params:payload
-      }
-    }
-    //保存列表数据和分页信息
-    reducerAction[actionTypes.SAVE_LIST]=(state,{payload})=>{
+export function defaultReducer(){
+  return {
+    saveList:(state,{payload})=>{
       return {
         ...state,
         items:payload.items,
         total:payload.totalCount,
         current:payload.currentPage
       }
-    }
-    //保存单一项数据，不更新 list数据
-    reducerAction[actionTypes.SAVE_ITEM]=(state,{payload})=>{
+    },
+    saveItem:(state,{payload})=>{
       return {
         ...state,
         item:payload
       }
-    }
-
-    reducerAction[actionTypes.DELETE_ITEM]=(state,{payload})=>{
+    },
+    deleteItem:(state,{payload})=>{
       return {
         ...state,
         item:{}
       }
     }
-  return reducerAction
+  }
 }
