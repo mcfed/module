@@ -65,14 +65,12 @@ export function defaultSaga(actions,Api){
   return saga
 }
 
-export function takeSagas(saga,sagaTypes,optimize={}){
-  return function* (){
-    for(var s in saga){
-      if(optimize[s]){
-        yield optimize[s](sagaTypes[s].toString(),saga[s])
-      }else{
-        yield effects.takeEvery(sagaTypes[s].toString(),saga[s])
-      }
+export function *takeSagas(sagaTypes,saga,optimize={}){
+  for(var s in saga){
+    if(optimize[s]){
+      yield optimize[s](sagaTypes[s].toString(),saga[s])
+    }else{
+      yield effects.takeEvery(sagaTypes[s].toString(),saga[s])
     }
   }
 }

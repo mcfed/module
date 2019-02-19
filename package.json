@@ -54,7 +54,6 @@
     "redux-actions": "^2.6.4",
     "redux-orm": "^0.12.2",
     "redux-saga": "^0.16.2",
-    "redux-types": "^2.0.3",
     "webpack": "^4.28.2"
   }
 }

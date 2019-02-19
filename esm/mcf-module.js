@@ -6130,107 +6130,25 @@ var index$2 = /*#__PURE__*/Object.freeze({
 	LOCATION_CHANGE: lib_20
 });
 
-var errors = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var UniquenessErrorMessage = exports.UniquenessErrorMessage = 'Args must be uniques !';
-var TypeErrorMessage = exports.TypeErrorMessage = 'Arguments must be strings';
-var ConstantsTypeErrorMessage = exports.ConstantsTypeErrorMessage = 'Constants must be an array';
-var NamespaceTypeErrorMessage = exports.NamespaceTypeErrorMessage = 'Namespace must be strings';
-//# sourceMappingURL=errors.js.map
-});
-
-unwrapExports(errors);
-var errors_1 = errors.UniquenessErrorMessage;
-var errors_2 = errors.TypeErrorMessage;
-var errors_3 = errors.ConstantsTypeErrorMessage;
-var errors_4 = errors.NamespaceTypeErrorMessage;
-
-var typesTesters = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var isString = exports.isString = function isString(arg) {
-  return typeof arg === 'string' || arg instanceof String;
-};
-var isArray = exports.isArray = function isArray(arg) {
-  return Array.isArray(arg);
-};
-//# sourceMappingURL=types-testers.js.map
-});
-
-unwrapExports(typesTesters);
-var typesTesters_1 = typesTesters.isString;
-var typesTesters_2 = typesTesters.isArray;
-
-var errorRaisers = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.raiseErrorIfNotUnique = exports.matchTypeOrThrow = undefined;
-
-
-
-var matchTypeOrThrow = exports.matchTypeOrThrow = function matchTypeOrThrow(element, testFunction, message) {
-  if (!testFunction(element)) throw new Error(message);
-};
-
-var raiseErrorIfNotUnique = exports.raiseErrorIfNotUnique = function raiseErrorIfNotUnique(array) {
-  var hash = {};
-  var duplicate = false;
-  for (var i = 0; i < array.length && !duplicate; i++) {
-    if (hash[array[i]]) {
-      duplicate = true;
-    }
-    hash[array[i]] = true;
+function _defineProperty$1(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
   }
-  if (duplicate) throw new Error(errors.UniquenessErrorMessage);
-};
-//# sourceMappingURL=error-raisers.js.map
-});
 
-unwrapExports(errorRaisers);
-var errorRaisers_1 = errorRaisers.raiseErrorIfNotUnique;
-var errorRaisers_2 = errorRaisers.matchTypeOrThrow;
+  return obj;
+}
 
-var actionTypes_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-
-
-
-
-
-
-var actionTypes = function actionTypes(namespace, constants) {
-  (0, errorRaisers.matchTypeOrThrow)(namespace, typesTesters.isString, errors.NamespaceTypeErrorMessage);
-  (0, errorRaisers.matchTypeOrThrow)(constants, typesTesters.isArray, errors.ConstantsTypeErrorMessage);
-  (0, errorRaisers.raiseErrorIfNotUnique)(constants);
-  return Object.freeze(constants.reduce(function (obj, constant) {
-    (0, errorRaisers.matchTypeOrThrow)(constant, typesTesters.isString, errors.TypeErrorMessage);
-    obj[constant] = namespace + '/' + constant;
-    return obj;
-  }, {}));
-};
-exports.default = actionTypes;
-//# sourceMappingURL=action-types.js.map
-});
-
-unwrapExports(actionTypes_1);
+var defineProperty$2 = _defineProperty$1;
 
 var isFunction = (function (value) {
   return typeof value === 'function';
-});
-
-var isSymbol = (function (value) {
-  return typeof value === 'symbol' || typeof value === 'object' && Object.prototype.toString.call(value) === '[object Symbol]';
 });
 
 var isEmpty = (function (value) {
@@ -6247,32 +6165,6 @@ var isString = (function (value) {
 
 var DEFAULT_NAMESPACE = '/';
 var ACTION_TYPE_DELIMITER = '||';
-
-function isValidActionType(type) {
-  return isString(type) || isFunction(type) || isSymbol(type);
-}
-
-function isValidActionTypes(types) {
-  if (isEmpty(types)) {
-    return false;
-  }
-
-  return types.every(isValidActionType);
-}
-
-function combineActions() {
-  for (var _len = arguments.length, actionsTypes = new Array(_len), _key = 0; _key < _len; _key++) {
-    actionsTypes[_key] = arguments[_key];
-  }
-
-  invariant_1(isValidActionTypes(actionsTypes), 'Expected action types to be strings, symbols, or action creators');
-  var combinedActionType = actionsTypes.map(toString).join(ACTION_TYPE_DELIMITER);
-  return {
-    toString: function toString$$1() {
-      return combinedActionType;
-    }
-  };
-}
 
 var identity = (function (value) {
   return value;
@@ -6581,9 +6473,9 @@ function unflattenActionCreators(flatActionCreators, _temp) {
   return nestedActionCreators;
 }
 
-function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$1(target, key, source[key]); }); } return target; }
+function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty$2(target, key, source[key]); }); } return target; }
 
-function _defineProperty$1(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty$2(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function createActions(actionMap) {
   for (var _len = arguments.length, identityActions = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
     identityActions[_key - 1] = arguments[_key];
@@ -6650,51 +6542,6 @@ function actionCreatorsFromIdentityActions(identityActions, options) {
     return _objectSpread$1({}, partialActionCreators, (_objectSpread4 = {}, _objectSpread4[camelCase(type)] = actionCreators[type], _objectSpread4));
   });
 }
-
-var justCurryIt = curry;
-
-/*
-  function add(a, b, c) {
-    return a + b + c;
-  }
-  curry(add)(1)(2)(3); // 6
-  curry(add)(1)(2)(2); // 5
-  curry(add)(2)(4, 3); // 9
-
-  function add(...args) {
-    return args.reduce((sum, n) => sum + n, 0)
-  }
-  var curryAdd4 = curry(add, 4)
-  curryAdd4(1)(2, 3)(4); // 10
-
-  function converter(ratio, input) {
-    return (input*ratio).toFixed(1);
-  }
-  const curriedConverter = curry(converter)
-  const milesToKm = curriedConverter(1.62);
-  milesToKm(35); // 56.7
-  milesToKm(10); // 16.2
-*/
-
-function curry(fn, arity) {
-  return function curried() {
-    if (arity == null) {
-      arity = fn.length;
-    }
-    var args = [].slice.call(arguments);
-    if (args.length >= arity) {
-      return fn.apply(this, args);
-    } else {
-      return function() {
-        return curried.apply(this, args.concat([].slice.call(arguments)));
-      };
-    }
-  };
-}
-
-var createCurriedAction = (function (type, payloadCreator) {
-  return justCurryIt(createAction(type, payloadCreator), payloadCreator.length);
-});
 
 var isUndefined = (function (value) {
   return value === undefined;
@@ -6814,33 +6661,14 @@ function defineActions(obj) {
 
   return defineObj;
 }
+function createDefineActions(actions, namespace) {
+  return createActions(defineProperty$2({}, namespace, defineActions(actions)))[namespace];
+}
 
 var index$3 = /*#__PURE__*/Object.freeze({
 	defineActions: defineActions,
-	combineActions: combineActions,
-	createAction: createAction,
-	createActions: createActions,
-	createCurriedAction: createCurriedAction,
-	handleAction: handleAction,
-	handleActions: handleActions
+	createDefineActions: createDefineActions
 });
-
-function _defineProperty$2(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
-var defineProperty$2 = _defineProperty$2;
 
 function _objectSpread$2(target) {
   for (var i = 1; i < arguments.length; i++) {
@@ -8571,7 +8399,10 @@ var index$5 = /*#__PURE__*/Object.freeze({
 
 var _marked =
 /*#__PURE__*/
-regenerator.mark(fetch);
+regenerator.mark(fetch),
+    _marked2 =
+/*#__PURE__*/
+regenerator.mark(takeSagas);
 var goBack = lib_15;
 function fetch(method, action) {
   var result;
@@ -8793,54 +8624,51 @@ function defaultSaga(actions, Api) {
   };
   return saga;
 }
-function takeSagas(saga, sagaTypes) {
-  var optimize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  return (
-    /*#__PURE__*/
-    regenerator.mark(function _callee() {
-      var s;
-      return regenerator.wrap(function _callee$(_context7) {
-        while (1) {
-          switch (_context7.prev = _context7.next) {
-            case 0:
-              _context7.t0 = regenerator.keys(saga);
+function takeSagas(sagaTypes, saga) {
+  var optimize,
+      s,
+      _args7 = arguments;
+  return regenerator.wrap(function takeSagas$(_context7) {
+    while (1) {
+      switch (_context7.prev = _context7.next) {
+        case 0:
+          optimize = _args7.length > 2 && _args7[2] !== undefined ? _args7[2] : {};
+          _context7.t0 = regenerator.keys(saga);
 
-            case 1:
-              if ((_context7.t1 = _context7.t0()).done) {
-                _context7.next = 12;
-                break;
-              }
-
-              s = _context7.t1.value;
-
-              if (!optimize[s]) {
-                _context7.next = 8;
-                break;
-              }
-
-              _context7.next = 6;
-              return optimize[s](sagaTypes[s].toString(), saga[s]);
-
-            case 6:
-              _context7.next = 10;
-              break;
-
-            case 8:
-              _context7.next = 10;
-              return takeEvery$2(sagaTypes[s].toString(), saga[s]);
-
-            case 10:
-              _context7.next = 1;
-              break;
-
-            case 12:
-            case "end":
-              return _context7.stop();
+        case 2:
+          if ((_context7.t1 = _context7.t0()).done) {
+            _context7.next = 13;
+            break;
           }
-        }
-      }, _callee, this);
-    })
-  );
+
+          s = _context7.t1.value;
+
+          if (!optimize[s]) {
+            _context7.next = 9;
+            break;
+          }
+
+          _context7.next = 7;
+          return optimize[s](sagaTypes[s].toString(), saga[s]);
+
+        case 7:
+          _context7.next = 11;
+          break;
+
+        case 9:
+          _context7.next = 11;
+          return takeEvery$2(sagaTypes[s].toString(), saga[s]);
+
+        case 11:
+          _context7.next = 2;
+          break;
+
+        case 13:
+        case "end":
+          return _context7.stop();
+      }
+    }
+  }, _marked2, this);
 }
 
 var index$6 = /*#__PURE__*/Object.freeze({

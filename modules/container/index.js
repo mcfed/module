@@ -13,7 +13,6 @@ export const defaultMergeProps=(state, dispatch, ownProps)=>{
       return state.fetchingReducer.params.get(type.toString?type.toString():type) || {}
     },
     locale:function(type,value){
-
       return state.intl && state.intl.formatMessage(state.messages[type],value)
     }
   })

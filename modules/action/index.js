@@ -1,7 +1,4 @@
-import actionTypes from 'redux-types'
-import {createAction} from 'redux-actions'
-// import EventEmitter from 'events'
-export * from 'redux-actions'
+import {createAction,createActions} from 'redux-actions'
 
 const payloadFn=(payload,meta)=>payload
 const metaFN=(payload)=>({sagaAction:true})
@@ -15,4 +12,10 @@ export function defineActions(obj){
     })
   }
   return defineObj
+}
+
+export function createDefineActions(actions,namespace){
+  return createActions({
+    [namespace]:defineActions(actions)
+  })[namespace]
 }
