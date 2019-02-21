@@ -44,7 +44,7 @@ export function defaultSaga(actions,Api){
 
       if(result.code === 0){
         yield effects.put(actions.saveItem(result.data));
-        yield effects.put(showSuccess("操作成功"))
+        yield effects.put(showSuccess())
         yield effects.put(goBack())
       }else{
         yield effects.put(showError(result.message))
@@ -55,7 +55,7 @@ export function defaultSaga(actions,Api){
       const result = yield fetch(Api.fetchDelete, Object.assign(action,{payload}));
       if(result.code === 0){
         yield saga.refreshList(action)
-        yield effects.put(showSuccess("操作成功"))
+        yield effects.put(showSuccess())
       }else{
         yield effects.put(showError(result.message))
       }

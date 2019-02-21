@@ -8554,7 +8554,7 @@ function defaultSaga(actions, Api) {
 
             case 6:
               _context5.next = 8;
-              return put(showSuccess("操作成功"));
+              return put(showSuccess());
 
             case 8:
               _context5.next = 10;
@@ -8604,7 +8604,7 @@ function defaultSaga(actions, Api) {
 
             case 7:
               _context6.next = 9;
-              return put(showSuccess("操作成功"));
+              return put(showSuccess());
 
             case 9:
               _context6.next = 13;
@@ -8689,7 +8689,17 @@ var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) 
       return state.fetchingReducer.params.get(type.toString ? type.toString() : type) || {};
     },
     locale: function locale(type, value) {
-      return state.intl && state.intl.formatMessage(state.messages[type], value);
+      if (state.intl) {
+        if (state.messages[type]) {
+          return state.intl.formatMessage(state.messages[type], value);
+        } else {
+          return state.intl.formatMessage({
+            id: type
+          });
+        }
+      }
+
+      return "";
     }
   });
 };
