@@ -8317,7 +8317,7 @@ function createMessage(message) {
     return function (next) {
       return function (action) {
         if (SHOW_SUCCESS === action.type) {
-          message.success(action.payload);
+          message.success(action.payload || "操作成功");
         } else if (SHOW_ERROR === action.type) {
           message.error(action.payload);
         }
@@ -8743,6 +8743,11441 @@ var index$7 = /*#__PURE__*/Object.freeze({
 	connect: connect
 });
 
+// 7.1.4 ToInteger
+var ceil = Math.ceil;
+var floor = Math.floor;
+var _toInteger = function (it) {
+  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
+};
+
+// 7.2.1 RequireObjectCoercible(argument)
+var _defined = function (it) {
+  if (it == undefined) throw TypeError("Can't call method on  " + it);
+  return it;
+};
+
+// true  -> String#at
+// false -> String#codePointAt
+var _stringAt = function (TO_STRING) {
+  return function (that, pos) {
+    var s = String(_defined(that));
+    var i = _toInteger(pos);
+    var l = s.length;
+    var a, b;
+    if (i < 0 || i >= l) return TO_STRING ? '' : undefined;
+    a = s.charCodeAt(i);
+    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
+      ? TO_STRING ? s.charAt(i) : a
+      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
+  };
+};
+
+var _library = true;
+
+var _global = createCommonjsModule(function (module) {
+// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
+var global = module.exports = typeof window != 'undefined' && window.Math == Math
+  ? window : typeof self != 'undefined' && self.Math == Math ? self
+  // eslint-disable-next-line no-new-func
+  : Function('return this')();
+if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
+});
+
+var _core = createCommonjsModule(function (module) {
+var core = module.exports = { version: '2.5.7' };
+if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
+});
+var _core_1 = _core.version;
+
+var _aFunction = function (it) {
+  if (typeof it != 'function') throw TypeError(it + ' is not a function!');
+  return it;
+};
+
+// optional / simple context binding
+
+var _ctx = function (fn, that, length) {
+  _aFunction(fn);
+  if (that === undefined) return fn;
+  switch (length) {
+    case 1: return function (a) {
+      return fn.call(that, a);
+    };
+    case 2: return function (a, b) {
+      return fn.call(that, a, b);
+    };
+    case 3: return function (a, b, c) {
+      return fn.call(that, a, b, c);
+    };
+  }
+  return function (/* ...args */) {
+    return fn.apply(that, arguments);
+  };
+};
+
+var _isObject = function (it) {
+  return typeof it === 'object' ? it !== null : typeof it === 'function';
+};
+
+var _anObject = function (it) {
+  if (!_isObject(it)) throw TypeError(it + ' is not an object!');
+  return it;
+};
+
+var _fails = function (exec) {
+  try {
+    return !!exec();
+  } catch (e) {
+    return true;
+  }
+};
+
+// Thank's IE8 for his funny defineProperty
+var _descriptors = !_fails(function () {
+  return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
+});
+
+var document = _global.document;
+// typeof document.createElement is 'object' in old IE
+var is$2 = _isObject(document) && _isObject(document.createElement);
+var _domCreate = function (it) {
+  return is$2 ? document.createElement(it) : {};
+};
+
+var _ie8DomDefine = !_descriptors && !_fails(function () {
+  return Object.defineProperty(_domCreate('div'), 'a', { get: function () { return 7; } }).a != 7;
+});
+
+// 7.1.1 ToPrimitive(input [, PreferredType])
+
+// instead of the ES6 spec version, we didn't implement @@toPrimitive case
+// and the second argument - flag - preferred type is a string
+var _toPrimitive = function (it, S) {
+  if (!_isObject(it)) return it;
+  var fn, val;
+  if (S && typeof (fn = it.toString) == 'function' && !_isObject(val = fn.call(it))) return val;
+  if (typeof (fn = it.valueOf) == 'function' && !_isObject(val = fn.call(it))) return val;
+  if (!S && typeof (fn = it.toString) == 'function' && !_isObject(val = fn.call(it))) return val;
+  throw TypeError("Can't convert object to primitive value");
+};
+
+var dP = Object.defineProperty;
+
+var f = _descriptors ? Object.defineProperty : function defineProperty(O, P, Attributes) {
+  _anObject(O);
+  P = _toPrimitive(P, true);
+  _anObject(Attributes);
+  if (_ie8DomDefine) try {
+    return dP(O, P, Attributes);
+  } catch (e) { /* empty */ }
+  if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
+  if ('value' in Attributes) O[P] = Attributes.value;
+  return O;
+};
+
+var _objectDp = {
+	f: f
+};
+
+var _propertyDesc = function (bitmap, value) {
+  return {
+    enumerable: !(bitmap & 1),
+    configurable: !(bitmap & 2),
+    writable: !(bitmap & 4),
+    value: value
+  };
+};
+
+var _hide = _descriptors ? function (object, key, value) {
+  return _objectDp.f(object, key, _propertyDesc(1, value));
+} : function (object, key, value) {
+  object[key] = value;
+  return object;
+};
+
+var hasOwnProperty$1 = {}.hasOwnProperty;
+var _has = function (it, key) {
+  return hasOwnProperty$1.call(it, key);
+};
+
+var PROTOTYPE = 'prototype';
+
+var $export = function (type, name, source) {
+  var IS_FORCED = type & $export.F;
+  var IS_GLOBAL = type & $export.G;
+  var IS_STATIC = type & $export.S;
+  var IS_PROTO = type & $export.P;
+  var IS_BIND = type & $export.B;
+  var IS_WRAP = type & $export.W;
+  var exports = IS_GLOBAL ? _core : _core[name] || (_core[name] = {});
+  var expProto = exports[PROTOTYPE];
+  var target = IS_GLOBAL ? _global : IS_STATIC ? _global[name] : (_global[name] || {})[PROTOTYPE];
+  var key, own, out;
+  if (IS_GLOBAL) source = name;
+  for (key in source) {
+    // contains in native
+    own = !IS_FORCED && target && target[key] !== undefined;
+    if (own && _has(exports, key)) continue;
+    // export native or passed
+    out = own ? target[key] : source[key];
+    // prevent global pollution for namespaces
+    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
+    // bind timers to global for call from export context
+    : IS_BIND && own ? _ctx(out, _global)
+    // wrap global constructors for prevent change them in library
+    : IS_WRAP && target[key] == out ? (function (C) {
+      var F = function (a, b, c) {
+        if (this instanceof C) {
+          switch (arguments.length) {
+            case 0: return new C();
+            case 1: return new C(a);
+            case 2: return new C(a, b);
+          } return new C(a, b, c);
+        } return C.apply(this, arguments);
+      };
+      F[PROTOTYPE] = C[PROTOTYPE];
+      return F;
+    // make static versions for prototype methods
+    })(out) : IS_PROTO && typeof out == 'function' ? _ctx(Function.call, out) : out;
+    // export proto methods to core.%CONSTRUCTOR%.methods.%NAME%
+    if (IS_PROTO) {
+      (exports.virtual || (exports.virtual = {}))[key] = out;
+      // export proto methods to core.%CONSTRUCTOR%.prototype.%NAME%
+      if (type & $export.R && expProto && !expProto[key]) _hide(expProto, key, out);
+    }
+  }
+};
+// type bitmap
+$export.F = 1;   // forced
+$export.G = 2;   // global
+$export.S = 4;   // static
+$export.P = 8;   // proto
+$export.B = 16;  // bind
+$export.W = 32;  // wrap
+$export.U = 64;  // safe
+$export.R = 128; // real proto method for `library`
+var _export = $export;
+
+var _redefine = _hide;
+
+var _iterators = {};
+
+var toString$1 = {}.toString;
+
+var _cof = function (it) {
+  return toString$1.call(it).slice(8, -1);
+};
+
+// fallback for non-array-like ES3 and non-enumerable old V8 strings
+
+// eslint-disable-next-line no-prototype-builtins
+var _iobject = Object('z').propertyIsEnumerable(0) ? Object : function (it) {
+  return _cof(it) == 'String' ? it.split('') : Object(it);
+};
+
+// to indexed object, toObject with fallback for non-array-like ES3 strings
+
+
+var _toIobject = function (it) {
+  return _iobject(_defined(it));
+};
+
+// 7.1.15 ToLength
+
+var min = Math.min;
+var _toLength = function (it) {
+  return it > 0 ? min(_toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
+};
+
+var max = Math.max;
+var min$1 = Math.min;
+var _toAbsoluteIndex = function (index, length) {
+  index = _toInteger(index);
+  return index < 0 ? max(index + length, 0) : min$1(index, length);
+};
+
+// false -> Array#indexOf
+// true  -> Array#includes
+
+
+
+var _arrayIncludes = function (IS_INCLUDES) {
+  return function ($this, el, fromIndex) {
+    var O = _toIobject($this);
+    var length = _toLength(O.length);
+    var index = _toAbsoluteIndex(fromIndex, length);
+    var value;
+    // Array#includes uses SameValueZero equality algorithm
+    // eslint-disable-next-line no-self-compare
+    if (IS_INCLUDES && el != el) while (length > index) {
+      value = O[index++];
+      // eslint-disable-next-line no-self-compare
+      if (value != value) return true;
+    // Array#indexOf ignores holes, Array#includes - not
+    } else for (;length > index; index++) if (IS_INCLUDES || index in O) {
+      if (O[index] === el) return IS_INCLUDES || index || 0;
+    } return !IS_INCLUDES && -1;
+  };
+};
+
+var _shared = createCommonjsModule(function (module) {
+var SHARED = '__core-js_shared__';
+var store = _global[SHARED] || (_global[SHARED] = {});
+
+(module.exports = function (key, value) {
+  return store[key] || (store[key] = value !== undefined ? value : {});
+})('versions', []).push({
+  version: _core.version,
+  mode: 'pure',
+  copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
+});
+});
+
+var id = 0;
+var px = Math.random();
+var _uid = function (key) {
+  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
+};
+
+var shared = _shared('keys');
+
+var _sharedKey = function (key) {
+  return shared[key] || (shared[key] = _uid(key));
+};
+
+var arrayIndexOf = _arrayIncludes(false);
+var IE_PROTO = _sharedKey('IE_PROTO');
+
+var _objectKeysInternal = function (object, names) {
+  var O = _toIobject(object);
+  var i = 0;
+  var result = [];
+  var key;
+  for (key in O) if (key != IE_PROTO) _has(O, key) && result.push(key);
+  // Don't enum bug & hidden keys
+  while (names.length > i) if (_has(O, key = names[i++])) {
+    ~arrayIndexOf(result, key) || result.push(key);
+  }
+  return result;
+};
+
+// IE 8- don't enum bug keys
+var _enumBugKeys = (
+  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
+).split(',');
+
+// 19.1.2.14 / 15.2.3.14 Object.keys(O)
+
+
+
+var _objectKeys = Object.keys || function keys(O) {
+  return _objectKeysInternal(O, _enumBugKeys);
+};
+
+var _objectDps = _descriptors ? Object.defineProperties : function defineProperties(O, Properties) {
+  _anObject(O);
+  var keys = _objectKeys(Properties);
+  var length = keys.length;
+  var i = 0;
+  var P;
+  while (length > i) _objectDp.f(O, P = keys[i++], Properties[P]);
+  return O;
+};
+
+var document$1 = _global.document;
+var _html = document$1 && document$1.documentElement;
+
+// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
+
+
+
+var IE_PROTO$1 = _sharedKey('IE_PROTO');
+var Empty = function () { /* empty */ };
+var PROTOTYPE$1 = 'prototype';
+
+// Create object with fake `null` prototype: use iframe Object with cleared prototype
+var createDict = function () {
+  // Thrash, waste and sodomy: IE GC bug
+  var iframe = _domCreate('iframe');
+  var i = _enumBugKeys.length;
+  var lt = '<';
+  var gt = '>';
+  var iframeDocument;
+  iframe.style.display = 'none';
+  _html.appendChild(iframe);
+  iframe.src = 'javascript:'; // eslint-disable-line no-script-url
+  // createDict = iframe.contentWindow.Object;
+  // html.removeChild(iframe);
+  iframeDocument = iframe.contentWindow.document;
+  iframeDocument.open();
+  iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
+  iframeDocument.close();
+  createDict = iframeDocument.F;
+  while (i--) delete createDict[PROTOTYPE$1][_enumBugKeys[i]];
+  return createDict();
+};
+
+var _objectCreate = Object.create || function create(O, Properties) {
+  var result;
+  if (O !== null) {
+    Empty[PROTOTYPE$1] = _anObject(O);
+    result = new Empty();
+    Empty[PROTOTYPE$1] = null;
+    // add "__proto__" for Object.getPrototypeOf polyfill
+    result[IE_PROTO$1] = O;
+  } else result = createDict();
+  return Properties === undefined ? result : _objectDps(result, Properties);
+};
+
+var _wks = createCommonjsModule(function (module) {
+var store = _shared('wks');
+
+var Symbol = _global.Symbol;
+var USE_SYMBOL = typeof Symbol == 'function';
+
+var $exports = module.exports = function (name) {
+  return store[name] || (store[name] =
+    USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : _uid)('Symbol.' + name));
+};
+
+$exports.store = store;
+});
+
+var def = _objectDp.f;
+
+var TAG = _wks('toStringTag');
+
+var _setToStringTag = function (it, tag, stat) {
+  if (it && !_has(it = stat ? it : it.prototype, TAG)) def(it, TAG, { configurable: true, value: tag });
+};
+
+var IteratorPrototype = {};
+
+// 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
+_hide(IteratorPrototype, _wks('iterator'), function () { return this; });
+
+var _iterCreate = function (Constructor, NAME, next) {
+  Constructor.prototype = _objectCreate(IteratorPrototype, { next: _propertyDesc(1, next) });
+  _setToStringTag(Constructor, NAME + ' Iterator');
+};
+
+// 7.1.13 ToObject(argument)
+
+var _toObject = function (it) {
+  return Object(_defined(it));
+};
+
+// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
+
+
+var IE_PROTO$2 = _sharedKey('IE_PROTO');
+var ObjectProto = Object.prototype;
+
+var _objectGpo = Object.getPrototypeOf || function (O) {
+  O = _toObject(O);
+  if (_has(O, IE_PROTO$2)) return O[IE_PROTO$2];
+  if (typeof O.constructor == 'function' && O instanceof O.constructor) {
+    return O.constructor.prototype;
+  } return O instanceof Object ? ObjectProto : null;
+};
+
+var ITERATOR = _wks('iterator');
+var BUGGY = !([].keys && 'next' in [].keys()); // Safari has buggy iterators w/o `next`
+var FF_ITERATOR = '@@iterator';
+var KEYS = 'keys';
+var VALUES = 'values';
+
+var returnThis = function () { return this; };
+
+var _iterDefine = function (Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED) {
+  _iterCreate(Constructor, NAME, next);
+  var getMethod = function (kind) {
+    if (!BUGGY && kind in proto) return proto[kind];
+    switch (kind) {
+      case KEYS: return function keys() { return new Constructor(this, kind); };
+      case VALUES: return function values() { return new Constructor(this, kind); };
+    } return function entries() { return new Constructor(this, kind); };
+  };
+  var TAG = NAME + ' Iterator';
+  var DEF_VALUES = DEFAULT == VALUES;
+  var VALUES_BUG = false;
+  var proto = Base.prototype;
+  var $native = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT];
+  var $default = $native || getMethod(DEFAULT);
+  var $entries = DEFAULT ? !DEF_VALUES ? $default : getMethod('entries') : undefined;
+  var $anyNative = NAME == 'Array' ? proto.entries || $native : $native;
+  var methods, key, IteratorPrototype;
+  // Fix native
+  if ($anyNative) {
+    IteratorPrototype = _objectGpo($anyNative.call(new Base()));
+    if (IteratorPrototype !== Object.prototype && IteratorPrototype.next) {
+      // Set @@toStringTag to native iterators
+      _setToStringTag(IteratorPrototype, TAG, true);
+      // fix for some old engines
+      if (!_library && typeof IteratorPrototype[ITERATOR] != 'function') _hide(IteratorPrototype, ITERATOR, returnThis);
+    }
+  }
+  // fix Array#{values, @@iterator}.name in V8 / FF
+  if (DEF_VALUES && $native && $native.name !== VALUES) {
+    VALUES_BUG = true;
+    $default = function values() { return $native.call(this); };
+  }
+  // Define iterator
+  if ((!_library || FORCED) && (BUGGY || VALUES_BUG || !proto[ITERATOR])) {
+    _hide(proto, ITERATOR, $default);
+  }
+  // Plug for library
+  _iterators[NAME] = $default;
+  _iterators[TAG] = returnThis;
+  if (DEFAULT) {
+    methods = {
+      values: DEF_VALUES ? $default : getMethod(VALUES),
+      keys: IS_SET ? $default : getMethod(KEYS),
+      entries: $entries
+    };
+    if (FORCED) for (key in methods) {
+      if (!(key in proto)) _redefine(proto, key, methods[key]);
+    } else _export(_export.P + _export.F * (BUGGY || VALUES_BUG), NAME, methods);
+  }
+  return methods;
+};
+
+var $at = _stringAt(true);
+
+// 21.1.3.27 String.prototype[@@iterator]()
+_iterDefine(String, 'String', function (iterated) {
+  this._t = String(iterated); // target
+  this._i = 0;                // next index
+// 21.1.5.2.1 %StringIteratorPrototype%.next()
+}, function () {
+  var O = this._t;
+  var index = this._i;
+  var point;
+  if (index >= O.length) return { value: undefined, done: true };
+  point = $at(O, index);
+  this._i += point.length;
+  return { value: point, done: false };
+});
+
+var _iterStep = function (done, value) {
+  return { value: value, done: !!done };
+};
+
+// 22.1.3.4 Array.prototype.entries()
+// 22.1.3.13 Array.prototype.keys()
+// 22.1.3.29 Array.prototype.values()
+// 22.1.3.30 Array.prototype[@@iterator]()
+var es6_array_iterator = _iterDefine(Array, 'Array', function (iterated, kind) {
+  this._t = _toIobject(iterated); // target
+  this._i = 0;                   // next index
+  this._k = kind;                // kind
+// 22.1.5.2.1 %ArrayIteratorPrototype%.next()
+}, function () {
+  var O = this._t;
+  var kind = this._k;
+  var index = this._i++;
+  if (!O || index >= O.length) {
+    this._t = undefined;
+    return _iterStep(1);
+  }
+  if (kind == 'keys') return _iterStep(0, index);
+  if (kind == 'values') return _iterStep(0, O[index]);
+  return _iterStep(0, [index, O[index]]);
+}, 'values');
+
+// argumentsList[@@iterator] is %ArrayProto_values% (9.4.4.6, 9.4.4.7)
+_iterators.Arguments = _iterators.Array;
+
+var TO_STRING_TAG = _wks('toStringTag');
+
+var DOMIterables = ('CSSRuleList,CSSStyleDeclaration,CSSValueList,ClientRectList,DOMRectList,DOMStringList,' +
+  'DOMTokenList,DataTransferItemList,FileList,HTMLAllCollection,HTMLCollection,HTMLFormElement,HTMLSelectElement,' +
+  'MediaList,MimeTypeArray,NamedNodeMap,NodeList,PaintRequestList,Plugin,PluginArray,SVGLengthList,SVGNumberList,' +
+  'SVGPathSegList,SVGPointList,SVGStringList,SVGTransformList,SourceBufferList,StyleSheetList,TextTrackCueList,' +
+  'TextTrackList,TouchList').split(',');
+
+for (var i = 0; i < DOMIterables.length; i++) {
+  var NAME = DOMIterables[i];
+  var Collection = _global[NAME];
+  var proto = Collection && Collection.prototype;
+  if (proto && !proto[TO_STRING_TAG]) _hide(proto, TO_STRING_TAG, NAME);
+  _iterators[NAME] = _iterators.Array;
+}
+
+var f$1 = _wks;
+
+var _wksExt = {
+	f: f$1
+};
+
+var iterator = _wksExt.f('iterator');
+
+var iterator$1 = createCommonjsModule(function (module) {
+module.exports = { "default": iterator, __esModule: true };
+});
+
+unwrapExports(iterator$1);
+
+var _meta = createCommonjsModule(function (module) {
+var META = _uid('meta');
+
+
+var setDesc = _objectDp.f;
+var id = 0;
+var isExtensible = Object.isExtensible || function () {
+  return true;
+};
+var FREEZE = !_fails(function () {
+  return isExtensible(Object.preventExtensions({}));
+});
+var setMeta = function (it) {
+  setDesc(it, META, { value: {
+    i: 'O' + ++id, // object ID
+    w: {}          // weak collections IDs
+  } });
+};
+var fastKey = function (it, create) {
+  // return primitive with prefix
+  if (!_isObject(it)) return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
+  if (!_has(it, META)) {
+    // can't set metadata to uncaught frozen object
+    if (!isExtensible(it)) return 'F';
+    // not necessary to add metadata
+    if (!create) return 'E';
+    // add missing metadata
+    setMeta(it);
+  // return object ID
+  } return it[META].i;
+};
+var getWeak = function (it, create) {
+  if (!_has(it, META)) {
+    // can't set metadata to uncaught frozen object
+    if (!isExtensible(it)) return true;
+    // not necessary to add metadata
+    if (!create) return false;
+    // add missing metadata
+    setMeta(it);
+  // return hash weak collections IDs
+  } return it[META].w;
+};
+// add metadata on freeze-family methods calling
+var onFreeze = function (it) {
+  if (FREEZE && meta.NEED && isExtensible(it) && !_has(it, META)) setMeta(it);
+  return it;
+};
+var meta = module.exports = {
+  KEY: META,
+  NEED: false,
+  fastKey: fastKey,
+  getWeak: getWeak,
+  onFreeze: onFreeze
+};
+});
+var _meta_1 = _meta.KEY;
+var _meta_2 = _meta.NEED;
+var _meta_3 = _meta.fastKey;
+var _meta_4 = _meta.getWeak;
+var _meta_5 = _meta.onFreeze;
+
+var defineProperty$3 = _objectDp.f;
+var _wksDefine = function (name) {
+  var $Symbol = _core.Symbol || (_core.Symbol = {});
+  if (name.charAt(0) != '_' && !(name in $Symbol)) defineProperty$3($Symbol, name, { value: _wksExt.f(name) });
+};
+
+var f$2 = Object.getOwnPropertySymbols;
+
+var _objectGops = {
+	f: f$2
+};
+
+var f$3 = {}.propertyIsEnumerable;
+
+var _objectPie = {
+	f: f$3
+};
+
+// all enumerable object keys, includes symbols
+
+
+
+var _enumKeys = function (it) {
+  var result = _objectKeys(it);
+  var getSymbols = _objectGops.f;
+  if (getSymbols) {
+    var symbols = getSymbols(it);
+    var isEnum = _objectPie.f;
+    var i = 0;
+    var key;
+    while (symbols.length > i) if (isEnum.call(it, key = symbols[i++])) result.push(key);
+  } return result;
+};
+
+// 7.2.2 IsArray(argument)
+
+var _isArray = Array.isArray || function isArray(arg) {
+  return _cof(arg) == 'Array';
+};
+
+// 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
+
+var hiddenKeys = _enumBugKeys.concat('length', 'prototype');
+
+var f$4 = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
+  return _objectKeysInternal(O, hiddenKeys);
+};
+
+var _objectGopn = {
+	f: f$4
+};
+
+// fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
+
+var gOPN = _objectGopn.f;
+var toString$2 = {}.toString;
+
+var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
+  ? Object.getOwnPropertyNames(window) : [];
+
+var getWindowNames = function (it) {
+  try {
+    return gOPN(it);
+  } catch (e) {
+    return windowNames.slice();
+  }
+};
+
+var f$5 = function getOwnPropertyNames(it) {
+  return windowNames && toString$2.call(it) == '[object Window]' ? getWindowNames(it) : gOPN(_toIobject(it));
+};
+
+var _objectGopnExt = {
+	f: f$5
+};
+
+var gOPD = Object.getOwnPropertyDescriptor;
+
+var f$6 = _descriptors ? gOPD : function getOwnPropertyDescriptor(O, P) {
+  O = _toIobject(O);
+  P = _toPrimitive(P, true);
+  if (_ie8DomDefine) try {
+    return gOPD(O, P);
+  } catch (e) { /* empty */ }
+  if (_has(O, P)) return _propertyDesc(!_objectPie.f.call(O, P), O[P]);
+};
+
+var _objectGopd = {
+	f: f$6
+};
+
+// ECMAScript 6 symbols shim
+
+
+
+
+
+var META = _meta.KEY;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var gOPD$1 = _objectGopd.f;
+var dP$1 = _objectDp.f;
+var gOPN$1 = _objectGopnExt.f;
+var $Symbol = _global.Symbol;
+var $JSON = _global.JSON;
+var _stringify = $JSON && $JSON.stringify;
+var PROTOTYPE$2 = 'prototype';
+var HIDDEN = _wks('_hidden');
+var TO_PRIMITIVE = _wks('toPrimitive');
+var isEnum = {}.propertyIsEnumerable;
+var SymbolRegistry = _shared('symbol-registry');
+var AllSymbols = _shared('symbols');
+var OPSymbols = _shared('op-symbols');
+var ObjectProto$1 = Object[PROTOTYPE$2];
+var USE_NATIVE = typeof $Symbol == 'function';
+var QObject = _global.QObject;
+// Don't use setters in Qt Script, https://github.com/zloirock/core-js/issues/173
+var setter = !QObject || !QObject[PROTOTYPE$2] || !QObject[PROTOTYPE$2].findChild;
+
+// fallback for old Android, https://code.google.com/p/v8/issues/detail?id=687
+var setSymbolDesc = _descriptors && _fails(function () {
+  return _objectCreate(dP$1({}, 'a', {
+    get: function () { return dP$1(this, 'a', { value: 7 }).a; }
+  })).a != 7;
+}) ? function (it, key, D) {
+  var protoDesc = gOPD$1(ObjectProto$1, key);
+  if (protoDesc) delete ObjectProto$1[key];
+  dP$1(it, key, D);
+  if (protoDesc && it !== ObjectProto$1) dP$1(ObjectProto$1, key, protoDesc);
+} : dP$1;
+
+var wrap = function (tag) {
+  var sym = AllSymbols[tag] = _objectCreate($Symbol[PROTOTYPE$2]);
+  sym._k = tag;
+  return sym;
+};
+
+var isSymbol$1 = USE_NATIVE && typeof $Symbol.iterator == 'symbol' ? function (it) {
+  return typeof it == 'symbol';
+} : function (it) {
+  return it instanceof $Symbol;
+};
+
+var $defineProperty = function defineProperty(it, key, D) {
+  if (it === ObjectProto$1) $defineProperty(OPSymbols, key, D);
+  _anObject(it);
+  key = _toPrimitive(key, true);
+  _anObject(D);
+  if (_has(AllSymbols, key)) {
+    if (!D.enumerable) {
+      if (!_has(it, HIDDEN)) dP$1(it, HIDDEN, _propertyDesc(1, {}));
+      it[HIDDEN][key] = true;
+    } else {
+      if (_has(it, HIDDEN) && it[HIDDEN][key]) it[HIDDEN][key] = false;
+      D = _objectCreate(D, { enumerable: _propertyDesc(0, false) });
+    } return setSymbolDesc(it, key, D);
+  } return dP$1(it, key, D);
+};
+var $defineProperties = function defineProperties(it, P) {
+  _anObject(it);
+  var keys = _enumKeys(P = _toIobject(P));
+  var i = 0;
+  var l = keys.length;
+  var key;
+  while (l > i) $defineProperty(it, key = keys[i++], P[key]);
+  return it;
+};
+var $create = function create(it, P) {
+  return P === undefined ? _objectCreate(it) : $defineProperties(_objectCreate(it), P);
+};
+var $propertyIsEnumerable = function propertyIsEnumerable(key) {
+  var E = isEnum.call(this, key = _toPrimitive(key, true));
+  if (this === ObjectProto$1 && _has(AllSymbols, key) && !_has(OPSymbols, key)) return false;
+  return E || !_has(this, key) || !_has(AllSymbols, key) || _has(this, HIDDEN) && this[HIDDEN][key] ? E : true;
+};
+var $getOwnPropertyDescriptor = function getOwnPropertyDescriptor(it, key) {
+  it = _toIobject(it);
+  key = _toPrimitive(key, true);
+  if (it === ObjectProto$1 && _has(AllSymbols, key) && !_has(OPSymbols, key)) return;
+  var D = gOPD$1(it, key);
+  if (D && _has(AllSymbols, key) && !(_has(it, HIDDEN) && it[HIDDEN][key])) D.enumerable = true;
+  return D;
+};
+var $getOwnPropertyNames = function getOwnPropertyNames(it) {
+  var names = gOPN$1(_toIobject(it));
+  var result = [];
+  var i = 0;
+  var key;
+  while (names.length > i) {
+    if (!_has(AllSymbols, key = names[i++]) && key != HIDDEN && key != META) result.push(key);
+  } return result;
+};
+var $getOwnPropertySymbols = function getOwnPropertySymbols(it) {
+  var IS_OP = it === ObjectProto$1;
+  var names = gOPN$1(IS_OP ? OPSymbols : _toIobject(it));
+  var result = [];
+  var i = 0;
+  var key;
+  while (names.length > i) {
+    if (_has(AllSymbols, key = names[i++]) && (IS_OP ? _has(ObjectProto$1, key) : true)) result.push(AllSymbols[key]);
+  } return result;
+};
+
+// 19.4.1.1 Symbol([description])
+if (!USE_NATIVE) {
+  $Symbol = function Symbol() {
+    if (this instanceof $Symbol) throw TypeError('Symbol is not a constructor!');
+    var tag = _uid(arguments.length > 0 ? arguments[0] : undefined);
+    var $set = function (value) {
+      if (this === ObjectProto$1) $set.call(OPSymbols, value);
+      if (_has(this, HIDDEN) && _has(this[HIDDEN], tag)) this[HIDDEN][tag] = false;
+      setSymbolDesc(this, tag, _propertyDesc(1, value));
+    };
+    if (_descriptors && setter) setSymbolDesc(ObjectProto$1, tag, { configurable: true, set: $set });
+    return wrap(tag);
+  };
+  _redefine($Symbol[PROTOTYPE$2], 'toString', function toString() {
+    return this._k;
+  });
+
+  _objectGopd.f = $getOwnPropertyDescriptor;
+  _objectDp.f = $defineProperty;
+  _objectGopn.f = _objectGopnExt.f = $getOwnPropertyNames;
+  _objectPie.f = $propertyIsEnumerable;
+  _objectGops.f = $getOwnPropertySymbols;
+
+  if (_descriptors && !_library) {
+    _redefine(ObjectProto$1, 'propertyIsEnumerable', $propertyIsEnumerable, true);
+  }
+
+  _wksExt.f = function (name) {
+    return wrap(_wks(name));
+  };
+}
+
+_export(_export.G + _export.W + _export.F * !USE_NATIVE, { Symbol: $Symbol });
+
+for (var es6Symbols = (
+  // 19.4.2.2, 19.4.2.3, 19.4.2.4, 19.4.2.6, 19.4.2.8, 19.4.2.9, 19.4.2.10, 19.4.2.11, 19.4.2.12, 19.4.2.13, 19.4.2.14
+  'hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables'
+).split(','), j = 0; es6Symbols.length > j;)_wks(es6Symbols[j++]);
+
+for (var wellKnownSymbols = _objectKeys(_wks.store), k = 0; wellKnownSymbols.length > k;) _wksDefine(wellKnownSymbols[k++]);
+
+_export(_export.S + _export.F * !USE_NATIVE, 'Symbol', {
+  // 19.4.2.1 Symbol.for(key)
+  'for': function (key) {
+    return _has(SymbolRegistry, key += '')
+      ? SymbolRegistry[key]
+      : SymbolRegistry[key] = $Symbol(key);
+  },
+  // 19.4.2.5 Symbol.keyFor(sym)
+  keyFor: function keyFor(sym) {
+    if (!isSymbol$1(sym)) throw TypeError(sym + ' is not a symbol!');
+    for (var key in SymbolRegistry) if (SymbolRegistry[key] === sym) return key;
+  },
+  useSetter: function () { setter = true; },
+  useSimple: function () { setter = false; }
+});
+
+_export(_export.S + _export.F * !USE_NATIVE, 'Object', {
+  // 19.1.2.2 Object.create(O [, Properties])
+  create: $create,
+  // 19.1.2.4 Object.defineProperty(O, P, Attributes)
+  defineProperty: $defineProperty,
+  // 19.1.2.3 Object.defineProperties(O, Properties)
+  defineProperties: $defineProperties,
+  // 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
+  getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
+  // 19.1.2.7 Object.getOwnPropertyNames(O)
+  getOwnPropertyNames: $getOwnPropertyNames,
+  // 19.1.2.8 Object.getOwnPropertySymbols(O)
+  getOwnPropertySymbols: $getOwnPropertySymbols
+});
+
+// 24.3.2 JSON.stringify(value [, replacer [, space]])
+$JSON && _export(_export.S + _export.F * (!USE_NATIVE || _fails(function () {
+  var S = $Symbol();
+  // MS Edge converts symbol values to JSON as {}
+  // WebKit converts symbol values to JSON as null
+  // V8 throws on boxed symbols
+  return _stringify([S]) != '[null]' || _stringify({ a: S }) != '{}' || _stringify(Object(S)) != '{}';
+})), 'JSON', {
+  stringify: function stringify(it) {
+    var args = [it];
+    var i = 1;
+    var replacer, $replacer;
+    while (arguments.length > i) args.push(arguments[i++]);
+    $replacer = replacer = args[1];
+    if (!_isObject(replacer) && it === undefined || isSymbol$1(it)) return; // IE8 returns string on undefined
+    if (!_isArray(replacer)) replacer = function (key, value) {
+      if (typeof $replacer == 'function') value = $replacer.call(this, key, value);
+      if (!isSymbol$1(value)) return value;
+    };
+    args[1] = replacer;
+    return _stringify.apply($JSON, args);
+  }
+});
+
+// 19.4.3.4 Symbol.prototype[@@toPrimitive](hint)
+$Symbol[PROTOTYPE$2][TO_PRIMITIVE] || _hide($Symbol[PROTOTYPE$2], TO_PRIMITIVE, $Symbol[PROTOTYPE$2].valueOf);
+// 19.4.3.5 Symbol.prototype[@@toStringTag]
+_setToStringTag($Symbol, 'Symbol');
+// 20.2.1.9 Math[@@toStringTag]
+_setToStringTag(Math, 'Math', true);
+// 24.3.3 JSON[@@toStringTag]
+_setToStringTag(_global.JSON, 'JSON', true);
+
+_wksDefine('asyncIterator');
+
+_wksDefine('observable');
+
+var symbol = _core.Symbol;
+
+var symbol$1 = createCommonjsModule(function (module) {
+module.exports = { "default": symbol, __esModule: true };
+});
+
+unwrapExports(symbol$1);
+
+var _typeof_1 = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+
+
+
+var _iterator2 = _interopRequireDefault(iterator$1);
+
+
+
+var _symbol2 = _interopRequireDefault(symbol$1);
+
+var _typeof = typeof _symbol2.default === "function" && typeof _iterator2.default === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default && obj !== _symbol2.default.prototype ? "symbol" : typeof obj; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.default) === "symbol" ? function (obj) {
+  return typeof obj === "undefined" ? "undefined" : _typeof(obj);
+} : function (obj) {
+  return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default && obj !== _symbol2.default.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof(obj);
+};
+});
+
+var _typeof$4 = unwrapExports(_typeof_1);
+
+// 19.1.2.1 Object.assign(target, source, ...)
+
+
+
+
+
+var $assign = Object.assign;
+
+// should work with symbols and should have deterministic property order (V8 bug)
+var _objectAssign = !$assign || _fails(function () {
+  var A = {};
+  var B = {};
+  // eslint-disable-next-line no-undef
+  var S = Symbol();
+  var K = 'abcdefghijklmnopqrst';
+  A[S] = 7;
+  K.split('').forEach(function (k) { B[k] = k; });
+  return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
+}) ? function assign(target, source) { // eslint-disable-line no-unused-vars
+  var T = _toObject(target);
+  var aLen = arguments.length;
+  var index = 1;
+  var getSymbols = _objectGops.f;
+  var isEnum = _objectPie.f;
+  while (aLen > index) {
+    var S = _iobject(arguments[index++]);
+    var keys = getSymbols ? _objectKeys(S).concat(getSymbols(S)) : _objectKeys(S);
+    var length = keys.length;
+    var j = 0;
+    var key;
+    while (length > j) if (isEnum.call(S, key = keys[j++])) T[key] = S[key];
+  } return T;
+} : $assign;
+
+// 19.1.3.1 Object.assign(target, source)
+
+
+_export(_export.S + _export.F, 'Object', { assign: _objectAssign });
+
+var assign = _core.Object.assign;
+
+var assign$1 = createCommonjsModule(function (module) {
+module.exports = { "default": assign, __esModule: true };
+});
+
+var _Object$assign = unwrapExports(assign$1);
+
+var classCallCheck = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+
+exports.default = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+});
+
+var _classCallCheck$7 = unwrapExports(classCallCheck);
+
+// 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
+_export(_export.S + _export.F * !_descriptors, 'Object', { defineProperty: _objectDp.f });
+
+var $Object = _core.Object;
+var defineProperty$4 = function defineProperty(it, key, desc) {
+  return $Object.defineProperty(it, key, desc);
+};
+
+var defineProperty$5 = createCommonjsModule(function (module) {
+module.exports = { "default": defineProperty$4, __esModule: true };
+});
+
+var _Object$defineProperty = unwrapExports(defineProperty$5);
+
+var createClass = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+
+
+
+var _defineProperty2 = _interopRequireDefault(defineProperty$5);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      (0, _defineProperty2.default)(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+});
+
+var _createClass = unwrapExports(createClass);
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+
+var _freeGlobal = freeGlobal;
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root$1 = _freeGlobal || freeSelf || Function('return this')();
+
+var _root = root$1;
+
+/** Built-in value references. */
+var Symbol$1 = _root.Symbol;
+
+var _Symbol = Symbol$1;
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$2 = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString = objectProto.toString;
+
+/** Built-in value references. */
+var symToStringTag = _Symbol ? _Symbol.toStringTag : undefined;
+
+/**
+ * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the raw `toStringTag`.
+ */
+function getRawTag(value) {
+  var isOwn = hasOwnProperty$2.call(value, symToStringTag),
+      tag = value[symToStringTag];
+
+  try {
+    value[symToStringTag] = undefined;
+  } catch (e) {}
+
+  var result = nativeObjectToString.call(value);
+  {
+    if (isOwn) {
+      value[symToStringTag] = tag;
+    } else {
+      delete value[symToStringTag];
+    }
+  }
+  return result;
+}
+
+var _getRawTag = getRawTag;
+
+/** Used for built-in method references. */
+var objectProto$1 = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString$1 = objectProto$1.toString;
+
+/**
+ * Converts `value` to a string using `Object.prototype.toString`.
+ *
+ * @private
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ */
+function objectToString(value) {
+  return nativeObjectToString$1.call(value);
+}
+
+var _objectToString = objectToString;
+
+/** `Object#toString` result references. */
+var nullTag = '[object Null]',
+    undefinedTag = '[object Undefined]';
+
+/** Built-in value references. */
+var symToStringTag$1 = _Symbol ? _Symbol.toStringTag : undefined;
+
+/**
+ * The base implementation of `getTag` without fallbacks for buggy environments.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+function baseGetTag(value) {
+  if (value == null) {
+    return value === undefined ? undefinedTag : nullTag;
+  }
+  return (symToStringTag$1 && symToStringTag$1 in Object(value))
+    ? _getRawTag(value)
+    : _objectToString(value);
+}
+
+var _baseGetTag = baseGetTag;
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return value != null && (type == 'object' || type == 'function');
+}
+
+var isObject_1 = isObject;
+
+/** `Object#toString` result references. */
+var asyncTag = '[object AsyncFunction]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]',
+    proxyTag = '[object Proxy]';
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction$1(value) {
+  if (!isObject_1(value)) {
+    return false;
+  }
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 9 which returns 'object' for typed arrays and other constructors.
+  var tag = _baseGetTag(value);
+  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+}
+
+var isFunction_1 = isFunction$1;
+
+/** Used to detect overreaching core-js shims. */
+var coreJsData = _root['__core-js_shared__'];
+
+var _coreJsData = coreJsData;
+
+/** Used to detect methods masquerading as native. */
+var maskSrcKey = (function() {
+  var uid = /[^.]+$/.exec(_coreJsData && _coreJsData.keys && _coreJsData.keys.IE_PROTO || '');
+  return uid ? ('Symbol(src)_1.' + uid) : '';
+}());
+
+/**
+ * Checks if `func` has its source masked.
+ *
+ * @private
+ * @param {Function} func The function to check.
+ * @returns {boolean} Returns `true` if `func` is masked, else `false`.
+ */
+function isMasked(func) {
+  return !!maskSrcKey && (maskSrcKey in func);
+}
+
+var _isMasked = isMasked;
+
+/** Used for built-in method references. */
+var funcProto = Function.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString = funcProto.toString;
+
+/**
+ * Converts `func` to its source code.
+ *
+ * @private
+ * @param {Function} func The function to convert.
+ * @returns {string} Returns the source code.
+ */
+function toSource(func) {
+  if (func != null) {
+    try {
+      return funcToString.call(func);
+    } catch (e) {}
+    try {
+      return (func + '');
+    } catch (e) {}
+  }
+  return '';
+}
+
+var _toSource = toSource;
+
+/**
+ * Used to match `RegExp`
+ * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
+ */
+var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+
+/** Used to detect host constructors (Safari). */
+var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+/** Used for built-in method references. */
+var funcProto$1 = Function.prototype,
+    objectProto$2 = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString$1 = funcProto$1.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$3 = objectProto$2.hasOwnProperty;
+
+/** Used to detect if a method is native. */
+var reIsNative = RegExp('^' +
+  funcToString$1.call(hasOwnProperty$3).replace(reRegExpChar, '\\$&')
+  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+);
+
+/**
+ * The base implementation of `_.isNative` without bad shim checks.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a native function,
+ *  else `false`.
+ */
+function baseIsNative(value) {
+  if (!isObject_1(value) || _isMasked(value)) {
+    return false;
+  }
+  var pattern = isFunction_1(value) ? reIsNative : reIsHostCtor;
+  return pattern.test(_toSource(value));
+}
+
+var _baseIsNative = baseIsNative;
+
+/**
+ * Gets the value at `key` of `object`.
+ *
+ * @private
+ * @param {Object} [object] The object to query.
+ * @param {string} key The key of the property to get.
+ * @returns {*} Returns the property value.
+ */
+function getValue(object, key) {
+  return object == null ? undefined : object[key];
+}
+
+var _getValue = getValue;
+
+/**
+ * Gets the native function at `key` of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {string} key The key of the method to get.
+ * @returns {*} Returns the function if it's native, else `undefined`.
+ */
+function getNative(object, key) {
+  var value = _getValue(object, key);
+  return _baseIsNative(value) ? value : undefined;
+}
+
+var _getNative = getNative;
+
+var defineProperty$6 = (function() {
+  try {
+    var func = _getNative(Object, 'defineProperty');
+    func({}, '', {});
+    return func;
+  } catch (e) {}
+}());
+
+var _defineProperty$3 = defineProperty$6;
+
+/**
+ * The base implementation of `assignValue` and `assignMergeValue` without
+ * value checks.
+ *
+ * @private
+ * @param {Object} object The object to modify.
+ * @param {string} key The key of the property to assign.
+ * @param {*} value The value to assign.
+ */
+function baseAssignValue(object, key, value) {
+  if (key == '__proto__' && _defineProperty$3) {
+    _defineProperty$3(object, key, {
+      'configurable': true,
+      'enumerable': true,
+      'value': value,
+      'writable': true
+    });
+  } else {
+    object[key] = value;
+  }
+}
+
+var _baseAssignValue = baseAssignValue;
+
+/**
+ * Creates a base function for methods like `_.forIn` and `_.forOwn`.
+ *
+ * @private
+ * @param {boolean} [fromRight] Specify iterating from right to left.
+ * @returns {Function} Returns the new base function.
+ */
+function createBaseFor(fromRight) {
+  return function(object, iteratee, keysFunc) {
+    var index = -1,
+        iterable = Object(object),
+        props = keysFunc(object),
+        length = props.length;
+
+    while (length--) {
+      var key = props[fromRight ? length : ++index];
+      if (iteratee(iterable[key], key, iterable) === false) {
+        break;
+      }
+    }
+    return object;
+  };
+}
+
+var _createBaseFor = createBaseFor;
+
+/**
+ * The base implementation of `baseForOwn` which iterates over `object`
+ * properties returned by `keysFunc` and invokes `iteratee` for each property.
+ * Iteratee functions may exit iteration early by explicitly returning `false`.
+ *
+ * @private
+ * @param {Object} object The object to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @param {Function} keysFunc The function to get the keys of `object`.
+ * @returns {Object} Returns `object`.
+ */
+var baseFor = _createBaseFor();
+
+var _baseFor = baseFor;
+
+/**
+ * The base implementation of `_.times` without support for iteratee shorthands
+ * or max array length checks.
+ *
+ * @private
+ * @param {number} n The number of times to invoke `iteratee`.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the array of results.
+ */
+function baseTimes(n, iteratee) {
+  var index = -1,
+      result = Array(n);
+
+  while (++index < n) {
+    result[index] = iteratee(index);
+  }
+  return result;
+}
+
+var _baseTimes = baseTimes;
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return value != null && typeof value == 'object';
+}
+
+var isObjectLike_1 = isObjectLike;
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]';
+
+/**
+ * The base implementation of `_.isArguments`.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ */
+function baseIsArguments(value) {
+  return isObjectLike_1(value) && _baseGetTag(value) == argsTag;
+}
+
+var _baseIsArguments = baseIsArguments;
+
+/** Used for built-in method references. */
+var objectProto$3 = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$4 = objectProto$3.hasOwnProperty;
+
+/** Built-in value references. */
+var propertyIsEnumerable = objectProto$3.propertyIsEnumerable;
+
+/**
+ * Checks if `value` is likely an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+var isArguments = _baseIsArguments(function() { return arguments; }()) ? _baseIsArguments : function(value) {
+  return isObjectLike_1(value) && hasOwnProperty$4.call(value, 'callee') &&
+    !propertyIsEnumerable.call(value, 'callee');
+};
+
+var isArguments_1 = isArguments;
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray$1 = Array.isArray;
+
+var isArray_1 = isArray$1;
+
+/**
+ * This method returns `false`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {boolean} Returns `false`.
+ * @example
+ *
+ * _.times(2, _.stubFalse);
+ * // => [false, false]
+ */
+function stubFalse() {
+  return false;
+}
+
+var stubFalse_1 = stubFalse;
+
+var isBuffer_1 = createCommonjsModule(function (module, exports) {
+/** Detect free variable `exports`. */
+var freeExports = exports && !exports.nodeType && exports;
+
+/** Detect free variable `module`. */
+var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+
+/** Detect the popular CommonJS extension `module.exports`. */
+var moduleExports = freeModule && freeModule.exports === freeExports;
+
+/** Built-in value references. */
+var Buffer = moduleExports ? _root.Buffer : undefined;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
+
+/**
+ * Checks if `value` is a buffer.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.3.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
+ * @example
+ *
+ * _.isBuffer(new Buffer(2));
+ * // => true
+ *
+ * _.isBuffer(new Uint8Array(2));
+ * // => false
+ */
+var isBuffer = nativeIsBuffer || stubFalse_1;
+
+module.exports = isBuffer;
+});
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  var type = typeof value;
+  length = length == null ? MAX_SAFE_INTEGER : length;
+
+  return !!length &&
+    (type == 'number' ||
+      (type != 'symbol' && reIsUint.test(value))) &&
+        (value > -1 && value % 1 == 0 && value < length);
+}
+
+var _isIndex = isIndex;
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER$1 = 9007199254740991;
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+function isLength(value) {
+  return typeof value == 'number' &&
+    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER$1;
+}
+
+var isLength_1 = isLength;
+
+/** `Object#toString` result references. */
+var argsTag$1 = '[object Arguments]',
+    arrayTag = '[object Array]',
+    boolTag = '[object Boolean]',
+    dateTag = '[object Date]',
+    errorTag = '[object Error]',
+    funcTag$1 = '[object Function]',
+    mapTag = '[object Map]',
+    numberTag = '[object Number]',
+    objectTag = '[object Object]',
+    regexpTag = '[object RegExp]',
+    setTag = '[object Set]',
+    stringTag = '[object String]',
+    weakMapTag = '[object WeakMap]';
+
+var arrayBufferTag = '[object ArrayBuffer]',
+    dataViewTag = '[object DataView]',
+    float32Tag = '[object Float32Array]',
+    float64Tag = '[object Float64Array]',
+    int8Tag = '[object Int8Array]',
+    int16Tag = '[object Int16Array]',
+    int32Tag = '[object Int32Array]',
+    uint8Tag = '[object Uint8Array]',
+    uint8ClampedTag = '[object Uint8ClampedArray]',
+    uint16Tag = '[object Uint16Array]',
+    uint32Tag = '[object Uint32Array]';
+
+/** Used to identify `toStringTag` values of typed arrays. */
+var typedArrayTags = {};
+typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
+typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
+typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
+typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
+typedArrayTags[uint32Tag] = true;
+typedArrayTags[argsTag$1] = typedArrayTags[arrayTag] =
+typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
+typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
+typedArrayTags[errorTag] = typedArrayTags[funcTag$1] =
+typedArrayTags[mapTag] = typedArrayTags[numberTag] =
+typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
+typedArrayTags[setTag] = typedArrayTags[stringTag] =
+typedArrayTags[weakMapTag] = false;
+
+/**
+ * The base implementation of `_.isTypedArray` without Node.js optimizations.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+ */
+function baseIsTypedArray(value) {
+  return isObjectLike_1(value) &&
+    isLength_1(value.length) && !!typedArrayTags[_baseGetTag(value)];
+}
+
+var _baseIsTypedArray = baseIsTypedArray;
+
+/**
+ * The base implementation of `_.unary` without support for storing metadata.
+ *
+ * @private
+ * @param {Function} func The function to cap arguments for.
+ * @returns {Function} Returns the new capped function.
+ */
+function baseUnary(func) {
+  return function(value) {
+    return func(value);
+  };
+}
+
+var _baseUnary = baseUnary;
+
+var _nodeUtil = createCommonjsModule(function (module, exports) {
+/** Detect free variable `exports`. */
+var freeExports = exports && !exports.nodeType && exports;
+
+/** Detect free variable `module`. */
+var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+
+/** Detect the popular CommonJS extension `module.exports`. */
+var moduleExports = freeModule && freeModule.exports === freeExports;
+
+/** Detect free variable `process` from Node.js. */
+var freeProcess = moduleExports && _freeGlobal.process;
+
+/** Used to access faster Node.js helpers. */
+var nodeUtil = (function() {
+  try {
+    // Use `util.types` for Node.js 10+.
+    var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+    if (types) {
+      return types;
+    }
+
+    // Legacy `process.binding('util')` for Node.js < 10.
+    return freeProcess && freeProcess.binding && freeProcess.binding('util');
+  } catch (e) {}
+}());
+
+module.exports = nodeUtil;
+});
+
+/* Node.js helper references. */
+var nodeIsTypedArray = _nodeUtil && _nodeUtil.isTypedArray;
+
+/**
+ * Checks if `value` is classified as a typed array.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+ * @example
+ *
+ * _.isTypedArray(new Uint8Array);
+ * // => true
+ *
+ * _.isTypedArray([]);
+ * // => false
+ */
+var isTypedArray = nodeIsTypedArray ? _baseUnary(nodeIsTypedArray) : _baseIsTypedArray;
+
+var isTypedArray_1 = isTypedArray;
+
+/** Used for built-in method references. */
+var objectProto$4 = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$5 = objectProto$4.hasOwnProperty;
+
+/**
+ * Creates an array of the enumerable property names of the array-like `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @param {boolean} inherited Specify returning inherited property names.
+ * @returns {Array} Returns the array of property names.
+ */
+function arrayLikeKeys(value, inherited) {
+  var isArr = isArray_1(value),
+      isArg = !isArr && isArguments_1(value),
+      isBuff = !isArr && !isArg && isBuffer_1(value),
+      isType = !isArr && !isArg && !isBuff && isTypedArray_1(value),
+      skipIndexes = isArr || isArg || isBuff || isType,
+      result = skipIndexes ? _baseTimes(value.length, String) : [],
+      length = result.length;
+
+  for (var key in value) {
+    if ((inherited || hasOwnProperty$5.call(value, key)) &&
+        !(skipIndexes && (
+           // Safari 9 has enumerable `arguments.length` in strict mode.
+           key == 'length' ||
+           // Node.js 0.10 has enumerable non-index properties on buffers.
+           (isBuff && (key == 'offset' || key == 'parent')) ||
+           // PhantomJS 2 has enumerable non-index properties on typed arrays.
+           (isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset')) ||
+           // Skip index properties.
+           _isIndex(key, length)
+        ))) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+var _arrayLikeKeys = arrayLikeKeys;
+
+/** Used for built-in method references. */
+var objectProto$5 = Object.prototype;
+
+/**
+ * Checks if `value` is likely a prototype object.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+ */
+function isPrototype(value) {
+  var Ctor = value && value.constructor,
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$5;
+
+  return value === proto;
+}
+
+var _isPrototype = isPrototype;
+
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function(arg) {
+    return func(transform(arg));
+  };
+}
+
+var _overArg = overArg;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeKeys = _overArg(Object.keys, Object);
+
+var _nativeKeys = nativeKeys;
+
+/** Used for built-in method references. */
+var objectProto$6 = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$6 = objectProto$6.hasOwnProperty;
+
+/**
+ * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ */
+function baseKeys(object) {
+  if (!_isPrototype(object)) {
+    return _nativeKeys(object);
+  }
+  var result = [];
+  for (var key in Object(object)) {
+    if (hasOwnProperty$6.call(object, key) && key != 'constructor') {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+var _baseKeys = baseKeys;
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null && isLength_1(value.length) && !isFunction_1(value);
+}
+
+var isArrayLike_1 = isArrayLike;
+
+/**
+ * Creates an array of the own enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
+ */
+function keys(object) {
+  return isArrayLike_1(object) ? _arrayLikeKeys(object) : _baseKeys(object);
+}
+
+var keys_1 = keys;
+
+/**
+ * The base implementation of `_.forOwn` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Object} object The object to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Object} Returns `object`.
+ */
+function baseForOwn(object, iteratee) {
+  return object && _baseFor(object, iteratee, keys_1);
+}
+
+var _baseForOwn = baseForOwn;
+
+/**
+ * Removes all key-value entries from the list cache.
+ *
+ * @private
+ * @name clear
+ * @memberOf ListCache
+ */
+function listCacheClear() {
+  this.__data__ = [];
+  this.size = 0;
+}
+
+var _listCacheClear = listCacheClear;
+
+/**
+ * Performs a
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * comparison between two values to determine if they are equivalent.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ * @example
+ *
+ * var object = { 'a': 1 };
+ * var other = { 'a': 1 };
+ *
+ * _.eq(object, object);
+ * // => true
+ *
+ * _.eq(object, other);
+ * // => false
+ *
+ * _.eq('a', 'a');
+ * // => true
+ *
+ * _.eq('a', Object('a'));
+ * // => false
+ *
+ * _.eq(NaN, NaN);
+ * // => true
+ */
+function eq(value, other) {
+  return value === other || (value !== value && other !== other);
+}
+
+var eq_1 = eq;
+
+/**
+ * Gets the index at which the `key` is found in `array` of key-value pairs.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} key The key to search for.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function assocIndexOf(array, key) {
+  var length = array.length;
+  while (length--) {
+    if (eq_1(array[length][0], key)) {
+      return length;
+    }
+  }
+  return -1;
+}
+
+var _assocIndexOf = assocIndexOf;
+
+/** Used for built-in method references. */
+var arrayProto = Array.prototype;
+
+/** Built-in value references. */
+var splice = arrayProto.splice;
+
+/**
+ * Removes `key` and its value from the list cache.
+ *
+ * @private
+ * @name delete
+ * @memberOf ListCache
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function listCacheDelete(key) {
+  var data = this.__data__,
+      index = _assocIndexOf(data, key);
+
+  if (index < 0) {
+    return false;
+  }
+  var lastIndex = data.length - 1;
+  if (index == lastIndex) {
+    data.pop();
+  } else {
+    splice.call(data, index, 1);
+  }
+  --this.size;
+  return true;
+}
+
+var _listCacheDelete = listCacheDelete;
+
+/**
+ * Gets the list cache value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf ListCache
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function listCacheGet(key) {
+  var data = this.__data__,
+      index = _assocIndexOf(data, key);
+
+  return index < 0 ? undefined : data[index][1];
+}
+
+var _listCacheGet = listCacheGet;
+
+/**
+ * Checks if a list cache value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf ListCache
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function listCacheHas(key) {
+  return _assocIndexOf(this.__data__, key) > -1;
+}
+
+var _listCacheHas = listCacheHas;
+
+/**
+ * Sets the list cache `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf ListCache
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the list cache instance.
+ */
+function listCacheSet(key, value) {
+  var data = this.__data__,
+      index = _assocIndexOf(data, key);
+
+  if (index < 0) {
+    ++this.size;
+    data.push([key, value]);
+  } else {
+    data[index][1] = value;
+  }
+  return this;
+}
+
+var _listCacheSet = listCacheSet;
+
+/**
+ * Creates an list cache object.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function ListCache(entries) {
+  var index = -1,
+      length = entries == null ? 0 : entries.length;
+
+  this.clear();
+  while (++index < length) {
+    var entry = entries[index];
+    this.set(entry[0], entry[1]);
+  }
+}
+
+// Add methods to `ListCache`.
+ListCache.prototype.clear = _listCacheClear;
+ListCache.prototype['delete'] = _listCacheDelete;
+ListCache.prototype.get = _listCacheGet;
+ListCache.prototype.has = _listCacheHas;
+ListCache.prototype.set = _listCacheSet;
+
+var _ListCache = ListCache;
+
+/**
+ * Removes all key-value entries from the stack.
+ *
+ * @private
+ * @name clear
+ * @memberOf Stack
+ */
+function stackClear() {
+  this.__data__ = new _ListCache;
+  this.size = 0;
+}
+
+var _stackClear = stackClear;
+
+/**
+ * Removes `key` and its value from the stack.
+ *
+ * @private
+ * @name delete
+ * @memberOf Stack
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function stackDelete(key) {
+  var data = this.__data__,
+      result = data['delete'](key);
+
+  this.size = data.size;
+  return result;
+}
+
+var _stackDelete = stackDelete;
+
+/**
+ * Gets the stack value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf Stack
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function stackGet(key) {
+  return this.__data__.get(key);
+}
+
+var _stackGet = stackGet;
+
+/**
+ * Checks if a stack value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf Stack
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function stackHas(key) {
+  return this.__data__.has(key);
+}
+
+var _stackHas = stackHas;
+
+/* Built-in method references that are verified to be native. */
+var Map$1 = _getNative(_root, 'Map');
+
+var _Map = Map$1;
+
+/* Built-in method references that are verified to be native. */
+var nativeCreate = _getNative(Object, 'create');
+
+var _nativeCreate = nativeCreate;
+
+/**
+ * Removes all key-value entries from the hash.
+ *
+ * @private
+ * @name clear
+ * @memberOf Hash
+ */
+function hashClear() {
+  this.__data__ = _nativeCreate ? _nativeCreate(null) : {};
+  this.size = 0;
+}
+
+var _hashClear = hashClear;
+
+/**
+ * Removes `key` and its value from the hash.
+ *
+ * @private
+ * @name delete
+ * @memberOf Hash
+ * @param {Object} hash The hash to modify.
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function hashDelete(key) {
+  var result = this.has(key) && delete this.__data__[key];
+  this.size -= result ? 1 : 0;
+  return result;
+}
+
+var _hashDelete = hashDelete;
+
+/** Used to stand-in for `undefined` hash values. */
+var HASH_UNDEFINED = '__lodash_hash_undefined__';
+
+/** Used for built-in method references. */
+var objectProto$7 = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$7 = objectProto$7.hasOwnProperty;
+
+/**
+ * Gets the hash value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf Hash
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function hashGet(key) {
+  var data = this.__data__;
+  if (_nativeCreate) {
+    var result = data[key];
+    return result === HASH_UNDEFINED ? undefined : result;
+  }
+  return hasOwnProperty$7.call(data, key) ? data[key] : undefined;
+}
+
+var _hashGet = hashGet;
+
+/** Used for built-in method references. */
+var objectProto$8 = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$8 = objectProto$8.hasOwnProperty;
+
+/**
+ * Checks if a hash value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf Hash
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function hashHas(key) {
+  var data = this.__data__;
+  return _nativeCreate ? (data[key] !== undefined) : hasOwnProperty$8.call(data, key);
+}
+
+var _hashHas = hashHas;
+
+/** Used to stand-in for `undefined` hash values. */
+var HASH_UNDEFINED$1 = '__lodash_hash_undefined__';
+
+/**
+ * Sets the hash `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf Hash
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the hash instance.
+ */
+function hashSet(key, value) {
+  var data = this.__data__;
+  this.size += this.has(key) ? 0 : 1;
+  data[key] = (_nativeCreate && value === undefined) ? HASH_UNDEFINED$1 : value;
+  return this;
+}
+
+var _hashSet = hashSet;
+
+/**
+ * Creates a hash object.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function Hash(entries) {
+  var index = -1,
+      length = entries == null ? 0 : entries.length;
+
+  this.clear();
+  while (++index < length) {
+    var entry = entries[index];
+    this.set(entry[0], entry[1]);
+  }
+}
+
+// Add methods to `Hash`.
+Hash.prototype.clear = _hashClear;
+Hash.prototype['delete'] = _hashDelete;
+Hash.prototype.get = _hashGet;
+Hash.prototype.has = _hashHas;
+Hash.prototype.set = _hashSet;
+
+var _Hash = Hash;
+
+/**
+ * Removes all key-value entries from the map.
+ *
+ * @private
+ * @name clear
+ * @memberOf MapCache
+ */
+function mapCacheClear() {
+  this.size = 0;
+  this.__data__ = {
+    'hash': new _Hash,
+    'map': new (_Map || _ListCache),
+    'string': new _Hash
+  };
+}
+
+var _mapCacheClear = mapCacheClear;
+
+/**
+ * Checks if `value` is suitable for use as unique object key.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
+ */
+function isKeyable(value) {
+  var type = typeof value;
+  return (type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean')
+    ? (value !== '__proto__')
+    : (value === null);
+}
+
+var _isKeyable = isKeyable;
+
+/**
+ * Gets the data for `map`.
+ *
+ * @private
+ * @param {Object} map The map to query.
+ * @param {string} key The reference key.
+ * @returns {*} Returns the map data.
+ */
+function getMapData(map, key) {
+  var data = map.__data__;
+  return _isKeyable(key)
+    ? data[typeof key == 'string' ? 'string' : 'hash']
+    : data.map;
+}
+
+var _getMapData = getMapData;
+
+/**
+ * Removes `key` and its value from the map.
+ *
+ * @private
+ * @name delete
+ * @memberOf MapCache
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function mapCacheDelete(key) {
+  var result = _getMapData(this, key)['delete'](key);
+  this.size -= result ? 1 : 0;
+  return result;
+}
+
+var _mapCacheDelete = mapCacheDelete;
+
+/**
+ * Gets the map value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf MapCache
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function mapCacheGet(key) {
+  return _getMapData(this, key).get(key);
+}
+
+var _mapCacheGet = mapCacheGet;
+
+/**
+ * Checks if a map value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf MapCache
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function mapCacheHas(key) {
+  return _getMapData(this, key).has(key);
+}
+
+var _mapCacheHas = mapCacheHas;
+
+/**
+ * Sets the map `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf MapCache
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the map cache instance.
+ */
+function mapCacheSet(key, value) {
+  var data = _getMapData(this, key),
+      size = data.size;
+
+  data.set(key, value);
+  this.size += data.size == size ? 0 : 1;
+  return this;
+}
+
+var _mapCacheSet = mapCacheSet;
+
+/**
+ * Creates a map cache object to store key-value pairs.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function MapCache(entries) {
+  var index = -1,
+      length = entries == null ? 0 : entries.length;
+
+  this.clear();
+  while (++index < length) {
+    var entry = entries[index];
+    this.set(entry[0], entry[1]);
+  }
+}
+
+// Add methods to `MapCache`.
+MapCache.prototype.clear = _mapCacheClear;
+MapCache.prototype['delete'] = _mapCacheDelete;
+MapCache.prototype.get = _mapCacheGet;
+MapCache.prototype.has = _mapCacheHas;
+MapCache.prototype.set = _mapCacheSet;
+
+var _MapCache = MapCache;
+
+/** Used as the size to enable large array optimizations. */
+var LARGE_ARRAY_SIZE = 200;
+
+/**
+ * Sets the stack `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf Stack
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the stack cache instance.
+ */
+function stackSet(key, value) {
+  var data = this.__data__;
+  if (data instanceof _ListCache) {
+    var pairs = data.__data__;
+    if (!_Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
+      pairs.push([key, value]);
+      this.size = ++data.size;
+      return this;
+    }
+    data = this.__data__ = new _MapCache(pairs);
+  }
+  data.set(key, value);
+  this.size = data.size;
+  return this;
+}
+
+var _stackSet = stackSet;
+
+/**
+ * Creates a stack cache object to store key-value pairs.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function Stack(entries) {
+  var data = this.__data__ = new _ListCache(entries);
+  this.size = data.size;
+}
+
+// Add methods to `Stack`.
+Stack.prototype.clear = _stackClear;
+Stack.prototype['delete'] = _stackDelete;
+Stack.prototype.get = _stackGet;
+Stack.prototype.has = _stackHas;
+Stack.prototype.set = _stackSet;
+
+var _Stack = Stack;
+
+/** Used to stand-in for `undefined` hash values. */
+var HASH_UNDEFINED$2 = '__lodash_hash_undefined__';
+
+/**
+ * Adds `value` to the array cache.
+ *
+ * @private
+ * @name add
+ * @memberOf SetCache
+ * @alias push
+ * @param {*} value The value to cache.
+ * @returns {Object} Returns the cache instance.
+ */
+function setCacheAdd(value) {
+  this.__data__.set(value, HASH_UNDEFINED$2);
+  return this;
+}
+
+var _setCacheAdd = setCacheAdd;
+
+/**
+ * Checks if `value` is in the array cache.
+ *
+ * @private
+ * @name has
+ * @memberOf SetCache
+ * @param {*} value The value to search for.
+ * @returns {number} Returns `true` if `value` is found, else `false`.
+ */
+function setCacheHas(value) {
+  return this.__data__.has(value);
+}
+
+var _setCacheHas = setCacheHas;
+
+/**
+ *
+ * Creates an array cache object to store unique values.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [values] The values to cache.
+ */
+function SetCache(values) {
+  var index = -1,
+      length = values == null ? 0 : values.length;
+
+  this.__data__ = new _MapCache;
+  while (++index < length) {
+    this.add(values[index]);
+  }
+}
+
+// Add methods to `SetCache`.
+SetCache.prototype.add = SetCache.prototype.push = _setCacheAdd;
+SetCache.prototype.has = _setCacheHas;
+
+var _SetCache = SetCache;
+
+/**
+ * A specialized version of `_.some` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {boolean} Returns `true` if any element passes the predicate check,
+ *  else `false`.
+ */
+function arraySome(array, predicate) {
+  var index = -1,
+      length = array == null ? 0 : array.length;
+
+  while (++index < length) {
+    if (predicate(array[index], index, array)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+var _arraySome = arraySome;
+
+/**
+ * Checks if a `cache` value for `key` exists.
+ *
+ * @private
+ * @param {Object} cache The cache to query.
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function cacheHas(cache, key) {
+  return cache.has(key);
+}
+
+var _cacheHas = cacheHas;
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG = 1,
+    COMPARE_UNORDERED_FLAG = 2;
+
+/**
+ * A specialized version of `baseIsEqualDeep` for arrays with support for
+ * partial deep comparisons.
+ *
+ * @private
+ * @param {Array} array The array to compare.
+ * @param {Array} other The other array to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} stack Tracks traversed `array` and `other` objects.
+ * @returns {boolean} Returns `true` if the arrays are equivalent, else `false`.
+ */
+function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
+  var isPartial = bitmask & COMPARE_PARTIAL_FLAG,
+      arrLength = array.length,
+      othLength = other.length;
+
+  if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
+    return false;
+  }
+  // Assume cyclic values are equal.
+  var stacked = stack.get(array);
+  if (stacked && stack.get(other)) {
+    return stacked == other;
+  }
+  var index = -1,
+      result = true,
+      seen = (bitmask & COMPARE_UNORDERED_FLAG) ? new _SetCache : undefined;
+
+  stack.set(array, other);
+  stack.set(other, array);
+
+  // Ignore non-index properties.
+  while (++index < arrLength) {
+    var arrValue = array[index],
+        othValue = other[index];
+
+    if (customizer) {
+      var compared = isPartial
+        ? customizer(othValue, arrValue, index, other, array, stack)
+        : customizer(arrValue, othValue, index, array, other, stack);
+    }
+    if (compared !== undefined) {
+      if (compared) {
+        continue;
+      }
+      result = false;
+      break;
+    }
+    // Recursively compare arrays (susceptible to call stack limits).
+    if (seen) {
+      if (!_arraySome(other, function(othValue, othIndex) {
+            if (!_cacheHas(seen, othIndex) &&
+                (arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) {
+              return seen.push(othIndex);
+            }
+          })) {
+        result = false;
+        break;
+      }
+    } else if (!(
+          arrValue === othValue ||
+            equalFunc(arrValue, othValue, bitmask, customizer, stack)
+        )) {
+      result = false;
+      break;
+    }
+  }
+  stack['delete'](array);
+  stack['delete'](other);
+  return result;
+}
+
+var _equalArrays = equalArrays;
+
+/** Built-in value references. */
+var Uint8Array = _root.Uint8Array;
+
+var _Uint8Array = Uint8Array;
+
+/**
+ * Converts `map` to its key-value pairs.
+ *
+ * @private
+ * @param {Object} map The map to convert.
+ * @returns {Array} Returns the key-value pairs.
+ */
+function mapToArray(map) {
+  var index = -1,
+      result = Array(map.size);
+
+  map.forEach(function(value, key) {
+    result[++index] = [key, value];
+  });
+  return result;
+}
+
+var _mapToArray = mapToArray;
+
+/**
+ * Converts `set` to an array of its values.
+ *
+ * @private
+ * @param {Object} set The set to convert.
+ * @returns {Array} Returns the values.
+ */
+function setToArray(set) {
+  var index = -1,
+      result = Array(set.size);
+
+  set.forEach(function(value) {
+    result[++index] = value;
+  });
+  return result;
+}
+
+var _setToArray = setToArray;
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG$1 = 1,
+    COMPARE_UNORDERED_FLAG$1 = 2;
+
+/** `Object#toString` result references. */
+var boolTag$1 = '[object Boolean]',
+    dateTag$1 = '[object Date]',
+    errorTag$1 = '[object Error]',
+    mapTag$1 = '[object Map]',
+    numberTag$1 = '[object Number]',
+    regexpTag$1 = '[object RegExp]',
+    setTag$1 = '[object Set]',
+    stringTag$1 = '[object String]',
+    symbolTag = '[object Symbol]';
+
+var arrayBufferTag$1 = '[object ArrayBuffer]',
+    dataViewTag$1 = '[object DataView]';
+
+/** Used to convert symbols to primitives and strings. */
+var symbolProto = _Symbol ? _Symbol.prototype : undefined,
+    symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
+
+/**
+ * A specialized version of `baseIsEqualDeep` for comparing objects of
+ * the same `toStringTag`.
+ *
+ * **Note:** This function only supports comparing values with tags of
+ * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {string} tag The `toStringTag` of the objects to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} stack Tracks traversed `object` and `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
+  switch (tag) {
+    case dataViewTag$1:
+      if ((object.byteLength != other.byteLength) ||
+          (object.byteOffset != other.byteOffset)) {
+        return false;
+      }
+      object = object.buffer;
+      other = other.buffer;
+
+    case arrayBufferTag$1:
+      if ((object.byteLength != other.byteLength) ||
+          !equalFunc(new _Uint8Array(object), new _Uint8Array(other))) {
+        return false;
+      }
+      return true;
+
+    case boolTag$1:
+    case dateTag$1:
+    case numberTag$1:
+      // Coerce booleans to `1` or `0` and dates to milliseconds.
+      // Invalid dates are coerced to `NaN`.
+      return eq_1(+object, +other);
+
+    case errorTag$1:
+      return object.name == other.name && object.message == other.message;
+
+    case regexpTag$1:
+    case stringTag$1:
+      // Coerce regexes to strings and treat strings, primitives and objects,
+      // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
+      // for more details.
+      return object == (other + '');
+
+    case mapTag$1:
+      var convert = _mapToArray;
+
+    case setTag$1:
+      var isPartial = bitmask & COMPARE_PARTIAL_FLAG$1;
+      convert || (convert = _setToArray);
+
+      if (object.size != other.size && !isPartial) {
+        return false;
+      }
+      // Assume cyclic values are equal.
+      var stacked = stack.get(object);
+      if (stacked) {
+        return stacked == other;
+      }
+      bitmask |= COMPARE_UNORDERED_FLAG$1;
+
+      // Recursively compare objects (susceptible to call stack limits).
+      stack.set(object, other);
+      var result = _equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
+      stack['delete'](object);
+      return result;
+
+    case symbolTag:
+      if (symbolValueOf) {
+        return symbolValueOf.call(object) == symbolValueOf.call(other);
+      }
+  }
+  return false;
+}
+
+var _equalByTag = equalByTag;
+
+/**
+ * Appends the elements of `values` to `array`.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {Array} values The values to append.
+ * @returns {Array} Returns `array`.
+ */
+function arrayPush(array, values) {
+  var index = -1,
+      length = values.length,
+      offset = array.length;
+
+  while (++index < length) {
+    array[offset + index] = values[index];
+  }
+  return array;
+}
+
+var _arrayPush = arrayPush;
+
+/**
+ * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
+ * `keysFunc` and `symbolsFunc` to get the enumerable property names and
+ * symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Function} keysFunc The function to get the keys of `object`.
+ * @param {Function} symbolsFunc The function to get the symbols of `object`.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function baseGetAllKeys(object, keysFunc, symbolsFunc) {
+  var result = keysFunc(object);
+  return isArray_1(object) ? result : _arrayPush(result, symbolsFunc(object));
+}
+
+var _baseGetAllKeys = baseGetAllKeys;
+
+/**
+ * A specialized version of `_.filter` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {Array} Returns the new filtered array.
+ */
+function arrayFilter(array, predicate) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      resIndex = 0,
+      result = [];
+
+  while (++index < length) {
+    var value = array[index];
+    if (predicate(value, index, array)) {
+      result[resIndex++] = value;
+    }
+  }
+  return result;
+}
+
+var _arrayFilter = arrayFilter;
+
+/**
+ * This method returns a new empty array.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {Array} Returns the new empty array.
+ * @example
+ *
+ * var arrays = _.times(2, _.stubArray);
+ *
+ * console.log(arrays);
+ * // => [[], []]
+ *
+ * console.log(arrays[0] === arrays[1]);
+ * // => false
+ */
+function stubArray() {
+  return [];
+}
+
+var stubArray_1 = stubArray;
+
+/** Used for built-in method references. */
+var objectProto$9 = Object.prototype;
+
+/** Built-in value references. */
+var propertyIsEnumerable$1 = objectProto$9.propertyIsEnumerable;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeGetSymbols = Object.getOwnPropertySymbols;
+
+/**
+ * Creates an array of the own enumerable symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of symbols.
+ */
+var getSymbols = !nativeGetSymbols ? stubArray_1 : function(object) {
+  if (object == null) {
+    return [];
+  }
+  object = Object(object);
+  return _arrayFilter(nativeGetSymbols(object), function(symbol) {
+    return propertyIsEnumerable$1.call(object, symbol);
+  });
+};
+
+var _getSymbols = getSymbols;
+
+/**
+ * Creates an array of own enumerable property names and symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function getAllKeys(object) {
+  return _baseGetAllKeys(object, keys_1, _getSymbols);
+}
+
+var _getAllKeys = getAllKeys;
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG$2 = 1;
+
+/** Used for built-in method references. */
+var objectProto$a = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$9 = objectProto$a.hasOwnProperty;
+
+/**
+ * A specialized version of `baseIsEqualDeep` for objects with support for
+ * partial deep comparisons.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} stack Tracks traversed `object` and `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
+  var isPartial = bitmask & COMPARE_PARTIAL_FLAG$2,
+      objProps = _getAllKeys(object),
+      objLength = objProps.length,
+      othProps = _getAllKeys(other),
+      othLength = othProps.length;
+
+  if (objLength != othLength && !isPartial) {
+    return false;
+  }
+  var index = objLength;
+  while (index--) {
+    var key = objProps[index];
+    if (!(isPartial ? key in other : hasOwnProperty$9.call(other, key))) {
+      return false;
+    }
+  }
+  // Assume cyclic values are equal.
+  var stacked = stack.get(object);
+  if (stacked && stack.get(other)) {
+    return stacked == other;
+  }
+  var result = true;
+  stack.set(object, other);
+  stack.set(other, object);
+
+  var skipCtor = isPartial;
+  while (++index < objLength) {
+    key = objProps[index];
+    var objValue = object[key],
+        othValue = other[key];
+
+    if (customizer) {
+      var compared = isPartial
+        ? customizer(othValue, objValue, key, other, object, stack)
+        : customizer(objValue, othValue, key, object, other, stack);
+    }
+    // Recursively compare objects (susceptible to call stack limits).
+    if (!(compared === undefined
+          ? (objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack))
+          : compared
+        )) {
+      result = false;
+      break;
+    }
+    skipCtor || (skipCtor = key == 'constructor');
+  }
+  if (result && !skipCtor) {
+    var objCtor = object.constructor,
+        othCtor = other.constructor;
+
+    // Non `Object` object instances with different constructors are not equal.
+    if (objCtor != othCtor &&
+        ('constructor' in object && 'constructor' in other) &&
+        !(typeof objCtor == 'function' && objCtor instanceof objCtor &&
+          typeof othCtor == 'function' && othCtor instanceof othCtor)) {
+      result = false;
+    }
+  }
+  stack['delete'](object);
+  stack['delete'](other);
+  return result;
+}
+
+var _equalObjects = equalObjects;
+
+/* Built-in method references that are verified to be native. */
+var DataView = _getNative(_root, 'DataView');
+
+var _DataView = DataView;
+
+/* Built-in method references that are verified to be native. */
+var Promise$1 = _getNative(_root, 'Promise');
+
+var _Promise = Promise$1;
+
+/* Built-in method references that are verified to be native. */
+var Set = _getNative(_root, 'Set');
+
+var _Set = Set;
+
+/* Built-in method references that are verified to be native. */
+var WeakMap = _getNative(_root, 'WeakMap');
+
+var _WeakMap = WeakMap;
+
+/** `Object#toString` result references. */
+var mapTag$2 = '[object Map]',
+    objectTag$1 = '[object Object]',
+    promiseTag = '[object Promise]',
+    setTag$2 = '[object Set]',
+    weakMapTag$1 = '[object WeakMap]';
+
+var dataViewTag$2 = '[object DataView]';
+
+/** Used to detect maps, sets, and weakmaps. */
+var dataViewCtorString = _toSource(_DataView),
+    mapCtorString = _toSource(_Map),
+    promiseCtorString = _toSource(_Promise),
+    setCtorString = _toSource(_Set),
+    weakMapCtorString = _toSource(_WeakMap);
+
+/**
+ * Gets the `toStringTag` of `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+var getTag = _baseGetTag;
+
+// Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
+if ((_DataView && getTag(new _DataView(new ArrayBuffer(1))) != dataViewTag$2) ||
+    (_Map && getTag(new _Map) != mapTag$2) ||
+    (_Promise && getTag(_Promise.resolve()) != promiseTag) ||
+    (_Set && getTag(new _Set) != setTag$2) ||
+    (_WeakMap && getTag(new _WeakMap) != weakMapTag$1)) {
+  getTag = function(value) {
+    var result = _baseGetTag(value),
+        Ctor = result == objectTag$1 ? value.constructor : undefined,
+        ctorString = Ctor ? _toSource(Ctor) : '';
+
+    if (ctorString) {
+      switch (ctorString) {
+        case dataViewCtorString: return dataViewTag$2;
+        case mapCtorString: return mapTag$2;
+        case promiseCtorString: return promiseTag;
+        case setCtorString: return setTag$2;
+        case weakMapCtorString: return weakMapTag$1;
+      }
+    }
+    return result;
+  };
+}
+
+var _getTag = getTag;
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG$3 = 1;
+
+/** `Object#toString` result references. */
+var argsTag$2 = '[object Arguments]',
+    arrayTag$1 = '[object Array]',
+    objectTag$2 = '[object Object]';
+
+/** Used for built-in method references. */
+var objectProto$b = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty$a = objectProto$b.hasOwnProperty;
+
+/**
+ * A specialized version of `baseIsEqual` for arrays and objects which performs
+ * deep comparisons and tracks traversed objects enabling objects with circular
+ * references to be compared.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} [stack] Tracks traversed `object` and `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
+  var objIsArr = isArray_1(object),
+      othIsArr = isArray_1(other),
+      objTag = objIsArr ? arrayTag$1 : _getTag(object),
+      othTag = othIsArr ? arrayTag$1 : _getTag(other);
+
+  objTag = objTag == argsTag$2 ? objectTag$2 : objTag;
+  othTag = othTag == argsTag$2 ? objectTag$2 : othTag;
+
+  var objIsObj = objTag == objectTag$2,
+      othIsObj = othTag == objectTag$2,
+      isSameTag = objTag == othTag;
+
+  if (isSameTag && isBuffer_1(object)) {
+    if (!isBuffer_1(other)) {
+      return false;
+    }
+    objIsArr = true;
+    objIsObj = false;
+  }
+  if (isSameTag && !objIsObj) {
+    stack || (stack = new _Stack);
+    return (objIsArr || isTypedArray_1(object))
+      ? _equalArrays(object, other, bitmask, customizer, equalFunc, stack)
+      : _equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
+  }
+  if (!(bitmask & COMPARE_PARTIAL_FLAG$3)) {
+    var objIsWrapped = objIsObj && hasOwnProperty$a.call(object, '__wrapped__'),
+        othIsWrapped = othIsObj && hasOwnProperty$a.call(other, '__wrapped__');
+
+    if (objIsWrapped || othIsWrapped) {
+      var objUnwrapped = objIsWrapped ? object.value() : object,
+          othUnwrapped = othIsWrapped ? other.value() : other;
+
+      stack || (stack = new _Stack);
+      return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
+    }
+  }
+  if (!isSameTag) {
+    return false;
+  }
+  stack || (stack = new _Stack);
+  return _equalObjects(object, other, bitmask, customizer, equalFunc, stack);
+}
+
+var _baseIsEqualDeep = baseIsEqualDeep;
+
+/**
+ * The base implementation of `_.isEqual` which supports partial comparisons
+ * and tracks traversed objects.
+ *
+ * @private
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @param {boolean} bitmask The bitmask flags.
+ *  1 - Unordered comparison
+ *  2 - Partial comparison
+ * @param {Function} [customizer] The function to customize comparisons.
+ * @param {Object} [stack] Tracks traversed `value` and `other` objects.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ */
+function baseIsEqual(value, other, bitmask, customizer, stack) {
+  if (value === other) {
+    return true;
+  }
+  if (value == null || other == null || (!isObjectLike_1(value) && !isObjectLike_1(other))) {
+    return value !== value && other !== other;
+  }
+  return _baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
+}
+
+var _baseIsEqual = baseIsEqual;
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG$4 = 1,
+    COMPARE_UNORDERED_FLAG$2 = 2;
+
+/**
+ * The base implementation of `_.isMatch` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Object} object The object to inspect.
+ * @param {Object} source The object of property values to match.
+ * @param {Array} matchData The property names, values, and compare flags to match.
+ * @param {Function} [customizer] The function to customize comparisons.
+ * @returns {boolean} Returns `true` if `object` is a match, else `false`.
+ */
+function baseIsMatch(object, source, matchData, customizer) {
+  var index = matchData.length,
+      length = index,
+      noCustomizer = !customizer;
+
+  if (object == null) {
+    return !length;
+  }
+  object = Object(object);
+  while (index--) {
+    var data = matchData[index];
+    if ((noCustomizer && data[2])
+          ? data[1] !== object[data[0]]
+          : !(data[0] in object)
+        ) {
+      return false;
+    }
+  }
+  while (++index < length) {
+    data = matchData[index];
+    var key = data[0],
+        objValue = object[key],
+        srcValue = data[1];
+
+    if (noCustomizer && data[2]) {
+      if (objValue === undefined && !(key in object)) {
+        return false;
+      }
+    } else {
+      var stack = new _Stack;
+      if (customizer) {
+        var result = customizer(objValue, srcValue, key, object, source, stack);
+      }
+      if (!(result === undefined
+            ? _baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$4 | COMPARE_UNORDERED_FLAG$2, customizer, stack)
+            : result
+          )) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+var _baseIsMatch = baseIsMatch;
+
+/**
+ * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` if suitable for strict
+ *  equality comparisons, else `false`.
+ */
+function isStrictComparable(value) {
+  return value === value && !isObject_1(value);
+}
+
+var _isStrictComparable = isStrictComparable;
+
+/**
+ * Gets the property names, values, and compare flags of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the match data of `object`.
+ */
+function getMatchData(object) {
+  var result = keys_1(object),
+      length = result.length;
+
+  while (length--) {
+    var key = result[length],
+        value = object[key];
+
+    result[length] = [key, value, _isStrictComparable(value)];
+  }
+  return result;
+}
+
+var _getMatchData = getMatchData;
+
+/**
+ * A specialized version of `matchesProperty` for source values suitable
+ * for strict equality comparisons, i.e. `===`.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @param {*} srcValue The value to match.
+ * @returns {Function} Returns the new spec function.
+ */
+function matchesStrictComparable(key, srcValue) {
+  return function(object) {
+    if (object == null) {
+      return false;
+    }
+    return object[key] === srcValue &&
+      (srcValue !== undefined || (key in Object(object)));
+  };
+}
+
+var _matchesStrictComparable = matchesStrictComparable;
+
+/**
+ * The base implementation of `_.matches` which doesn't clone `source`.
+ *
+ * @private
+ * @param {Object} source The object of property values to match.
+ * @returns {Function} Returns the new spec function.
+ */
+function baseMatches(source) {
+  var matchData = _getMatchData(source);
+  if (matchData.length == 1 && matchData[0][2]) {
+    return _matchesStrictComparable(matchData[0][0], matchData[0][1]);
+  }
+  return function(object) {
+    return object === source || _baseIsMatch(object, source, matchData);
+  };
+}
+
+var _baseMatches = baseMatches;
+
+/** `Object#toString` result references. */
+var symbolTag$1 = '[object Symbol]';
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol$2(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike_1(value) && _baseGetTag(value) == symbolTag$1);
+}
+
+var isSymbol_1 = isSymbol$2;
+
+/** Used to match property names within property paths. */
+var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
+    reIsPlainProp = /^\w*$/;
+
+/**
+ * Checks if `value` is a property name and not a property path.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
+ */
+function isKey(value, object) {
+  if (isArray_1(value)) {
+    return false;
+  }
+  var type = typeof value;
+  if (type == 'number' || type == 'symbol' || type == 'boolean' ||
+      value == null || isSymbol_1(value)) {
+    return true;
+  }
+  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
+    (object != null && value in Object(object));
+}
+
+var _isKey = isKey;
+
+/** Error message constants. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/**
+ * Creates a function that memoizes the result of `func`. If `resolver` is
+ * provided, it determines the cache key for storing the result based on the
+ * arguments provided to the memoized function. By default, the first argument
+ * provided to the memoized function is used as the map cache key. The `func`
+ * is invoked with the `this` binding of the memoized function.
+ *
+ * **Note:** The cache is exposed as the `cache` property on the memoized
+ * function. Its creation may be customized by replacing the `_.memoize.Cache`
+ * constructor with one whose instances implement the
+ * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
+ * method interface of `clear`, `delete`, `get`, `has`, and `set`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to have its output memoized.
+ * @param {Function} [resolver] The function to resolve the cache key.
+ * @returns {Function} Returns the new memoized function.
+ * @example
+ *
+ * var object = { 'a': 1, 'b': 2 };
+ * var other = { 'c': 3, 'd': 4 };
+ *
+ * var values = _.memoize(_.values);
+ * values(object);
+ * // => [1, 2]
+ *
+ * values(other);
+ * // => [3, 4]
+ *
+ * object.a = 2;
+ * values(object);
+ * // => [1, 2]
+ *
+ * // Modify the result cache.
+ * values.cache.set(object, ['a', 'b']);
+ * values(object);
+ * // => ['a', 'b']
+ *
+ * // Replace `_.memoize.Cache`.
+ * _.memoize.Cache = WeakMap;
+ */
+function memoize(func, resolver) {
+  if (typeof func != 'function' || (resolver != null && typeof resolver != 'function')) {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  var memoized = function() {
+    var args = arguments,
+        key = resolver ? resolver.apply(this, args) : args[0],
+        cache = memoized.cache;
+
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    var result = func.apply(this, args);
+    memoized.cache = cache.set(key, result) || cache;
+    return result;
+  };
+  memoized.cache = new (memoize.Cache || _MapCache);
+  return memoized;
+}
+
+// Expose `MapCache`.
+memoize.Cache = _MapCache;
+
+var memoize_1 = memoize;
+
+/** Used as the maximum memoize cache size. */
+var MAX_MEMOIZE_SIZE = 500;
+
+/**
+ * A specialized version of `_.memoize` which clears the memoized function's
+ * cache when it exceeds `MAX_MEMOIZE_SIZE`.
+ *
+ * @private
+ * @param {Function} func The function to have its output memoized.
+ * @returns {Function} Returns the new memoized function.
+ */
+function memoizeCapped(func) {
+  var result = memoize_1(func, function(key) {
+    if (cache.size === MAX_MEMOIZE_SIZE) {
+      cache.clear();
+    }
+    return key;
+  });
+
+  var cache = result.cache;
+  return result;
+}
+
+var _memoizeCapped = memoizeCapped;
+
+/** Used to match property names within property paths. */
+var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
+
+/** Used to match backslashes in property paths. */
+var reEscapeChar = /\\(\\)?/g;
+
+/**
+ * Converts `string` to a property path array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the property path array.
+ */
+var stringToPath = _memoizeCapped(function(string) {
+  var result = [];
+  if (string.charCodeAt(0) === 46 /* . */) {
+    result.push('');
+  }
+  string.replace(rePropName, function(match, number, quote, subString) {
+    result.push(quote ? subString.replace(reEscapeChar, '$1') : (number || match));
+  });
+  return result;
+});
+
+var _stringToPath = stringToPath;
+
+/**
+ * A specialized version of `_.map` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the new mapped array.
+ */
+function arrayMap(array, iteratee) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      result = Array(length);
+
+  while (++index < length) {
+    result[index] = iteratee(array[index], index, array);
+  }
+  return result;
+}
+
+var _arrayMap = arrayMap;
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0;
+
+/** Used to convert symbols to primitives and strings. */
+var symbolProto$1 = _Symbol ? _Symbol.prototype : undefined,
+    symbolToString = symbolProto$1 ? symbolProto$1.toString : undefined;
+
+/**
+ * The base implementation of `_.toString` which doesn't convert nullish
+ * values to empty strings.
+ *
+ * @private
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ */
+function baseToString(value) {
+  // Exit early for strings to avoid a performance hit in some environments.
+  if (typeof value == 'string') {
+    return value;
+  }
+  if (isArray_1(value)) {
+    // Recursively convert values (susceptible to call stack limits).
+    return _arrayMap(value, baseToString) + '';
+  }
+  if (isSymbol_1(value)) {
+    return symbolToString ? symbolToString.call(value) : '';
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+}
+
+var _baseToString = baseToString;
+
+/**
+ * Converts `value` to a string. An empty string is returned for `null`
+ * and `undefined` values. The sign of `-0` is preserved.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ * @example
+ *
+ * _.toString(null);
+ * // => ''
+ *
+ * _.toString(-0);
+ * // => '-0'
+ *
+ * _.toString([1, 2, 3]);
+ * // => '1,2,3'
+ */
+function toString$3(value) {
+  return value == null ? '' : _baseToString(value);
+}
+
+var toString_1 = toString$3;
+
+/**
+ * Casts `value` to a path array if it's not one.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {Array} Returns the cast property path array.
+ */
+function castPath(value, object) {
+  if (isArray_1(value)) {
+    return value;
+  }
+  return _isKey(value, object) ? [value] : _stringToPath(toString_1(value));
+}
+
+var _castPath = castPath;
+
+/** Used as references for various `Number` constants. */
+var INFINITY$1 = 1 / 0;
+
+/**
+ * Converts `value` to a string key if it's not a string or symbol.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @returns {string|symbol} Returns the key.
+ */
+function toKey(value) {
+  if (typeof value == 'string' || isSymbol_1(value)) {
+    return value;
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -INFINITY$1) ? '-0' : result;
+}
+
+var _toKey = toKey;
+
+/**
+ * The base implementation of `_.get` without support for default values.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path of the property to get.
+ * @returns {*} Returns the resolved value.
+ */
+function baseGet(object, path) {
+  path = _castPath(path, object);
+
+  var index = 0,
+      length = path.length;
+
+  while (object != null && index < length) {
+    object = object[_toKey(path[index++])];
+  }
+  return (index && index == length) ? object : undefined;
+}
+
+var _baseGet = baseGet;
+
+/**
+ * Gets the value at `path` of `object`. If the resolved value is
+ * `undefined`, the `defaultValue` is returned in its place.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.7.0
+ * @category Object
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path of the property to get.
+ * @param {*} [defaultValue] The value returned for `undefined` resolved values.
+ * @returns {*} Returns the resolved value.
+ * @example
+ *
+ * var object = { 'a': [{ 'b': { 'c': 3 } }] };
+ *
+ * _.get(object, 'a[0].b.c');
+ * // => 3
+ *
+ * _.get(object, ['a', '0', 'b', 'c']);
+ * // => 3
+ *
+ * _.get(object, 'a.b.c', 'default');
+ * // => 'default'
+ */
+function get$1(object, path, defaultValue) {
+  var result = object == null ? undefined : _baseGet(object, path);
+  return result === undefined ? defaultValue : result;
+}
+
+var get_1 = get$1;
+
+/**
+ * The base implementation of `_.hasIn` without support for deep paths.
+ *
+ * @private
+ * @param {Object} [object] The object to query.
+ * @param {Array|string} key The key to check.
+ * @returns {boolean} Returns `true` if `key` exists, else `false`.
+ */
+function baseHasIn(object, key) {
+  return object != null && key in Object(object);
+}
+
+var _baseHasIn = baseHasIn;
+
+/**
+ * Checks if `path` exists on `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path to check.
+ * @param {Function} hasFunc The function to check properties.
+ * @returns {boolean} Returns `true` if `path` exists, else `false`.
+ */
+function hasPath(object, path, hasFunc) {
+  path = _castPath(path, object);
+
+  var index = -1,
+      length = path.length,
+      result = false;
+
+  while (++index < length) {
+    var key = _toKey(path[index]);
+    if (!(result = object != null && hasFunc(object, key))) {
+      break;
+    }
+    object = object[key];
+  }
+  if (result || ++index != length) {
+    return result;
+  }
+  length = object == null ? 0 : object.length;
+  return !!length && isLength_1(length) && _isIndex(key, length) &&
+    (isArray_1(object) || isArguments_1(object));
+}
+
+var _hasPath = hasPath;
+
+/**
+ * Checks if `path` is a direct or inherited property of `object`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Object
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path to check.
+ * @returns {boolean} Returns `true` if `path` exists, else `false`.
+ * @example
+ *
+ * var object = _.create({ 'a': _.create({ 'b': 2 }) });
+ *
+ * _.hasIn(object, 'a');
+ * // => true
+ *
+ * _.hasIn(object, 'a.b');
+ * // => true
+ *
+ * _.hasIn(object, ['a', 'b']);
+ * // => true
+ *
+ * _.hasIn(object, 'b');
+ * // => false
+ */
+function hasIn(object, path) {
+  return object != null && _hasPath(object, path, _baseHasIn);
+}
+
+var hasIn_1 = hasIn;
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG$5 = 1,
+    COMPARE_UNORDERED_FLAG$3 = 2;
+
+/**
+ * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
+ *
+ * @private
+ * @param {string} path The path of the property to get.
+ * @param {*} srcValue The value to match.
+ * @returns {Function} Returns the new spec function.
+ */
+function baseMatchesProperty(path, srcValue) {
+  if (_isKey(path) && _isStrictComparable(srcValue)) {
+    return _matchesStrictComparable(_toKey(path), srcValue);
+  }
+  return function(object) {
+    var objValue = get_1(object, path);
+    return (objValue === undefined && objValue === srcValue)
+      ? hasIn_1(object, path)
+      : _baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$5 | COMPARE_UNORDERED_FLAG$3);
+  };
+}
+
+var _baseMatchesProperty = baseMatchesProperty;
+
+/**
+ * This method returns the first argument it receives.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Util
+ * @param {*} value Any value.
+ * @returns {*} Returns `value`.
+ * @example
+ *
+ * var object = { 'a': 1 };
+ *
+ * console.log(_.identity(object) === object);
+ * // => true
+ */
+function identity$1(value) {
+  return value;
+}
+
+var identity_1 = identity$1;
+
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ */
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+var _baseProperty = baseProperty;
+
+/**
+ * A specialized version of `baseProperty` which supports deep paths.
+ *
+ * @private
+ * @param {Array|string} path The path of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ */
+function basePropertyDeep(path) {
+  return function(object) {
+    return _baseGet(object, path);
+  };
+}
+
+var _basePropertyDeep = basePropertyDeep;
+
+/**
+ * Creates a function that returns the value at `path` of a given object.
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Util
+ * @param {Array|string} path The path of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ * @example
+ *
+ * var objects = [
+ *   { 'a': { 'b': 2 } },
+ *   { 'a': { 'b': 1 } }
+ * ];
+ *
+ * _.map(objects, _.property('a.b'));
+ * // => [2, 1]
+ *
+ * _.map(_.sortBy(objects, _.property(['a', 'b'])), 'a.b');
+ * // => [1, 2]
+ */
+function property(path) {
+  return _isKey(path) ? _baseProperty(_toKey(path)) : _basePropertyDeep(path);
+}
+
+var property_1 = property;
+
+/**
+ * The base implementation of `_.iteratee`.
+ *
+ * @private
+ * @param {*} [value=_.identity] The value to convert to an iteratee.
+ * @returns {Function} Returns the iteratee.
+ */
+function baseIteratee(value) {
+  // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
+  // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
+  if (typeof value == 'function') {
+    return value;
+  }
+  if (value == null) {
+    return identity_1;
+  }
+  if (typeof value == 'object') {
+    return isArray_1(value)
+      ? _baseMatchesProperty(value[0], value[1])
+      : _baseMatches(value);
+  }
+  return property_1(value);
+}
+
+var _baseIteratee = baseIteratee;
+
+/**
+ * Creates an object with the same keys as `object` and values generated
+ * by running each own enumerable string keyed property of `object` thru
+ * `iteratee`. The iteratee is invoked with three arguments:
+ * (value, key, object).
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Object
+ * @param {Object} object The object to iterate over.
+ * @param {Function} [iteratee=_.identity] The function invoked per iteration.
+ * @returns {Object} Returns the new mapped object.
+ * @see _.mapKeys
+ * @example
+ *
+ * var users = {
+ *   'fred':    { 'user': 'fred',    'age': 40 },
+ *   'pebbles': { 'user': 'pebbles', 'age': 1 }
+ * };
+ *
+ * _.mapValues(users, function(o) { return o.age; });
+ * // => { 'fred': 40, 'pebbles': 1 } (iteration order is not guaranteed)
+ *
+ * // The `_.property` iteratee shorthand.
+ * _.mapValues(users, 'age');
+ * // => { 'fred': 40, 'pebbles': 1 } (iteration order is not guaranteed)
+ */
+function mapValues(object, iteratee) {
+  var result = {};
+  iteratee = _baseIteratee(iteratee, 3);
+
+  _baseForOwn(object, function(value, key, object) {
+    _baseAssignValue(result, key, iteratee(value, key, object));
+  });
+  return result;
+}
+
+var mapValues_1 = mapValues;
+
+// most Object methods by ES6 should accept primitives
+
+
+
+var _objectSap = function (KEY, exec) {
+  var fn = (_core.Object || {})[KEY] || Object[KEY];
+  var exp = {};
+  exp[KEY] = exec(fn);
+  _export(_export.S + _export.F * _fails(function () { fn(1); }), 'Object', exp);
+};
+
+// 19.1.2.14 Object.keys(O)
+
+
+
+_objectSap('keys', function () {
+  return function keys(it) {
+    return _objectKeys(_toObject(it));
+  };
+});
+
+var keys$1 = _core.Object.keys;
+
+var keys$2 = createCommonjsModule(function (module) {
+module.exports = { "default": keys$1, __esModule: true };
+});
+
+var _Object$keys = unwrapExports(keys$2);
+
+// 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
+
+var $getOwnPropertyDescriptor$1 = _objectGopd.f;
+
+_objectSap('getOwnPropertyDescriptor', function () {
+  return function getOwnPropertyDescriptor(it, key) {
+    return $getOwnPropertyDescriptor$1(_toIobject(it), key);
+  };
+});
+
+var $Object$1 = _core.Object;
+var getOwnPropertyDescriptor$2 = function getOwnPropertyDescriptor(it, key) {
+  return $Object$1.getOwnPropertyDescriptor(it, key);
+};
+
+var getOwnPropertyDescriptor$3 = createCommonjsModule(function (module) {
+module.exports = { "default": getOwnPropertyDescriptor$2, __esModule: true };
+});
+
+var _Object$getOwnPropertyDescriptor = unwrapExports(getOwnPropertyDescriptor$3);
+
+// 19.1.2.9 Object.getPrototypeOf(O)
+
+
+
+_objectSap('getPrototypeOf', function () {
+  return function getPrototypeOf(it) {
+    return _objectGpo(_toObject(it));
+  };
+});
+
+var getPrototypeOf$2 = _core.Object.getPrototypeOf;
+
+var getPrototypeOf$3 = createCommonjsModule(function (module) {
+module.exports = { "default": getPrototypeOf$2, __esModule: true };
+});
+
+var _Object$getPrototypeOf = unwrapExports(getPrototypeOf$3);
+
+/**
+ * Casts `value` to `identity` if it's not a function.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @returns {Function} Returns cast function.
+ */
+function castFunction(value) {
+  return typeof value == 'function' ? value : identity_1;
+}
+
+var _castFunction = castFunction;
+
+/**
+ * Iterates over own enumerable string keyed properties of an object and
+ * invokes `iteratee` for each property. The iteratee is invoked with three
+ * arguments: (value, key, object). Iteratee functions may exit iteration
+ * early by explicitly returning `false`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.3.0
+ * @category Object
+ * @param {Object} object The object to iterate over.
+ * @param {Function} [iteratee=_.identity] The function invoked per iteration.
+ * @returns {Object} Returns `object`.
+ * @see _.forOwnRight
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.forOwn(new Foo, function(value, key) {
+ *   console.log(key);
+ * });
+ * // => Logs 'a' then 'b' (iteration order is not guaranteed).
+ */
+function forOwn(object, iteratee) {
+  return object && _baseForOwn(object, _castFunction(iteratee));
+}
+
+var forOwn_1 = forOwn;
+
+/**
+ * The base implementation of `_.findIndex` and `_.findLastIndex` without
+ * support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {Function} predicate The function invoked per iteration.
+ * @param {number} fromIndex The index to search from.
+ * @param {boolean} [fromRight] Specify iterating from right to left.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function baseFindIndex(array, predicate, fromIndex, fromRight) {
+  var length = array.length,
+      index = fromIndex + (fromRight ? 1 : -1);
+
+  while ((fromRight ? index-- : ++index < length)) {
+    if (predicate(array[index], index, array)) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+var _baseFindIndex = baseFindIndex;
+
+/**
+ * The base implementation of `_.isNaN` without support for number objects.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is `NaN`, else `false`.
+ */
+function baseIsNaN(value) {
+  return value !== value;
+}
+
+var _baseIsNaN = baseIsNaN;
+
+/**
+ * A specialized version of `_.indexOf` which performs strict equality
+ * comparisons of values, i.e. `===`.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} fromIndex The index to search from.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function strictIndexOf(array, value, fromIndex) {
+  var index = fromIndex - 1,
+      length = array.length;
+
+  while (++index < length) {
+    if (array[index] === value) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+var _strictIndexOf = strictIndexOf;
+
+/**
+ * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} fromIndex The index to search from.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function baseIndexOf(array, value, fromIndex) {
+  return value === value
+    ? _strictIndexOf(array, value, fromIndex)
+    : _baseFindIndex(array, _baseIsNaN, fromIndex);
+}
+
+var _baseIndexOf = baseIndexOf;
+
+/** `Object#toString` result references. */
+var stringTag$2 = '[object String]';
+
+/**
+ * Checks if `value` is classified as a `String` primitive or object.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a string, else `false`.
+ * @example
+ *
+ * _.isString('abc');
+ * // => true
+ *
+ * _.isString(1);
+ * // => false
+ */
+function isString$1(value) {
+  return typeof value == 'string' ||
+    (!isArray_1(value) && isObjectLike_1(value) && _baseGetTag(value) == stringTag$2);
+}
+
+var isString_1 = isString$1;
+
+/** Used as references for various `Number` constants. */
+var NAN = 0 / 0;
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol_1(value)) {
+    return NAN;
+  }
+  if (isObject_1(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject_1(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+var toNumber_1 = toNumber;
+
+/** Used as references for various `Number` constants. */
+var INFINITY$2 = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308;
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber_1(value);
+  if (value === INFINITY$2 || value === -INFINITY$2) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+var toFinite_1 = toFinite;
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite_1(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+var toInteger_1 = toInteger;
+
+/**
+ * The base implementation of `_.values` and `_.valuesIn` which creates an
+ * array of `object` property values corresponding to the property names
+ * of `props`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array} props The property names to get values for.
+ * @returns {Object} Returns the array of property values.
+ */
+function baseValues(object, props) {
+  return _arrayMap(props, function(key) {
+    return object[key];
+  });
+}
+
+var _baseValues = baseValues;
+
+/**
+ * Creates an array of the own enumerable string keyed property values of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property values.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.values(new Foo);
+ * // => [1, 2] (iteration order is not guaranteed)
+ *
+ * _.values('hi');
+ * // => ['h', 'i']
+ */
+function values(object) {
+  return object == null ? [] : _baseValues(object, keys_1(object));
+}
+
+var values_1 = values;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max;
+
+/**
+ * Checks if `value` is in `collection`. If `collection` is a string, it's
+ * checked for a substring of `value`, otherwise
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * is used for equality comparisons. If `fromIndex` is negative, it's used as
+ * the offset from the end of `collection`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object|string} collection The collection to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} [fromIndex=0] The index to search from.
+ * @param- {Object} [guard] Enables use as an iteratee for methods like `_.reduce`.
+ * @returns {boolean} Returns `true` if `value` is found, else `false`.
+ * @example
+ *
+ * _.includes([1, 2, 3], 1);
+ * // => true
+ *
+ * _.includes([1, 2, 3], 1, 2);
+ * // => false
+ *
+ * _.includes({ 'a': 1, 'b': 2 }, 1);
+ * // => true
+ *
+ * _.includes('abcd', 'bc');
+ * // => true
+ */
+function includes(collection, value, fromIndex, guard) {
+  collection = isArrayLike_1(collection) ? collection : values_1(collection);
+  fromIndex = (fromIndex && !guard) ? toInteger_1(fromIndex) : 0;
+
+  var length = collection.length;
+  if (fromIndex < 0) {
+    fromIndex = nativeMax(length + fromIndex, 0);
+  }
+  return isString_1(collection)
+    ? (fromIndex <= length && collection.indexOf(value, fromIndex) > -1)
+    : (!!length && _baseIndexOf(collection, value, fromIndex) > -1);
+}
+
+var includes_1 = includes;
+
+// call something on iterator step with safe closing on error
+
+var _iterCall = function (iterator, fn, value, entries) {
+  try {
+    return entries ? fn(_anObject(value)[0], value[1]) : fn(value);
+  // 7.4.6 IteratorClose(iterator, completion)
+  } catch (e) {
+    var ret = iterator['return'];
+    if (ret !== undefined) _anObject(ret.call(iterator));
+    throw e;
+  }
+};
+
+// check on default Array iterator
+
+var ITERATOR$1 = _wks('iterator');
+var ArrayProto = Array.prototype;
+
+var _isArrayIter = function (it) {
+  return it !== undefined && (_iterators.Array === it || ArrayProto[ITERATOR$1] === it);
+};
+
+var _createProperty = function (object, index, value) {
+  if (index in object) _objectDp.f(object, index, _propertyDesc(0, value));
+  else object[index] = value;
+};
+
+// getting tag from 19.1.3.6 Object.prototype.toString()
+
+var TAG$1 = _wks('toStringTag');
+// ES3 wrong here
+var ARG = _cof(function () { return arguments; }()) == 'Arguments';
+
+// fallback for IE11 Script Access Denied error
+var tryGet = function (it, key) {
+  try {
+    return it[key];
+  } catch (e) { /* empty */ }
+};
+
+var _classof = function (it) {
+  var O, T, B;
+  return it === undefined ? 'Undefined' : it === null ? 'Null'
+    // @@toStringTag case
+    : typeof (T = tryGet(O = Object(it), TAG$1)) == 'string' ? T
+    // builtinTag case
+    : ARG ? _cof(O)
+    // ES3 arguments fallback
+    : (B = _cof(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : B;
+};
+
+var ITERATOR$2 = _wks('iterator');
+
+var core_getIteratorMethod = _core.getIteratorMethod = function (it) {
+  if (it != undefined) return it[ITERATOR$2]
+    || it['@@iterator']
+    || _iterators[_classof(it)];
+};
+
+var ITERATOR$3 = _wks('iterator');
+var SAFE_CLOSING = false;
+
+try {
+  var riter = [7][ITERATOR$3]();
+  riter['return'] = function () { SAFE_CLOSING = true; };
+} catch (e) { /* empty */ }
+
+var _iterDetect = function (exec, skipClosing) {
+  if (!skipClosing && !SAFE_CLOSING) return false;
+  var safe = false;
+  try {
+    var arr = [7];
+    var iter = arr[ITERATOR$3]();
+    iter.next = function () { return { done: safe = true }; };
+    arr[ITERATOR$3] = function () { return iter; };
+    exec(arr);
+  } catch (e) { /* empty */ }
+  return safe;
+};
+
+_export(_export.S + _export.F * !_iterDetect(function (iter) { }), 'Array', {
+  // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
+  from: function from(arrayLike /* , mapfn = undefined, thisArg = undefined */) {
+    var O = _toObject(arrayLike);
+    var C = typeof this == 'function' ? this : Array;
+    var aLen = arguments.length;
+    var mapfn = aLen > 1 ? arguments[1] : undefined;
+    var mapping = mapfn !== undefined;
+    var index = 0;
+    var iterFn = core_getIteratorMethod(O);
+    var length, result, step, iterator;
+    if (mapping) mapfn = _ctx(mapfn, aLen > 2 ? arguments[2] : undefined, 2);
+    // if object isn't iterable or it's array with default iterator - use simple case
+    if (iterFn != undefined && !(C == Array && _isArrayIter(iterFn))) {
+      for (iterator = iterFn.call(O), result = new C(); !(step = iterator.next()).done; index++) {
+        _createProperty(result, index, mapping ? _iterCall(iterator, mapfn, [step.value, index], true) : step.value);
+      }
+    } else {
+      length = _toLength(O.length);
+      for (result = new C(length); length > index; index++) {
+        _createProperty(result, index, mapping ? mapfn(O[index], index) : O[index]);
+      }
+    }
+    result.length = index;
+    return result;
+  }
+});
+
+var from_1 = _core.Array.from;
+
+var from_1$1 = createCommonjsModule(function (module) {
+module.exports = { "default": from_1, __esModule: true };
+});
+
+unwrapExports(from_1$1);
+
+var toConsumableArray = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+
+
+
+var _from2 = _interopRequireDefault(from_1$1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  } else {
+    return (0, _from2.default)(arr);
+  }
+};
+});
+
+var _toConsumableArray = unwrapExports(toConsumableArray);
+
+var _isPlaceholder = function _isPlaceholder(a) {
+  return a != null &&
+         typeof a === 'object' &&
+         a['@@functional/placeholder'] === true;
+};
+
+/**
+ * Optimized internal one-arity curry function.
+ *
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */
+var _curry1 = function _curry1(fn) {
+  return function f1(a) {
+    if (arguments.length === 0 || _isPlaceholder(a)) {
+      return f1;
+    } else {
+      return fn.apply(this, arguments);
+    }
+  };
+};
+
+var _arity = function _arity(n, fn) {
+  /* eslint-disable no-unused-vars */
+  switch (n) {
+    case 0: return function() { return fn.apply(this, arguments); };
+    case 1: return function(a0) { return fn.apply(this, arguments); };
+    case 2: return function(a0, a1) { return fn.apply(this, arguments); };
+    case 3: return function(a0, a1, a2) { return fn.apply(this, arguments); };
+    case 4: return function(a0, a1, a2, a3) { return fn.apply(this, arguments); };
+    case 5: return function(a0, a1, a2, a3, a4) { return fn.apply(this, arguments); };
+    case 6: return function(a0, a1, a2, a3, a4, a5) { return fn.apply(this, arguments); };
+    case 7: return function(a0, a1, a2, a3, a4, a5, a6) { return fn.apply(this, arguments); };
+    case 8: return function(a0, a1, a2, a3, a4, a5, a6, a7) { return fn.apply(this, arguments); };
+    case 9: return function(a0, a1, a2, a3, a4, a5, a6, a7, a8) { return fn.apply(this, arguments); };
+    case 10: return function(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) { return fn.apply(this, arguments); };
+    default: throw new Error('First argument to _arity must be a non-negative integer no greater than ten');
+  }
+};
+
+/**
+ * Optimized internal two-arity curry function.
+ *
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */
+var _curry2 = function _curry2(fn) {
+  return function f2(a, b) {
+    switch (arguments.length) {
+      case 0:
+        return f2;
+      case 1:
+        return _isPlaceholder(a) ? f2
+             : _curry1(function(_b) { return fn(a, _b); });
+      default:
+        return _isPlaceholder(a) && _isPlaceholder(b) ? f2
+             : _isPlaceholder(a) ? _curry1(function(_a) { return fn(_a, b); })
+             : _isPlaceholder(b) ? _curry1(function(_b) { return fn(a, _b); })
+             : fn(a, b);
+    }
+  };
+};
+
+/**
+ * Internal curryN function.
+ *
+ * @private
+ * @category Function
+ * @param {Number} length The arity of the curried function.
+ * @param {Array} received An array of arguments received thus far.
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */
+var _curryN = function _curryN(length, received, fn) {
+  return function() {
+    var combined = [];
+    var argsIdx = 0;
+    var left = length;
+    var combinedIdx = 0;
+    while (combinedIdx < received.length || argsIdx < arguments.length) {
+      var result;
+      if (combinedIdx < received.length &&
+          (!_isPlaceholder(received[combinedIdx]) ||
+           argsIdx >= arguments.length)) {
+        result = received[combinedIdx];
+      } else {
+        result = arguments[argsIdx];
+        argsIdx += 1;
+      }
+      combined[combinedIdx] = result;
+      if (!_isPlaceholder(result)) {
+        left -= 1;
+      }
+      combinedIdx += 1;
+    }
+    return left <= 0 ? fn.apply(this, combined)
+                     : _arity(left, _curryN(length, combined, fn));
+  };
+};
+
+/**
+ * Returns a curried equivalent of the provided function, with the specified
+ * arity. The curried function has two unusual capabilities. First, its
+ * arguments needn't be provided one at a time. If `g` is `R.curryN(3, f)`, the
+ * following are equivalent:
+ *
+ *   - `g(1)(2)(3)`
+ *   - `g(1)(2, 3)`
+ *   - `g(1, 2)(3)`
+ *   - `g(1, 2, 3)`
+ *
+ * Secondly, the special placeholder value `R.__` may be used to specify
+ * "gaps", allowing partial application of any combination of arguments,
+ * regardless of their positions. If `g` is as above and `_` is `R.__`, the
+ * following are equivalent:
+ *
+ *   - `g(1, 2, 3)`
+ *   - `g(_, 2, 3)(1)`
+ *   - `g(_, _, 3)(1)(2)`
+ *   - `g(_, _, 3)(1, 2)`
+ *   - `g(_, 2)(1)(3)`
+ *   - `g(_, 2)(1, 3)`
+ *   - `g(_, 2)(_, 3)(1)`
+ *
+ * @func
+ * @memberOf R
+ * @since v0.5.0
+ * @category Function
+ * @sig Number -> (* -> a) -> (* -> a)
+ * @param {Number} length The arity for the returned function.
+ * @param {Function} fn The function to curry.
+ * @return {Function} A new, curried function.
+ * @see R.curry
+ * @example
+ *
+ *      var sumArgs = (...args) => R.sum(args);
+ *
+ *      var curriedAddFourNumbers = R.curryN(4, sumArgs);
+ *      var f = curriedAddFourNumbers(1, 2);
+ *      var g = f(3);
+ *      g(4); //=> 10
+ */
+var curryN = _curry2(function curryN(length, fn) {
+  if (length === 1) {
+    return _curry1(fn);
+  }
+  return _arity(length, _curryN(length, [], fn));
+});
+
+/**
+ * Returns a curried equivalent of the provided function. The curried function
+ * has two unusual capabilities. First, its arguments needn't be provided one
+ * at a time. If `f` is a ternary function and `g` is `R.curry(f)`, the
+ * following are equivalent:
+ *
+ *   - `g(1)(2)(3)`
+ *   - `g(1)(2, 3)`
+ *   - `g(1, 2)(3)`
+ *   - `g(1, 2, 3)`
+ *
+ * Secondly, the special placeholder value `R.__` may be used to specify
+ * "gaps", allowing partial application of any combination of arguments,
+ * regardless of their positions. If `g` is as above and `_` is `R.__`, the
+ * following are equivalent:
+ *
+ *   - `g(1, 2, 3)`
+ *   - `g(_, 2, 3)(1)`
+ *   - `g(_, _, 3)(1)(2)`
+ *   - `g(_, _, 3)(1, 2)`
+ *   - `g(_, 2)(1)(3)`
+ *   - `g(_, 2)(1, 3)`
+ *   - `g(_, 2)(_, 3)(1)`
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category Function
+ * @sig (* -> a) -> (* -> a)
+ * @param {Function} fn The function to curry.
+ * @return {Function} A new, curried function.
+ * @see R.curryN
+ * @example
+ *
+ *      var addFourNumbers = (a, b, c, d) => a + b + c + d;
+ *
+ *      var curriedAddFourNumbers = R.curry(addFourNumbers);
+ *      var f = curriedAddFourNumbers(1, 2);
+ *      var g = f(3);
+ *      g(4); //=> 10
+ */
+var curry$1 = _curry1(function curry(fn) {
+  return curryN(fn.length, fn);
+});
+
+/**
+ * A special placeholder value used to specify "gaps" within curried functions,
+ * allowing partial application of any combination of arguments, regardless of
+ * their positions.
+ *
+ * If `g` is a curried ternary function and `_` is `R.__`, the following are
+ * equivalent:
+ *
+ *   - `g(1, 2, 3)`
+ *   - `g(_, 2, 3)(1)`
+ *   - `g(_, _, 3)(1)(2)`
+ *   - `g(_, _, 3)(1, 2)`
+ *   - `g(_, 2, _)(1, 3)`
+ *   - `g(_, 2)(1)(3)`
+ *   - `g(_, 2)(1, 3)`
+ *   - `g(_, 2)(_, 3)(1)`
+ *
+ * @constant
+ * @memberOf R
+ * @since v0.6.0
+ * @category Function
+ * @example
+ *
+ *      var greet = R.replace('{name}', R.__, 'Hello, {name}!');
+ *      greet('Alice'); //=> 'Hello, Alice!'
+ */
+var __ = {'@@functional/placeholder': true};
+
+var lib$1 = createCommonjsModule(function (module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.ops = exports.getBatchToken = undefined;
+
+
+
+var _toConsumableArray3 = _interopRequireDefault(toConsumableArray);
+
+
+
+var _assign2 = _interopRequireDefault(assign$1);
+
+
+
+var _defineProperty2 = _interopRequireDefault(defineProperty$5);
+
+
+
+var _symbol2 = _interopRequireDefault(symbol$1);
+
+
+
+var _typeof3 = _interopRequireDefault(_typeof_1);
+
+exports.canMutate = canMutate;
+exports.getImmutableOps = getImmutableOps;
+
+
+
+var _curry2 = _interopRequireDefault(curry$1);
+
+
+
+var _2 = _interopRequireDefault(__);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function forOwn(obj, fn) {
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            fn(obj[key], key);
+        }
+    }
+}
+
+function isArrayLike(value) {
+    return value && (typeof value === 'undefined' ? 'undefined' : (0, _typeof3.default)(value)) === 'object' && typeof value.length === 'number' && value.length >= 0 && value.length % 1 === 0;
+}
+
+var OWNER_ID_TAG = '@@_______immutableOpsOwnerID';
+
+function fastArrayCopy(arr) {
+    var copied = new Array(arr.length);
+    for (var i = 0; i < arr.length; i++) {
+        copied[i] = arr[i];
+    }
+    return copied;
+}
+
+function canMutate(obj, ownerID) {
+    if (!ownerID) return false;
+    return obj[OWNER_ID_TAG] === ownerID;
+}
+
+var newOwnerID = typeof _symbol2.default === 'function' ? function () {
+    return (0, _symbol2.default)('ownerID');
+} : function () {
+    return {};
+};
+
+var getBatchToken = exports.getBatchToken = newOwnerID;
+
+function addOwnerID(obj, ownerID) {
+    (0, _defineProperty2.default)(obj, OWNER_ID_TAG, {
+        value: ownerID,
+        configurable: true,
+        enumerable: false
+    });
+
+    return obj;
+}
+
+function prepareNewObject(instance, ownerID) {
+    if (ownerID) {
+        addOwnerID(instance, ownerID);
+    }
+    return instance;
+}
+
+function forceArray(arg) {
+    if (!(arg instanceof Array)) {
+        return [arg];
+    }
+    return arg;
+}
+
+var PATH_SEPARATOR = '.';
+
+function normalizePath(pathArg) {
+    if (typeof pathArg === 'string') {
+        if (pathArg.indexOf(PATH_SEPARATOR) === -1) {
+            return [pathArg];
+        }
+        return pathArg.split(PATH_SEPARATOR);
+    }
+
+    return pathArg;
+}
+
+function mutableSet(key, value, obj) {
+    obj[key] = value;
+    return obj;
+}
+
+function mutableSetIn(_pathArg, value, obj) {
+    var originalPathArg = normalizePath(_pathArg);
+
+    var pathLen = originalPathArg.length;
+
+    var done = false;
+    var idx = 0;
+    var acc = obj;
+    var curr = originalPathArg[idx];
+
+    while (!done) {
+        if (idx === pathLen - 1) {
+            acc[curr] = value;
+            done = true;
+        } else {
+            var currType = (0, _typeof3.default)(acc[curr]);
+
+            if (currType === 'undefined') {
+                var newObj = {};
+                prepareNewObject(newObj, null);
+                acc[curr] = newObj;
+            } else if (currType !== 'object') {
+                var pathRepr = originalPathArg[idx - 1] + '.' + curr;
+                throw new Error('A non-object value was encountered when traversing setIn path at ' + pathRepr + '.');
+            }
+            acc = acc[curr];
+            idx++;
+            curr = originalPathArg[idx];
+        }
+    }
+
+    return obj;
+}
+
+function valueInPath(_pathArg, obj) {
+    var pathArg = normalizePath(_pathArg);
+
+    var acc = obj;
+    for (var i = 0; i < pathArg.length; i++) {
+        var curr = pathArg[i];
+        var currRef = acc[curr];
+        if (i === pathArg.length - 1) {
+            return currRef;
+        }
+
+        if ((typeof currRef === 'undefined' ? 'undefined' : (0, _typeof3.default)(currRef)) === 'object') {
+            acc = currRef;
+        } else {
+            return undefined;
+        }
+    }
+}
+
+function immutableSetIn(ownerID, _pathArg, value, obj) {
+    var pathArg = normalizePath(_pathArg);
+
+    var currentValue = valueInPath(pathArg, obj);
+    if (value === currentValue) return obj;
+
+    var pathLen = pathArg.length;
+
+    var acc = void 0;
+    if (canMutate(obj, ownerID)) {
+        acc = obj;
+    } else {
+        acc = (0, _assign2.default)(prepareNewObject({}, ownerID), obj);
+    }
+
+    var rootObj = acc;
+
+    pathArg.forEach(function (curr, idx) {
+        if (idx === pathLen - 1) {
+            acc[curr] = value;
+            return;
+        }
+
+        var currRef = acc[curr];
+        var currType = typeof currRef === 'undefined' ? 'undefined' : (0, _typeof3.default)(currRef);
+
+        if (currType === 'object') {
+            if (canMutate(currRef, ownerID)) {
+                acc = currRef;
+            } else {
+                var newObj = prepareNewObject({}, ownerID);
+                acc[curr] = (0, _assign2.default)(newObj, currRef);
+                acc = newObj;
+            }
+            return;
+        }
+
+        if (currType === 'undefined') {
+            var _newObj = prepareNewObject({}, ownerID);
+            acc[curr] = _newObj;
+            acc = _newObj;
+            return;
+        }
+
+        var pathRepr = pathArg[idx - 1] + '.' + curr;
+        throw new Error('A non-object value was encountered when traversing setIn path at ' + pathRepr + '.');
+    });
+
+    return rootObj;
+}
+
+function mutableMerge(isDeep, _mergeObjs, baseObj) {
+    var mergeObjs = forceArray(_mergeObjs);
+
+    if (isDeep) {
+        mergeObjs.forEach(function (mergeObj) {
+            forOwn(mergeObj, function (value, key) {
+                if (isDeep && baseObj.hasOwnProperty(key)) {
+                    var assignValue = void 0;
+                    if ((typeof value === 'undefined' ? 'undefined' : (0, _typeof3.default)(value)) === 'object') {
+                        assignValue = mutableMerge(isDeep, [value], baseObj[key]);
+                    } else {
+                        assignValue = value;
+                    }
+
+                    baseObj[key] = assignValue;
+                } else {
+                    baseObj[key] = value;
+                }
+            });
+        });
+    } else {
+        _assign2.default.apply(Object, [baseObj].concat((0, _toConsumableArray3.default)(mergeObjs)));
+    }
+
+    return baseObj;
+}
+
+var mutableShallowMerge = mutableMerge.bind(null, false);
+var mutableDeepMerge = mutableMerge.bind(null, true);
+
+function mutableOmit(_keys, obj) {
+    var keys = forceArray(_keys);
+    keys.forEach(function (key) {
+        delete obj[key];
+    });
+    return obj;
+}
+
+function _shouldMergeKey(obj, other, key) {
+    return obj[key] !== other[key];
+}
+
+function immutableMerge(isDeep, ownerID, _mergeObjs, obj) {
+    if (canMutate(obj, ownerID)) return mutableMerge(isDeep, _mergeObjs, obj);
+    var mergeObjs = forceArray(_mergeObjs);
+
+    var hasChanges = false;
+    var nextObject = obj;
+
+    var willChange = function willChange() {
+        if (!hasChanges) {
+            hasChanges = true;
+            nextObject = (0, _assign2.default)({}, obj);
+            prepareNewObject(nextObject, ownerID);
+        }
+    };
+
+    mergeObjs.forEach(function (mergeObj) {
+        forOwn(mergeObj, function (mergeValue, key) {
+            if (isDeep && obj.hasOwnProperty(key)) {
+                var currentValue = nextObject[key];
+                if ((typeof mergeValue === 'undefined' ? 'undefined' : (0, _typeof3.default)(mergeValue)) === 'object' && !(mergeValue instanceof Array)) {
+                    if (_shouldMergeKey(nextObject, mergeObj, key)) {
+                        var recursiveMergeResult = immutableMerge(isDeep, ownerID, mergeValue, currentValue);
+
+                        if (recursiveMergeResult !== currentValue) {
+                            willChange();
+                            nextObject[key] = recursiveMergeResult;
+                        }
+                    }
+                    return true; // continue forOwn
+                }
+            }
+            if (_shouldMergeKey(nextObject, mergeObj, key)) {
+                willChange();
+                nextObject[key] = mergeValue;
+            }
+        });
+    });
+
+    return nextObject;
+}
+
+var immutableDeepMerge = immutableMerge.bind(null, true);
+var immutableShallowMerge = immutableMerge.bind(null, false);
+
+function immutableArrSet(ownerID, index, value, arr) {
+    if (canMutate(arr, ownerID)) return mutableSet(index, value, arr);
+
+    if (arr[index] === value) return arr;
+
+    var newArr = fastArrayCopy(arr);
+    newArr[index] = value;
+    prepareNewObject(newArr, ownerID);
+
+    return newArr;
+}
+
+function immutableSet(ownerID, key, value, obj) {
+    if (isArrayLike(obj)) return immutableArrSet(ownerID, key, value, obj);
+    if (canMutate(obj, ownerID)) return mutableSet(key, value, obj);
+
+    if (obj[key] === value) return obj;
+
+    var newObj = (0, _assign2.default)({}, obj);
+    prepareNewObject(newObj, ownerID);
+    newObj[key] = value;
+    return newObj;
+}
+
+function immutableOmit(ownerID, _keys, obj) {
+    if (canMutate(obj, ownerID)) return mutableOmit(_keys, obj);
+
+    var keys = forceArray(_keys);
+    var keysInObj = keys.filter(function (key) {
+        return obj.hasOwnProperty(key);
+    });
+
+    // None of the keys were in the object, so we can return `obj`.
+    if (keysInObj.length === 0) return obj;
+
+    var newObj = (0, _assign2.default)({}, obj);
+    keysInObj.forEach(function (key) {
+        delete newObj[key];
+    });
+    prepareNewObject(newObj, ownerID);
+    return newObj;
+}
+
+function mutableArrPush(_vals, arr) {
+    var vals = forceArray(_vals);
+    arr.push.apply(arr, (0, _toConsumableArray3.default)(vals));
+    return arr;
+}
+
+function mutableArrFilter(func, arr) {
+    var currIndex = 0;
+    var originalIndex = 0;
+    while (currIndex < arr.length) {
+        var item = arr[currIndex];
+        if (!func(item, originalIndex)) {
+            arr.splice(currIndex, 1);
+        } else {
+            currIndex++;
+        }
+        originalIndex++;
+    }
+
+    return arr;
+}
+
+function mutableArrSplice(index, deleteCount, _vals, arr) {
+    var vals = forceArray(_vals);
+    arr.splice.apply(arr, [index, deleteCount].concat((0, _toConsumableArray3.default)(vals)));
+    return arr;
+}
+
+function mutableArrInsert(index, _vals, arr) {
+    return mutableArrSplice(index, 0, _vals, arr);
+}
+
+function immutableArrSplice(ownerID, index, deleteCount, _vals, arr) {
+    if (canMutate(arr, ownerID)) return mutableArrSplice(index, deleteCount, _vals, arr);
+
+    var vals = forceArray(_vals);
+    var newArr = arr.slice();
+    prepareNewObject(newArr, ownerID);
+    newArr.splice.apply(newArr, [index, deleteCount].concat((0, _toConsumableArray3.default)(vals)));
+
+    return newArr;
+}
+
+function immutableArrInsert(ownerID, index, _vals, arr) {
+    if (canMutate(arr, ownerID)) return mutableArrInsert(index, _vals, arr);
+    return immutableArrSplice(ownerID, index, 0, _vals, arr);
+}
+
+function immutableArrPush(ownerID, vals, arr) {
+    return immutableArrInsert(ownerID, arr.length, vals, arr);
+}
+
+function immutableArrFilter(ownerID, func, arr) {
+    if (canMutate(arr, ownerID)) return mutableArrFilter(func, arr);
+    var newArr = arr.filter(func);
+
+    if (newArr.length === arr.length) return arr;
+
+    prepareNewObject(newArr, ownerID);
+    return newArr;
+}
+
+var immutableOperations = {
+    // object operations
+    merge: immutableShallowMerge,
+    deepMerge: immutableDeepMerge,
+    omit: immutableOmit,
+    setIn: immutableSetIn,
+
+    // array operations
+    insert: immutableArrInsert,
+    push: immutableArrPush,
+    filter: immutableArrFilter,
+    splice: immutableArrSplice,
+
+    // both
+    set: immutableSet
+};
+
+var mutableOperations = {
+    // object operations
+    merge: mutableShallowMerge,
+    deepMerge: mutableDeepMerge,
+    omit: mutableOmit,
+    setIn: mutableSetIn,
+
+    // array operations
+    insert: mutableArrInsert,
+    push: mutableArrPush,
+    filter: mutableArrFilter,
+    splice: mutableArrSplice,
+
+    // both
+    set: mutableSet
+};
+
+function getImmutableOps() {
+    var immutableOps = (0, _assign2.default)({}, immutableOperations);
+    forOwn(immutableOps, function (value, key) {
+        immutableOps[key] = (0, _curry2.default)(value.bind(null, null));
+    });
+
+    var mutableOps = (0, _assign2.default)({}, mutableOperations);
+    forOwn(mutableOps, function (value, key) {
+        mutableOps[key] = (0, _curry2.default)(value);
+    });
+
+    var batchOps = (0, _assign2.default)({}, immutableOperations);
+    forOwn(batchOps, function (value, key) {
+        batchOps[key] = (0, _curry2.default)(value);
+    });
+
+    function batched(_token, _fn) {
+        var token = void 0;
+        var fn = void 0;
+
+        if (typeof _token === 'function') {
+            fn = _token;
+            token = getBatchToken();
+        } else {
+            token = _token;
+            fn = _fn;
+        }
+
+        var immutableOpsBoundToToken = (0, _assign2.default)({}, immutableOperations);
+        forOwn(immutableOpsBoundToToken, function (value, key) {
+            immutableOpsBoundToToken[key] = (0, _curry2.default)(value.bind(null, token));
+        });
+        return fn(immutableOpsBoundToToken);
+    }
+
+    return (0, _assign2.default)(immutableOps, {
+        mutable: mutableOps,
+        batch: batchOps,
+        batched: batched,
+        __: _2.default,
+        getBatchToken: getBatchToken
+    });
+}
+
+var ops = exports.ops = getImmutableOps();
+
+exports.default = ops;
+});
+
+var ops = unwrapExports(lib$1);
+var lib_1$1 = lib$1.ops;
+var lib_2$1 = lib$1.getBatchToken;
+var lib_3$1 = lib$1.canMutate;
+var lib_4$1 = lib$1.getImmutableOps;
+
+/**
+ * A specialized version of `_.includes` for arrays without support for
+ * specifying an index to search from.
+ *
+ * @private
+ * @param {Array} [array] The array to inspect.
+ * @param {*} target The value to search for.
+ * @returns {boolean} Returns `true` if `target` is found, else `false`.
+ */
+function arrayIncludes(array, value) {
+  var length = array == null ? 0 : array.length;
+  return !!length && _baseIndexOf(array, value, 0) > -1;
+}
+
+var _arrayIncludes$1 = arrayIncludes;
+
+/**
+ * This function is like `arrayIncludes` except that it accepts a comparator.
+ *
+ * @private
+ * @param {Array} [array] The array to inspect.
+ * @param {*} target The value to search for.
+ * @param {Function} comparator The comparator invoked per element.
+ * @returns {boolean} Returns `true` if `target` is found, else `false`.
+ */
+function arrayIncludesWith(array, value, comparator) {
+  var index = -1,
+      length = array == null ? 0 : array.length;
+
+  while (++index < length) {
+    if (comparator(value, array[index])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+var _arrayIncludesWith = arrayIncludesWith;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMin = Math.min;
+
+/**
+ * The base implementation of methods like `_.intersection`, without support
+ * for iteratee shorthands, that accepts an array of arrays to inspect.
+ *
+ * @private
+ * @param {Array} arrays The arrays to inspect.
+ * @param {Function} [iteratee] The iteratee invoked per element.
+ * @param {Function} [comparator] The comparator invoked per element.
+ * @returns {Array} Returns the new array of shared values.
+ */
+function baseIntersection(arrays, iteratee, comparator) {
+  var includes = comparator ? _arrayIncludesWith : _arrayIncludes$1,
+      length = arrays[0].length,
+      othLength = arrays.length,
+      othIndex = othLength,
+      caches = Array(othLength),
+      maxLength = Infinity,
+      result = [];
+
+  while (othIndex--) {
+    var array = arrays[othIndex];
+    if (othIndex && iteratee) {
+      array = _arrayMap(array, _baseUnary(iteratee));
+    }
+    maxLength = nativeMin(array.length, maxLength);
+    caches[othIndex] = !comparator && (iteratee || (length >= 120 && array.length >= 120))
+      ? new _SetCache(othIndex && array)
+      : undefined;
+  }
+  array = arrays[0];
+
+  var index = -1,
+      seen = caches[0];
+
+  outer:
+  while (++index < length && result.length < maxLength) {
+    var value = array[index],
+        computed = iteratee ? iteratee(value) : value;
+
+    value = (comparator || value !== 0) ? value : 0;
+    if (!(seen
+          ? _cacheHas(seen, computed)
+          : includes(result, computed, comparator)
+        )) {
+      othIndex = othLength;
+      while (--othIndex) {
+        var cache = caches[othIndex];
+        if (!(cache
+              ? _cacheHas(cache, computed)
+              : includes(arrays[othIndex], computed, comparator))
+            ) {
+          continue outer;
+        }
+      }
+      if (seen) {
+        seen.push(computed);
+      }
+      result.push(value);
+    }
+  }
+  return result;
+}
+
+var _baseIntersection = baseIntersection;
+
+/**
+ * A faster alternative to `Function#apply`, this function invokes `func`
+ * with the `this` binding of `thisArg` and the arguments of `args`.
+ *
+ * @private
+ * @param {Function} func The function to invoke.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {Array} args The arguments to invoke `func` with.
+ * @returns {*} Returns the result of `func`.
+ */
+function apply$1(func, thisArg, args) {
+  switch (args.length) {
+    case 0: return func.call(thisArg);
+    case 1: return func.call(thisArg, args[0]);
+    case 2: return func.call(thisArg, args[0], args[1]);
+    case 3: return func.call(thisArg, args[0], args[1], args[2]);
+  }
+  return func.apply(thisArg, args);
+}
+
+var _apply = apply$1;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax$1 = Math.max;
+
+/**
+ * A specialized version of `baseRest` which transforms the rest array.
+ *
+ * @private
+ * @param {Function} func The function to apply a rest parameter to.
+ * @param {number} [start=func.length-1] The start position of the rest parameter.
+ * @param {Function} transform The rest array transform.
+ * @returns {Function} Returns the new function.
+ */
+function overRest(func, start, transform) {
+  start = nativeMax$1(start === undefined ? (func.length - 1) : start, 0);
+  return function() {
+    var args = arguments,
+        index = -1,
+        length = nativeMax$1(args.length - start, 0),
+        array = Array(length);
+
+    while (++index < length) {
+      array[index] = args[start + index];
+    }
+    index = -1;
+    var otherArgs = Array(start + 1);
+    while (++index < start) {
+      otherArgs[index] = args[index];
+    }
+    otherArgs[start] = transform(array);
+    return _apply(func, this, otherArgs);
+  };
+}
+
+var _overRest = overRest;
+
+/**
+ * Creates a function that returns `value`.
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Util
+ * @param {*} value The value to return from the new function.
+ * @returns {Function} Returns the new constant function.
+ * @example
+ *
+ * var objects = _.times(2, _.constant({ 'a': 1 }));
+ *
+ * console.log(objects);
+ * // => [{ 'a': 1 }, { 'a': 1 }]
+ *
+ * console.log(objects[0] === objects[1]);
+ * // => true
+ */
+function constant(value) {
+  return function() {
+    return value;
+  };
+}
+
+var constant_1 = constant;
+
+/**
+ * The base implementation of `setToString` without support for hot loop shorting.
+ *
+ * @private
+ * @param {Function} func The function to modify.
+ * @param {Function} string The `toString` result.
+ * @returns {Function} Returns `func`.
+ */
+var baseSetToString = !_defineProperty$3 ? identity_1 : function(func, string) {
+  return _defineProperty$3(func, 'toString', {
+    'configurable': true,
+    'enumerable': false,
+    'value': constant_1(string),
+    'writable': true
+  });
+};
+
+var _baseSetToString = baseSetToString;
+
+/** Used to detect hot functions by number of calls within a span of milliseconds. */
+var HOT_COUNT = 800,
+    HOT_SPAN = 16;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeNow = Date.now;
+
+/**
+ * Creates a function that'll short out and invoke `identity` instead
+ * of `func` when it's called `HOT_COUNT` or more times in `HOT_SPAN`
+ * milliseconds.
+ *
+ * @private
+ * @param {Function} func The function to restrict.
+ * @returns {Function} Returns the new shortable function.
+ */
+function shortOut(func) {
+  var count = 0,
+      lastCalled = 0;
+
+  return function() {
+    var stamp = nativeNow(),
+        remaining = HOT_SPAN - (stamp - lastCalled);
+
+    lastCalled = stamp;
+    if (remaining > 0) {
+      if (++count >= HOT_COUNT) {
+        return arguments[0];
+      }
+    } else {
+      count = 0;
+    }
+    return func.apply(undefined, arguments);
+  };
+}
+
+var _shortOut = shortOut;
+
+/**
+ * Sets the `toString` method of `func` to return `string`.
+ *
+ * @private
+ * @param {Function} func The function to modify.
+ * @param {Function} string The `toString` result.
+ * @returns {Function} Returns `func`.
+ */
+var setToString = _shortOut(_baseSetToString);
+
+var _setToString = setToString;
+
+/**
+ * The base implementation of `_.rest` which doesn't validate or coerce arguments.
+ *
+ * @private
+ * @param {Function} func The function to apply a rest parameter to.
+ * @param {number} [start=func.length-1] The start position of the rest parameter.
+ * @returns {Function} Returns the new function.
+ */
+function baseRest(func, start) {
+  return _setToString(_overRest(func, start, identity_1), func + '');
+}
+
+var _baseRest = baseRest;
+
+/**
+ * This method is like `_.isArrayLike` except that it also checks if `value`
+ * is an object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array-like object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArrayLikeObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLikeObject(document.body.children);
+ * // => true
+ *
+ * _.isArrayLikeObject('abc');
+ * // => false
+ *
+ * _.isArrayLikeObject(_.noop);
+ * // => false
+ */
+function isArrayLikeObject(value) {
+  return isObjectLike_1(value) && isArrayLike_1(value);
+}
+
+var isArrayLikeObject_1 = isArrayLikeObject;
+
+/**
+ * Casts `value` to an empty array if it's not an array like object.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @returns {Array|Object} Returns the cast array-like object.
+ */
+function castArrayLikeObject(value) {
+  return isArrayLikeObject_1(value) ? value : [];
+}
+
+var _castArrayLikeObject = castArrayLikeObject;
+
+/**
+ * Creates an array of unique values that are included in all given arrays
+ * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * for equality comparisons. The order and references of result values are
+ * determined by the first array.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Array
+ * @param {...Array} [arrays] The arrays to inspect.
+ * @returns {Array} Returns the new array of intersecting values.
+ * @example
+ *
+ * _.intersection([2, 1], [2, 3]);
+ * // => [2]
+ */
+var intersection = _baseRest(function(arrays) {
+  var mapped = _arrayMap(arrays, _castArrayLikeObject);
+  return (mapped.length && mapped[0] === arrays[0])
+    ? _baseIntersection(mapped)
+    : [];
+});
+
+var intersection_1 = intersection;
+
+/** Used as the size to enable large array optimizations. */
+var LARGE_ARRAY_SIZE$1 = 200;
+
+/**
+ * The base implementation of methods like `_.difference` without support
+ * for excluding multiple arrays or iteratee shorthands.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {Array} values The values to exclude.
+ * @param {Function} [iteratee] The iteratee invoked per element.
+ * @param {Function} [comparator] The comparator invoked per element.
+ * @returns {Array} Returns the new array of filtered values.
+ */
+function baseDifference(array, values, iteratee, comparator) {
+  var index = -1,
+      includes = _arrayIncludes$1,
+      isCommon = true,
+      length = array.length,
+      result = [],
+      valuesLength = values.length;
+
+  if (!length) {
+    return result;
+  }
+  if (iteratee) {
+    values = _arrayMap(values, _baseUnary(iteratee));
+  }
+  if (comparator) {
+    includes = _arrayIncludesWith;
+    isCommon = false;
+  }
+  else if (values.length >= LARGE_ARRAY_SIZE$1) {
+    includes = _cacheHas;
+    isCommon = false;
+    values = new _SetCache(values);
+  }
+  outer:
+  while (++index < length) {
+    var value = array[index],
+        computed = iteratee == null ? value : iteratee(value);
+
+    value = (comparator || value !== 0) ? value : 0;
+    if (isCommon && computed === computed) {
+      var valuesIndex = valuesLength;
+      while (valuesIndex--) {
+        if (values[valuesIndex] === computed) {
+          continue outer;
+        }
+      }
+      result.push(value);
+    }
+    else if (!includes(values, computed, comparator)) {
+      result.push(value);
+    }
+  }
+  return result;
+}
+
+var _baseDifference = baseDifference;
+
+/** Built-in value references. */
+var spreadableSymbol = _Symbol ? _Symbol.isConcatSpreadable : undefined;
+
+/**
+ * Checks if `value` is a flattenable `arguments` object or array.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is flattenable, else `false`.
+ */
+function isFlattenable(value) {
+  return isArray_1(value) || isArguments_1(value) ||
+    !!(spreadableSymbol && value && value[spreadableSymbol]);
+}
+
+var _isFlattenable = isFlattenable;
+
+/**
+ * The base implementation of `_.flatten` with support for restricting flattening.
+ *
+ * @private
+ * @param {Array} array The array to flatten.
+ * @param {number} depth The maximum recursion depth.
+ * @param {boolean} [predicate=isFlattenable] The function invoked per iteration.
+ * @param {boolean} [isStrict] Restrict to values that pass `predicate` checks.
+ * @param {Array} [result=[]] The initial result value.
+ * @returns {Array} Returns the new flattened array.
+ */
+function baseFlatten(array, depth, predicate, isStrict, result) {
+  var index = -1,
+      length = array.length;
+
+  predicate || (predicate = _isFlattenable);
+  result || (result = []);
+
+  while (++index < length) {
+    var value = array[index];
+    if (depth > 0 && predicate(value)) {
+      if (depth > 1) {
+        // Recursively flatten arrays (susceptible to call stack limits).
+        baseFlatten(value, depth - 1, predicate, isStrict, result);
+      } else {
+        _arrayPush(result, value);
+      }
+    } else if (!isStrict) {
+      result[result.length] = value;
+    }
+  }
+  return result;
+}
+
+var _baseFlatten = baseFlatten;
+
+/**
+ * Creates an array of `array` values not included in the other given arrays
+ * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * for equality comparisons. The order and references of result values are
+ * determined by the first array.
+ *
+ * **Note:** Unlike `_.pullAll`, this method returns a new array.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Array
+ * @param {Array} array The array to inspect.
+ * @param {...Array} [values] The values to exclude.
+ * @returns {Array} Returns the new array of filtered values.
+ * @see _.without, _.xor
+ * @example
+ *
+ * _.difference([2, 1], [2, 3]);
+ * // => [1]
+ */
+var difference = _baseRest(function(array, values) {
+  return isArrayLikeObject_1(array)
+    ? _baseDifference(array, _baseFlatten(values, 1, isArrayLikeObject_1, true))
+    : [];
+});
+
+var difference_1 = difference;
+
+var UPDATE = 'REDUX_ORM_UPDATE';
+var DELETE = 'REDUX_ORM_DELETE';
+var CREATE = 'REDUX_ORM_CREATE';
+
+var FILTER = 'REDUX_ORM_FILTER';
+var EXCLUDE = 'REDUX_ORM_EXCLUDE';
+var ORDER_BY = 'REDUX_ORM_ORDER_BY';
+
+var SUCCESS = 'SUCCESS';
+
+/**
+ * @module utils
+ */
+
+function warnDeprecated(msg) {
+    var logger = typeof console.warn === 'function' ? console.warn.bind(console) : console.log.bind(console);
+    return logger(msg);
+}
+
+function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+/**
+ * Returns the branch name for a many-to-many relation.
+ * The name is the combination of the model name and the field name the relation
+ * was declared. The field name's first letter is capitalized.
+ *
+ * Example: model `Author` has a many-to-many relation to the model `Book`, defined
+ * in the `Author` field `books`. The many-to-many branch name will be `AuthorBooks`.
+ *
+ * @param  {string} declarationModelName - the name of the model the many-to-many relation was declared on
+ * @param  {string} fieldName            - the field name where the many-to-many relation was declared on
+ * @return {string} The branch name for the many-to-many relation.
+ */
+function m2mName(declarationModelName, fieldName) {
+    return declarationModelName + capitalize(fieldName);
+}
+
+/**
+ * Returns the fieldname that saves a foreign key to the
+ * model id where the many-to-many relation was declared.
+ *
+ * Example: `Author` => `fromAuthorId`
+ *
+ * @private
+ * @param  {string} declarationModelName - the name of the model where the relation was declared
+ * @return {string} the field name in the through model for `declarationModelName`'s foreign key.
+ */
+function m2mFromFieldName(declarationModelName) {
+    return 'from' + declarationModelName + 'Id';
+}
+
+/**
+ * Returns the fieldname that saves a foreign key in a many-to-many through model to the
+ * model where the many-to-many relation was declared.
+ *
+ * Example: `Book` => `toBookId`
+ *
+ * @param  {string} otherModelName - the name of the model that was the target of the many-to-many
+ *                                   declaration.
+ * @return {string} the field name in the through model for `otherModelName`'s foreign key..
+ */
+function m2mToFieldName(otherModelName) {
+    return 'to' + otherModelName + 'Id';
+}
+
+function reverseFieldName(modelName) {
+    return modelName.toLowerCase() + 'Set'; // eslint-disable-line prefer-template
+}
+
+function querySetDelegatorFactory(methodName) {
+    return function querySetDelegator() {
+        var _getQuerySet;
+
+        return (_getQuerySet = this.getQuerySet())[methodName].apply(_getQuerySet, arguments);
+    };
+}
+
+function querySetGetterDelegatorFactory(getterName) {
+    return function querySetGetterDelegator() {
+        var qs = this.getQuerySet();
+        return qs[getterName];
+    };
+}
+
+function forEachSuperClass(subClass, func) {
+    var currClass = subClass;
+    while (currClass !== Function.prototype) {
+        func(currClass);
+        currClass = _Object$getPrototypeOf(currClass);
+    }
+}
+
+function attachQuerySetMethods(modelClass, querySetClass) {
+    var leftToDefine = querySetClass.sharedMethods.slice();
+
+    // There is no way to get a property descriptor for the whole prototype chain;
+    // only from an objects own properties. Therefore we traverse the whole prototype
+    // chain for querySet.
+    forEachSuperClass(querySetClass, function (cls) {
+        for (var i = 0; i < leftToDefine.length; i++) {
+            var defined = false;
+            var methodName = leftToDefine[i];
+            var descriptor = _Object$getOwnPropertyDescriptor(cls.prototype, methodName);
+            if (typeof descriptor !== 'undefined') {
+                if (typeof descriptor.get !== 'undefined') {
+                    descriptor.get = querySetGetterDelegatorFactory(methodName);
+                    _Object$defineProperty(modelClass, methodName, descriptor);
+                    defined = true;
+                } else if (typeof descriptor.value === 'function') {
+                    modelClass[methodName] = querySetDelegatorFactory(methodName);
+                    defined = true;
+                }
+            }
+            if (defined) {
+                leftToDefine.splice(i--, 1);
+            }
+        }
+    });
+}
+
+/**
+ * Normalizes `entity` to an id, where `entity` can be an id
+ * or a Model instance.
+ *
+ * @param  {*} entity - either a Model instance or an id value
+ * @return {*} the id value of `entity`
+ */
+function normalizeEntity(entity) {
+    if (entity !== null && typeof entity !== 'undefined' && typeof entity.getId === 'function') {
+        return entity.getId();
+    }
+    return entity;
+}
+
+function reverseFieldErrorMessage(modelName, fieldName, toModelName, backwardsFieldName) {
+    return ['Reverse field ' + backwardsFieldName + ' already defined', ' on model ' + toModelName + '. To fix, set a custom related', ' name on ' + modelName + '.' + fieldName + '.'].join('');
+}
+
+function objectShallowEquals(a, b) {
+    var keysInA = 0;
+
+    // eslint-disable-next-line consistent-return
+    forOwn_1(a, function (value, key) {
+        if (!b.hasOwnProperty(key) || b[key] !== value) {
+            return false;
+        }
+        keysInA++;
+    });
+
+    return keysInA === _Object$keys(b).length;
+}
+
+function arrayDiffActions(sourceArr, targetArr) {
+    var itemsInBoth = intersection_1(sourceArr, targetArr);
+    var deleteItems = difference_1(sourceArr, itemsInBoth);
+    var addItems = difference_1(targetArr, itemsInBoth);
+
+    if (deleteItems.length || addItems.length) {
+        return {
+            delete: deleteItems,
+            add: addItems
+        };
+    }
+    return null;
+}
+
+var getBatchToken = ops.getBatchToken;
+
+
+function clauseFiltersByAttribute(_ref, attribute) {
+    var type = _ref.type,
+        payload = _ref.payload;
+
+    if (type !== FILTER) return false;
+
+    if ((typeof payload === 'undefined' ? 'undefined' : _typeof$4(payload)) !== 'object') {
+        /**
+         * payload could also be a function in which case
+         * we would have no way of knowing what it does,
+         * so we default to false for non-objects
+         */
+        return false;
+    }
+
+    if (!payload.hasOwnProperty(attribute)) return false;
+    var attributeValue = payload[attribute];
+    if (attributeValue === null) return false;
+    if (attributeValue === undefined) return false;
+
+    return true;
+}
+
+function clauseReducesResultSetSize(_ref2) {
+    var type = _ref2.type;
+
+    return [FILTER, EXCLUDE].includes(type);
+}
+
+/**
+ * This class is used to build and make queries to the database
+ * and operating the resulting set (such as updating attributes
+ * or deleting the records).
+ *
+ * The queries are built lazily. For example:
+ *
+ * ```javascript
+ * const qs = Book.all()
+ *     .filter(book => book.releaseYear > 1999)
+ *     .orderBy('name');
+ * ```
+ *
+ * Doesn't execute a query. The query is executed only when
+ * you need information from the query result, such as {@link QuerySet#count},
+ * {@link QuerySet#toRefArray}. After the query is executed, the resulting
+ * set is cached in the QuerySet instance.
+ *
+ * QuerySet instances also return copies, so chaining filters doesn't
+ * mutate the previous instances.
+ */
+var QuerySet = function () {
+    /**
+     * Creates a QuerySet. The constructor is mainly for internal use;
+     * You should access QuerySet instances from {@link Model}.
+     *
+     * @param  {Model} modelClass - the model class of objects in this QuerySet.
+     * @param  {any[]} clauses - query clauses needed to evaluate the set.
+     * @param {Object} [opts] - additional options
+     */
+    function QuerySet(modelClass, clauses, opts) {
+        _classCallCheck$7(this, QuerySet);
+
+        _Object$assign(this, {
+            modelClass: modelClass,
+            clauses: clauses || []
+        });
+
+        this._opts = opts;
+    }
+
+    _createClass(QuerySet, [{
+        key: '_new',
+        value: function _new(clauses, userOpts) {
+            var opts = _Object$assign({}, this._opts, userOpts);
+            return new this.constructor(this.modelClass, clauses, opts);
+        }
+    }, {
+        key: 'toString',
+        value: function toString() {
+            var _this = this;
+
+            this._evaluate();
+            var contents = this.rows.map(function (_ref) {
+                var id = _ref.id;
+                return _this.modelClass.withId(id).toString();
+            }).join('\n    - ');
+            return 'QuerySet contents:\n    - ' + contents;
+        }
+
+        /**
+         * Returns an array of the plain objects represented by the QuerySet.
+         * The plain objects are direct references to the store.
+         *
+         * @return {Object[]} references to the plain JS objects represented by
+         *                    the QuerySet
+         */
+
+    }, {
+        key: 'toRefArray',
+        value: function toRefArray() {
+            return this._evaluate();
+        }
+
+        /**
+         * Returns an array of {@link Model} instances represented by the QuerySet.
+         * @return {Model[]} model instances represented by the QuerySet
+         */
+
+    }, {
+        key: 'toModelArray',
+        value: function toModelArray() {
+            var ModelClass = this.modelClass;
+
+            return this._evaluate().map(function (props) {
+                return new ModelClass(props);
+            });
+        }
+
+        /**
+         * Returns the number of {@link Model} instances represented by the QuerySet.
+         *
+         * @return {number} length of the QuerySet
+         */
+
+    }, {
+        key: 'count',
+        value: function count() {
+            this._evaluate();
+            return this.rows.length;
+        }
+
+        /**
+         * Checks if the {@link QuerySet} instance has any records matching the query
+         * in the database.
+         *
+         * @return {Boolean} `true` if the {@link QuerySet} instance contains entities, else `false`.
+         */
+
+    }, {
+        key: 'exists',
+        value: function exists() {
+            return Boolean(this.count());
+        }
+
+        /**
+         * Returns the {@link Model} instance at index `index` in the {@link QuerySet} instance if
+         * `withRefs` flag is set to `false`, or a reference to the plain JavaScript
+         * object in the model state if `true`.
+         *
+         * @param  {number} index - index of the model instance to get
+         * @return {Model|undefined} a {@link Model} instance at index
+         *                           `index` in the {@link QuerySet} instance,
+         *                           or undefined if the index is out of bounds.
+         */
+
+    }, {
+        key: 'at',
+        value: function at(index) {
+            var ModelClass = this.modelClass;
+
+
+            var rows = this._evaluate();
+            if (index >= 0 && index < rows.length) {
+                return new ModelClass(rows[index]);
+            }
+
+            return undefined;
+        }
+
+        /**
+         * Returns the {@link Model} instance at index 0 in the {@link QuerySet} instance.
+         * @return {Model}
+         */
+
+    }, {
+        key: 'first',
+        value: function first() {
+            return this.at(0);
+        }
+
+        /**
+         * Returns the {@link Model} instance at index `QuerySet.count() - 1`
+         * @return {Model}
+         */
+
+    }, {
+        key: 'last',
+        value: function last() {
+            var rows = this._evaluate();
+            return this.at(rows.length - 1);
+        }
+
+        /**
+         * Returns a new {@link QuerySet} instance with the same entities.
+         * @return {QuerySet} a new QuerySet with the same entities.
+         */
+
+    }, {
+        key: 'all',
+        value: function all() {
+            return this._new(this.clauses);
+        }
+
+        /**
+         * Returns a new {@link QuerySet} instance with entities that match properties in `lookupObj`.
+         *
+         * @param  {Object} lookupObj - the properties to match objects with. Can also be a function.
+         * @return {QuerySet} a new {@link QuerySet} instance with objects that passed the filter.
+         */
+
+    }, {
+        key: 'filter',
+        value: function filter(lookupObj) {
+            /**
+             * allow foreign keys to be specified as model instances,
+             * transform model instances to their primary keys
+             */
+            var normalizedLookupObj = (typeof lookupObj === 'undefined' ? 'undefined' : _typeof$4(lookupObj)) === 'object' ? mapValues_1(lookupObj, normalizeEntity) : lookupObj;
+
+            var filterDescriptor = {
+                type: FILTER,
+                payload: normalizedLookupObj
+            };
+            /**
+             * create a new QuerySet
+             * including only rows matching the lookupObj
+             */
+            return this._new(this.clauses.concat(filterDescriptor));
+        }
+
+        /**
+         * Returns a new {@link QuerySet} instance with entities that do not match
+         * properties in `lookupObj`.
+         *
+         * @param  {Object} lookupObj - the properties to unmatch objects with. Can also be a function.
+         * @return {QuerySet} a new {@link QuerySet} instance with objects that did not pass the filter.
+         */
+
+    }, {
+        key: 'exclude',
+        value: function exclude(lookupObj) {
+            /**
+             * allow foreign keys to be specified as model instances,
+             * transform model instances to their primary keys
+             */
+            var normalizedLookupObj = (typeof lookupObj === 'undefined' ? 'undefined' : _typeof$4(lookupObj)) === 'object' ? mapValues_1(lookupObj, normalizeEntity) : lookupObj;
+            var excludeDescriptor = {
+                type: EXCLUDE,
+                payload: normalizedLookupObj
+            };
+
+            /**
+             * create a new QuerySet
+             * excluding all rows matching the lookupObj
+             */
+            return this._new(this.clauses.concat(excludeDescriptor));
+        }
+
+        /**
+         * Performs the actual database query.
+         * @private
+         * @return {Array} rows corresponding to the QuerySet's clauses
+         */
+
+    }, {
+        key: '_evaluate',
+        value: function _evaluate() {
+            if (typeof this.modelClass.session === 'undefined') {
+                throw new Error(['Tried to query the ' + this.modelClass.modelName + ' model\'s table without a session. ', 'Create a session using `session = orm.session()` and use ', '`session["' + this.modelClass.modelName + '"]` for querying instead.'].join(''));
+            }
+            if (!this._evaluated) {
+                var _modelClass = this.modelClass,
+                    session = _modelClass.session,
+                    table = _modelClass.modelName;
+
+                var querySpec = {
+                    table: table,
+                    clauses: this.clauses
+                };
+                this.rows = session.query(querySpec).rows;
+                this._evaluated = true;
+            }
+            return this.rows;
+        }
+
+        /**
+         * Returns a new {@link QuerySet} instance with entities ordered by `iteratees` in ascending
+         * order, unless otherwise specified. Delegates to `lodash.orderBy`.
+         *
+         * @param  {string[]|Function[]} iteratees - an array where each item can be a string or a
+         *                                           function. If a string is supplied, it should
+         *                                           correspond to property on the entity that will
+         *                                           determine the order. If a function is supplied,
+         *                                           it should return the value to order by.
+         * @param {Boolean[]} [orders] - the sort orders of `iteratees`. If unspecified, all iteratees
+         *                               will be sorted in ascending order. `true` and `'asc'`
+         *                               correspond to ascending order, and `false` and `'desc`
+         *                               to descending order.
+         * @return {QuerySet} a new {@link QuerySet} with objects ordered by `iteratees`.
+         */
+
+    }, {
+        key: 'orderBy',
+        value: function orderBy(iteratees, orders) {
+            var orderByDescriptor = {
+                type: ORDER_BY,
+                payload: [iteratees, orders]
+            };
+
+            /**
+             * create a new QuerySet
+             * sorting all rows according to the passed arguments
+             */
+            return this._new(this.clauses.concat(orderByDescriptor));
+        }
+
+        /**
+         * Records an update specified with `mergeObj` to all the objects
+         * in the {@link QuerySet} instance.
+         *
+         * @param  {Object} mergeObj - an object to merge with all the objects in this
+         *                             queryset.
+         * @return {undefined}
+         */
+
+    }, {
+        key: 'update',
+        value: function update(mergeObj) {
+            var _modelClass2 = this.modelClass,
+                session = _modelClass2.session,
+                table = _modelClass2.modelName;
+
+
+            session.applyUpdate({
+                action: UPDATE,
+                query: {
+                    table: table,
+                    clauses: this.clauses
+                },
+                payload: mergeObj
+            });
+
+            this._evaluated = false;
+        }
+
+        /**
+         * Records a deletion of all the objects in this {@link QuerySet} instance.
+         * @return {undefined}
+         */
+
+    }, {
+        key: 'delete',
+        value: function _delete() {
+            var _modelClass3 = this.modelClass,
+                session = _modelClass3.session,
+                table = _modelClass3.modelName;
+
+
+            this.toModelArray().forEach(function (model) {
+                return model._onDelete();
+            } // eslint-disable-line no-underscore-dangle
+            );
+
+            session.applyUpdate({
+                action: DELETE,
+                query: {
+                    table: table,
+                    clauses: this.clauses
+                }
+            });
+
+            this._evaluated = false;
+        }
+
+        // DEPRECATED AND REMOVED METHODS
+
+        /**
+         * @deprecated
+         * Use {@link QuerySet#toModelArray} or predicate functions that
+         * instantiate Models from refs, e.g. `new Model(ref)`.
+         */
+
+    }, {
+        key: 'map',
+
+
+        /**
+         * @deprecated
+         * Call {@link QuerySet#toModelArray} or {@link QuerySet#toRefArray} first to map.
+         */
+        value: function map() {
+            throw new Error('`QuerySet.prototype.map` has been removed. ' + 'Call `.toModelArray()` or `.toRefArray()` first to map.');
+        }
+
+        /**
+         * @deprecated
+         * Call {@link QuerySet#toModelArray} or {@link QuerySet#toRefArray} first to iterate.
+         */
+
+    }, {
+        key: 'forEach',
+        value: function forEach() {
+            throw new Error('`QuerySet.prototype.forEach` has been removed. ' + 'Call `.toModelArray()` or `.toRefArray()` first to iterate.');
+        }
+    }, {
+        key: 'withModels',
+        get: function get() {
+            throw new Error('`QuerySet.prototype.withModels` has been removed. ' + 'Use `.toModelArray()` or predicate functions that ' + 'instantiate Models from refs, e.g. `new Model(ref)`.');
+        }
+
+        /**
+         * @deprecated Query building operates on refs only now.
+         */
+
+    }, {
+        key: 'withRefs',
+        get: function get() {
+            warnDeprecated('`QuerySet.prototype.withRefs` has been deprecated. ' + 'Query building operates on refs only now.');
+            return undefined;
+        }
+    }], [{
+        key: 'addSharedMethod',
+        value: function addSharedMethod(methodName) {
+            this.sharedMethods = this.sharedMethods.concat(methodName);
+        }
+    }]);
+
+    return QuerySet;
+}();
+
+QuerySet.sharedMethods = ['count', 'at', 'all', 'last', 'first', 'filter', 'exclude', 'orderBy', 'update', 'delete'];
+
+var _extends$c = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+
+
+
+var _assign2 = _interopRequireDefault(assign$1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = _assign2.default || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+};
+});
+
+var _extends$d = unwrapExports(_extends$c);
+
+var defineProperty$7 = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+
+
+
+var _defineProperty2 = _interopRequireDefault(defineProperty$5);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (obj, key, value) {
+  if (key in obj) {
+    (0, _defineProperty2.default)(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+};
+});
+
+var _defineProperty$4 = unwrapExports(defineProperty$7);
+
+/**
+ * This method returns `undefined`.
+ *
+ * @static
+ * @memberOf _
+ * @since 2.3.0
+ * @category Util
+ * @example
+ *
+ * _.times(2, _.noop);
+ * // => [undefined, undefined]
+ */
+function noop$3() {
+  // No operation performed.
+}
+
+var noop_1 = noop$3;
+
+/** Used as references for various `Number` constants. */
+var INFINITY$3 = 1 / 0;
+
+/**
+ * Creates a set object of `values`.
+ *
+ * @private
+ * @param {Array} values The values to add to the set.
+ * @returns {Object} Returns the new set.
+ */
+var createSet = !(_Set && (1 / _setToArray(new _Set([,-0]))[1]) == INFINITY$3) ? noop_1 : function(values) {
+  return new _Set(values);
+};
+
+var _createSet = createSet;
+
+/** Used as the size to enable large array optimizations. */
+var LARGE_ARRAY_SIZE$2 = 200;
+
+/**
+ * The base implementation of `_.uniqBy` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {Function} [iteratee] The iteratee invoked per element.
+ * @param {Function} [comparator] The comparator invoked per element.
+ * @returns {Array} Returns the new duplicate free array.
+ */
+function baseUniq(array, iteratee, comparator) {
+  var index = -1,
+      includes = _arrayIncludes$1,
+      length = array.length,
+      isCommon = true,
+      result = [],
+      seen = result;
+
+  if (comparator) {
+    isCommon = false;
+    includes = _arrayIncludesWith;
+  }
+  else if (length >= LARGE_ARRAY_SIZE$2) {
+    var set = iteratee ? null : _createSet(array);
+    if (set) {
+      return _setToArray(set);
+    }
+    isCommon = false;
+    includes = _cacheHas;
+    seen = new _SetCache;
+  }
+  else {
+    seen = iteratee ? [] : result;
+  }
+  outer:
+  while (++index < length) {
+    var value = array[index],
+        computed = iteratee ? iteratee(value) : value;
+
+    value = (comparator || value !== 0) ? value : 0;
+    if (isCommon && computed === computed) {
+      var seenIndex = seen.length;
+      while (seenIndex--) {
+        if (seen[seenIndex] === computed) {
+          continue outer;
+        }
+      }
+      if (iteratee) {
+        seen.push(computed);
+      }
+      result.push(value);
+    }
+    else if (!includes(seen, computed, comparator)) {
+      if (seen !== result) {
+        seen.push(computed);
+      }
+      result.push(value);
+    }
+  }
+  return result;
+}
+
+var _baseUniq = baseUniq;
+
+/**
+ * Creates a duplicate-free version of an array, using
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * for equality comparisons, in which only the first occurrence of each element
+ * is kept. The order of result values is determined by the order they occur
+ * in the array.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Array
+ * @param {Array} array The array to inspect.
+ * @returns {Array} Returns the new duplicate free array.
+ * @example
+ *
+ * _.uniq([2, 1, 2]);
+ * // => [2, 1]
+ */
+function uniq(array) {
+  return (array && array.length) ? _baseUniq(array) : [];
+}
+
+var uniq_1 = uniq;
+
+var _redefineAll = function (target, src, safe) {
+  for (var key in src) {
+    if (safe && target[key]) target[key] = src[key];
+    else _hide(target, key, src[key]);
+  } return target;
+};
+
+var _anInstance = function (it, Constructor, name, forbiddenField) {
+  if (!(it instanceof Constructor) || (forbiddenField !== undefined && forbiddenField in it)) {
+    throw TypeError(name + ': incorrect invocation!');
+  } return it;
+};
+
+var _forOf = createCommonjsModule(function (module) {
+var BREAK = {};
+var RETURN = {};
+var exports = module.exports = function (iterable, entries, fn, that, ITERATOR) {
+  var iterFn = ITERATOR ? function () { return iterable; } : core_getIteratorMethod(iterable);
+  var f = _ctx(fn, that, entries ? 2 : 1);
+  var index = 0;
+  var length, step, iterator, result;
+  if (typeof iterFn != 'function') throw TypeError(iterable + ' is not iterable!');
+  // fast case for arrays with default iterator
+  if (_isArrayIter(iterFn)) for (length = _toLength(iterable.length); length > index; index++) {
+    result = entries ? f(_anObject(step = iterable[index])[0], step[1]) : f(iterable[index]);
+    if (result === BREAK || result === RETURN) return result;
+  } else for (iterator = iterFn.call(iterable); !(step = iterator.next()).done;) {
+    result = _iterCall(iterator, f, step.value, entries);
+    if (result === BREAK || result === RETURN) return result;
+  }
+};
+exports.BREAK = BREAK;
+exports.RETURN = RETURN;
+});
+
+var SPECIES = _wks('species');
+
+var _setSpecies = function (KEY) {
+  var C = typeof _core[KEY] == 'function' ? _core[KEY] : _global[KEY];
+  if (_descriptors && C && !C[SPECIES]) _objectDp.f(C, SPECIES, {
+    configurable: true,
+    get: function () { return this; }
+  });
+};
+
+var _validateCollection = function (it, TYPE) {
+  if (!_isObject(it) || it._t !== TYPE) throw TypeError('Incompatible receiver, ' + TYPE + ' required!');
+  return it;
+};
+
+var dP$2 = _objectDp.f;
+
+
+
+
+
+
+
+
+
+var fastKey = _meta.fastKey;
+
+var SIZE = _descriptors ? '_s' : 'size';
+
+var getEntry = function (that, key) {
+  // fast case
+  var index = fastKey(key);
+  var entry;
+  if (index !== 'F') return that._i[index];
+  // frozen object case
+  for (entry = that._f; entry; entry = entry.n) {
+    if (entry.k == key) return entry;
+  }
+};
+
+var _collectionStrong = {
+  getConstructor: function (wrapper, NAME, IS_MAP, ADDER) {
+    var C = wrapper(function (that, iterable) {
+      _anInstance(that, C, NAME, '_i');
+      that._t = NAME;         // collection type
+      that._i = _objectCreate(null); // index
+      that._f = undefined;    // first entry
+      that._l = undefined;    // last entry
+      that[SIZE] = 0;         // size
+      if (iterable != undefined) _forOf(iterable, IS_MAP, that[ADDER], that);
+    });
+    _redefineAll(C.prototype, {
+      // 23.1.3.1 Map.prototype.clear()
+      // 23.2.3.2 Set.prototype.clear()
+      clear: function clear() {
+        for (var that = _validateCollection(this, NAME), data = that._i, entry = that._f; entry; entry = entry.n) {
+          entry.r = true;
+          if (entry.p) entry.p = entry.p.n = undefined;
+          delete data[entry.i];
+        }
+        that._f = that._l = undefined;
+        that[SIZE] = 0;
+      },
+      // 23.1.3.3 Map.prototype.delete(key)
+      // 23.2.3.4 Set.prototype.delete(value)
+      'delete': function (key) {
+        var that = _validateCollection(this, NAME);
+        var entry = getEntry(that, key);
+        if (entry) {
+          var next = entry.n;
+          var prev = entry.p;
+          delete that._i[entry.i];
+          entry.r = true;
+          if (prev) prev.n = next;
+          if (next) next.p = prev;
+          if (that._f == entry) that._f = next;
+          if (that._l == entry) that._l = prev;
+          that[SIZE]--;
+        } return !!entry;
+      },
+      // 23.2.3.6 Set.prototype.forEach(callbackfn, thisArg = undefined)
+      // 23.1.3.5 Map.prototype.forEach(callbackfn, thisArg = undefined)
+      forEach: function forEach(callbackfn /* , that = undefined */) {
+        _validateCollection(this, NAME);
+        var f = _ctx(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+        var entry;
+        while (entry = entry ? entry.n : this._f) {
+          f(entry.v, entry.k, this);
+          // revert to the last existing entry
+          while (entry && entry.r) entry = entry.p;
+        }
+      },
+      // 23.1.3.7 Map.prototype.has(key)
+      // 23.2.3.7 Set.prototype.has(value)
+      has: function has(key) {
+        return !!getEntry(_validateCollection(this, NAME), key);
+      }
+    });
+    if (_descriptors) dP$2(C.prototype, 'size', {
+      get: function () {
+        return _validateCollection(this, NAME)[SIZE];
+      }
+    });
+    return C;
+  },
+  def: function (that, key, value) {
+    var entry = getEntry(that, key);
+    var prev, index;
+    // change existing entry
+    if (entry) {
+      entry.v = value;
+    // create new entry
+    } else {
+      that._l = entry = {
+        i: index = fastKey(key, true), // <- index
+        k: key,                        // <- key
+        v: value,                      // <- value
+        p: prev = that._l,             // <- previous entry
+        n: undefined,                  // <- next entry
+        r: false                       // <- removed
+      };
+      if (!that._f) that._f = entry;
+      if (prev) prev.n = entry;
+      that[SIZE]++;
+      // add to index
+      if (index !== 'F') that._i[index] = entry;
+    } return that;
+  },
+  getEntry: getEntry,
+  setStrong: function (C, NAME, IS_MAP) {
+    // add .keys, .values, .entries, [@@iterator]
+    // 23.1.3.4, 23.1.3.8, 23.1.3.11, 23.1.3.12, 23.2.3.5, 23.2.3.8, 23.2.3.10, 23.2.3.11
+    _iterDefine(C, NAME, function (iterated, kind) {
+      this._t = _validateCollection(iterated, NAME); // target
+      this._k = kind;                     // kind
+      this._l = undefined;                // previous
+    }, function () {
+      var that = this;
+      var kind = that._k;
+      var entry = that._l;
+      // revert to the last existing entry
+      while (entry && entry.r) entry = entry.p;
+      // get next entry
+      if (!that._t || !(that._l = entry = entry ? entry.n : that._t._f)) {
+        // or finish the iteration
+        that._t = undefined;
+        return _iterStep(1);
+      }
+      // return step by kind
+      if (kind == 'keys') return _iterStep(0, entry.k);
+      if (kind == 'values') return _iterStep(0, entry.v);
+      return _iterStep(0, [entry.k, entry.v]);
+    }, IS_MAP ? 'entries' : 'values', !IS_MAP, true);
+
+    // add [@@species], 23.1.2.2, 23.2.2.2
+    _setSpecies(NAME);
+  }
+};
+
+var SPECIES$1 = _wks('species');
+
+var _arraySpeciesConstructor = function (original) {
+  var C;
+  if (_isArray(original)) {
+    C = original.constructor;
+    // cross-realm fallback
+    if (typeof C == 'function' && (C === Array || _isArray(C.prototype))) C = undefined;
+    if (_isObject(C)) {
+      C = C[SPECIES$1];
+      if (C === null) C = undefined;
+    }
+  } return C === undefined ? Array : C;
+};
+
+// 9.4.2.3 ArraySpeciesCreate(originalArray, length)
+
+
+var _arraySpeciesCreate = function (original, length) {
+  return new (_arraySpeciesConstructor(original))(length);
+};
+
+// 0 -> Array#forEach
+// 1 -> Array#map
+// 2 -> Array#filter
+// 3 -> Array#some
+// 4 -> Array#every
+// 5 -> Array#find
+// 6 -> Array#findIndex
+
+
+
+
+
+var _arrayMethods = function (TYPE, $create) {
+  var IS_MAP = TYPE == 1;
+  var IS_FILTER = TYPE == 2;
+  var IS_SOME = TYPE == 3;
+  var IS_EVERY = TYPE == 4;
+  var IS_FIND_INDEX = TYPE == 6;
+  var NO_HOLES = TYPE == 5 || IS_FIND_INDEX;
+  var create = $create || _arraySpeciesCreate;
+  return function ($this, callbackfn, that) {
+    var O = _toObject($this);
+    var self = _iobject(O);
+    var f = _ctx(callbackfn, that, 3);
+    var length = _toLength(self.length);
+    var index = 0;
+    var result = IS_MAP ? create($this, length) : IS_FILTER ? create($this, 0) : undefined;
+    var val, res;
+    for (;length > index; index++) if (NO_HOLES || index in self) {
+      val = self[index];
+      res = f(val, index, O);
+      if (TYPE) {
+        if (IS_MAP) result[index] = res;   // map
+        else if (res) switch (TYPE) {
+          case 3: return true;             // some
+          case 5: return val;              // find
+          case 6: return index;            // findIndex
+          case 2: result.push(val);        // filter
+        } else if (IS_EVERY) return false; // every
+      }
+    }
+    return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : result;
+  };
+};
+
+var dP$3 = _objectDp.f;
+var each = _arrayMethods(0);
+
+
+var _collection = function (NAME, wrapper, methods, common, IS_MAP, IS_WEAK) {
+  var Base = _global[NAME];
+  var C = Base;
+  var ADDER = IS_MAP ? 'set' : 'add';
+  var proto = C && C.prototype;
+  var O = {};
+  if (!_descriptors || typeof C != 'function' || !(IS_WEAK || proto.forEach && !_fails(function () {
+    new C().entries().next();
+  }))) {
+    // create collection constructor
+    C = common.getConstructor(wrapper, NAME, IS_MAP, ADDER);
+    _redefineAll(C.prototype, methods);
+    _meta.NEED = true;
+  } else {
+    C = wrapper(function (target, iterable) {
+      _anInstance(target, C, NAME, '_c');
+      target._c = new Base();
+      if (iterable != undefined) _forOf(iterable, IS_MAP, target[ADDER], target);
+    });
+    each('add,clear,delete,forEach,get,has,set,keys,values,entries,toJSON'.split(','), function (KEY) {
+      var IS_ADDER = KEY == 'add' || KEY == 'set';
+      if (KEY in proto && !(IS_WEAK && KEY == 'clear')) _hide(C.prototype, KEY, function (a, b) {
+        _anInstance(this, C, KEY);
+        if (!IS_ADDER && IS_WEAK && !_isObject(a)) return KEY == 'get' ? undefined : false;
+        var result = this._c[KEY](a === 0 ? 0 : a, b);
+        return IS_ADDER ? this : result;
+      });
+    });
+    IS_WEAK || dP$3(C.prototype, 'size', {
+      get: function () {
+        return this._c.size;
+      }
+    });
+  }
+
+  _setToStringTag(C, NAME);
+
+  O[NAME] = C;
+  _export(_export.G + _export.W + _export.F, O);
+
+  if (!IS_WEAK) common.setStrong(C, NAME, IS_MAP);
+
+  return C;
+};
+
+var SET = 'Set';
+
+// 23.2 Set Objects
+var es6_set = _collection(SET, function (get) {
+  return function Set() { return get(this, arguments.length > 0 ? arguments[0] : undefined); };
+}, {
+  // 23.2.3.1 Set.prototype.add(value)
+  add: function add(value) {
+    return _collectionStrong.def(_validateCollection(this, SET), value = value === 0 ? 0 : value, value);
+  }
+}, _collectionStrong);
+
+var _arrayFromIterable = function (iter, ITERATOR) {
+  var result = [];
+  _forOf(iter, false, result.push, result, ITERATOR);
+  return result;
+};
+
+// https://github.com/DavidBruant/Map-Set.prototype.toJSON
+
+
+var _collectionToJson = function (NAME) {
+  return function toJSON() {
+    if (_classof(this) != NAME) throw TypeError(NAME + "#toJSON isn't generic");
+    return _arrayFromIterable(this);
+  };
+};
+
+// https://github.com/DavidBruant/Map-Set.prototype.toJSON
+
+
+_export(_export.P + _export.R, 'Set', { toJSON: _collectionToJson('Set') });
+
+// https://tc39.github.io/proposal-setmap-offrom/
+
+
+var _setCollectionOf = function (COLLECTION) {
+  _export(_export.S, COLLECTION, { of: function of() {
+    var length = arguments.length;
+    var A = new Array(length);
+    while (length--) A[length] = arguments[length];
+    return new this(A);
+  } });
+};
+
+// https://tc39.github.io/proposal-setmap-offrom/#sec-set.of
+_setCollectionOf('Set');
+
+// https://tc39.github.io/proposal-setmap-offrom/
+
+
+
+
+
+var _setCollectionFrom = function (COLLECTION) {
+  _export(_export.S, COLLECTION, { from: function from(source /* , mapFn, thisArg */) {
+    var mapFn = arguments[1];
+    var mapping, A, n, cb;
+    _aFunction(this);
+    mapping = mapFn !== undefined;
+    if (mapping) _aFunction(mapFn);
+    if (source == undefined) return new this();
+    A = [];
+    if (mapping) {
+      n = 0;
+      cb = _ctx(mapFn, arguments[2], 2);
+      _forOf(source, false, function (nextItem) {
+        A.push(cb(nextItem, n++));
+      });
+    } else {
+      _forOf(source, false, A.push, A);
+    }
+    return new this(A);
+  } });
+};
+
+// https://tc39.github.io/proposal-setmap-offrom/#sec-set.from
+_setCollectionFrom('Set');
+
+var set = _core.Set;
+
+var set$1 = createCommonjsModule(function (module) {
+module.exports = { "default": set, __esModule: true };
+});
+
+var _Set$1 = unwrapExports(set$1);
+
+// Works with __proto__ only. Old v8 can't work with null proto objects.
+/* eslint-disable no-proto */
+
+
+var check$1 = function (O, proto) {
+  _anObject(O);
+  if (!_isObject(proto) && proto !== null) throw TypeError(proto + ": can't set as prototype!");
+};
+var _setProto = {
+  set: Object.setPrototypeOf || ('__proto__' in {} ? // eslint-disable-line
+    function (test, buggy, set) {
+      try {
+        set = _ctx(Function.call, _objectGopd.f(Object.prototype, '__proto__').set, 2);
+        set(test, []);
+        buggy = !(test instanceof Array);
+      } catch (e) { buggy = true; }
+      return function setPrototypeOf(O, proto) {
+        check$1(O, proto);
+        if (buggy) O.__proto__ = proto;
+        else set(O, proto);
+        return O;
+      };
+    }({}, false) : undefined),
+  check: check$1
+};
+
+// 26.1.14 Reflect.setPrototypeOf(target, proto)
+
+
+
+if (_setProto) _export(_export.S, 'Reflect', {
+  setPrototypeOf: function setPrototypeOf(target, proto) {
+    _setProto.check(target, proto);
+    try {
+      _setProto.set(target, proto);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+});
+
+var setPrototypeOf = _core.Reflect.setPrototypeOf;
+
+var setPrototypeOf$1 = createCommonjsModule(function (module) {
+module.exports = { "default": setPrototypeOf, __esModule: true };
+});
+
+var _Reflect$setPrototypeOf = unwrapExports(setPrototypeOf$1);
+
+// fast apply, http://jsperf.lnkit.com/fast-apply/5
+var _invoke = function (fn, args, that) {
+  var un = that === undefined;
+  switch (args.length) {
+    case 0: return un ? fn()
+                      : fn.call(that);
+    case 1: return un ? fn(args[0])
+                      : fn.call(that, args[0]);
+    case 2: return un ? fn(args[0], args[1])
+                      : fn.call(that, args[0], args[1]);
+    case 3: return un ? fn(args[0], args[1], args[2])
+                      : fn.call(that, args[0], args[1], args[2]);
+    case 4: return un ? fn(args[0], args[1], args[2], args[3])
+                      : fn.call(that, args[0], args[1], args[2], args[3]);
+  } return fn.apply(that, args);
+};
+
+var arraySlice = [].slice;
+var factories = {};
+
+var construct = function (F, len, args) {
+  if (!(len in factories)) {
+    for (var n = [], i = 0; i < len; i++) n[i] = 'a[' + i + ']';
+    // eslint-disable-next-line no-new-func
+    factories[len] = Function('F,a', 'return new F(' + n.join(',') + ')');
+  } return factories[len](F, args);
+};
+
+var _bind = Function.bind || function bind(that /* , ...args */) {
+  var fn = _aFunction(this);
+  var partArgs = arraySlice.call(arguments, 1);
+  var bound = function (/* args... */) {
+    var args = partArgs.concat(arraySlice.call(arguments));
+    return this instanceof bound ? construct(fn, args.length, args) : _invoke(fn, args, that);
+  };
+  if (_isObject(fn.prototype)) bound.prototype = fn.prototype;
+  return bound;
+};
+
+// 26.1.2 Reflect.construct(target, argumentsList [, newTarget])
+
+
+
+
+
+
+
+var rConstruct = (_global.Reflect || {}).construct;
+
+// MS Edge supports only 2 arguments and argumentsList argument is optional
+// FF Nightly sets third argument as `new.target`, but does not create `this` from it
+var NEW_TARGET_BUG = _fails(function () {
+  function F() { /* empty */ }
+  return !(rConstruct(function () { /* empty */ }, [], F) instanceof F);
+});
+var ARGS_BUG = !_fails(function () {
+  rConstruct(function () { /* empty */ });
+});
+
+_export(_export.S + _export.F * (NEW_TARGET_BUG || ARGS_BUG), 'Reflect', {
+  construct: function construct(Target, args /* , newTarget */) {
+    _aFunction(Target);
+    _anObject(args);
+    var newTarget = arguments.length < 3 ? Target : _aFunction(arguments[2]);
+    if (ARGS_BUG && !NEW_TARGET_BUG) return rConstruct(Target, args, newTarget);
+    if (Target == newTarget) {
+      // w/o altered newTarget, optimization for 0-4 arguments
+      switch (args.length) {
+        case 0: return new Target();
+        case 1: return new Target(args[0]);
+        case 2: return new Target(args[0], args[1]);
+        case 3: return new Target(args[0], args[1], args[2]);
+        case 4: return new Target(args[0], args[1], args[2], args[3]);
+      }
+      // w/o altered newTarget, lot of arguments case
+      var $args = [null];
+      $args.push.apply($args, args);
+      return new (_bind.apply(Target, $args))();
+    }
+    // with altered newTarget, not support built-in constructors
+    var proto = newTarget.prototype;
+    var instance = _objectCreate(_isObject(proto) ? proto : Object.prototype);
+    var result = Function.apply.call(Target, instance, args);
+    return _isObject(result) ? result : instance;
+  }
+});
+
+var construct$1 = _core.Reflect.construct;
+
+var construct$2 = createCommonjsModule(function (module) {
+module.exports = { "default": construct$1, __esModule: true };
+});
+
+var _Reflect$construct = unwrapExports(construct$2);
+
+var Session = function () {
+    /**
+     * Creates a new Session.
+     *
+     * @param  {Database} db - a {@link Database} instance
+     * @param  {Object} state - the database state
+     * @param  {Boolean} [withMutations] - whether the session should mutate data
+     * @param  {Object} [batchToken] - used by the backend to identify objects that can be
+     *                                 mutated.
+     */
+    function Session(schema, db, state, withMutations, batchToken) {
+        var _this = this;
+
+        _classCallCheck$7(this, Session);
+
+        this.schema = schema;
+        this.db = db;
+        this.state = state || db.getEmptyState();
+        this.initialState = this.state;
+
+        this.withMutations = !!withMutations;
+        this.batchToken = batchToken || lib_2$1();
+
+        this.modelData = {};
+
+        this.models = schema.getModelClasses();
+
+        this.sessionBoundModels = this.models.map(function (modelClass) {
+            function SessionBoundModel() {
+                return _Reflect$construct(modelClass, arguments, SessionBoundModel); // eslint-disable-line prefer-rest-params
+            }
+            _Reflect$setPrototypeOf(SessionBoundModel.prototype, modelClass.prototype);
+            _Reflect$setPrototypeOf(SessionBoundModel, modelClass);
+
+            _Object$defineProperty(_this, modelClass.modelName, {
+                get: function get() {
+                    return SessionBoundModel;
+                }
+            });
+
+            SessionBoundModel.connect(_this);
+            return SessionBoundModel;
+        });
+    }
+
+    _createClass(Session, [{
+        key: 'getDataForModel',
+        value: function getDataForModel(modelName) {
+            if (!this.modelData[modelName]) {
+                this.modelData[modelName] = {};
+            }
+            return this.modelData[modelName];
+        }
+    }, {
+        key: 'markAccessed',
+        value: function markAccessed(modelName, modelIds) {
+            var data = this.getDataForModel(modelName);
+            if (!data.accessedInstances) {
+                data.accessedInstances = {};
+            }
+            modelIds.forEach(function (id) {
+                data.accessedInstances[id] = true;
+            });
+        }
+    }, {
+        key: 'markFullTableScanned',
+        value: function markFullTableScanned(modelName) {
+            var data = this.getDataForModel(modelName);
+            data.fullTableScanned = true;
+        }
+    }, {
+        key: 'applyUpdate',
+
+
+        /**
+         * Applies update to a model state.
+         *
+         * @private
+         * @param {Object} update - the update object. Must have keys
+         *                          `type`, `payload`.
+         */
+        value: function applyUpdate(updateSpec) {
+            var tx = this._getTransaction(updateSpec);
+            var result = this.db.update(updateSpec, tx, this.state);
+            var status = result.status,
+                state = result.state,
+                payload = result.payload;
+
+
+            if (status !== SUCCESS) {
+                throw new Error('Applying update failed with status ' + status + '. Payload: ' + payload);
+            }
+
+            this.state = state;
+
+            return payload;
+        }
+    }, {
+        key: 'query',
+        value: function query(querySpec) {
+            var result = this.db.query(querySpec, this.state);
+
+            this._markAccessedByQuery(querySpec, result);
+
+            return result;
+        }
+    }, {
+        key: '_getTransaction',
+        value: function _getTransaction(updateSpec) {
+            var withMutations = this.withMutations;
+            var action = updateSpec.action;
+            var batchToken = this.batchToken;
+
+            if ([UPDATE, DELETE].includes(action)) {
+                batchToken = lib_2$1();
+            }
+            return { batchToken: batchToken, withMutations: withMutations };
+        }
+    }, {
+        key: '_markAccessedByQuery',
+        value: function _markAccessedByQuery(querySpec, result) {
+            var table = querySpec.table,
+                clauses = querySpec.clauses;
+            var rows = result.rows;
+            var idAttribute = this[table].idAttribute;
+
+            var accessedIds = new _Set$1(rows.map(function (row) {
+                return row[idAttribute];
+            }));
+
+            var anyClauseFilteredById = clauses.some(function (clause) {
+                if (!clauseFiltersByAttribute(clause, idAttribute)) {
+                    return false;
+                }
+                /**
+                 * we previously knew which row we wanted to access,
+                 * so there was no need to scan the entire table
+                 */
+                var id = clause.payload[idAttribute];
+                accessedIds.add(id);
+                return true;
+            });
+
+            if (anyClauseFilteredById) {
+                /**
+                 * clauses have been ordered so that an indexed one was
+                 * the first to be evaluated, and thus only the row
+                 * with the specified id has actually been accessed
+                 */
+                this.markAccessed(table, accessedIds);
+            } else {
+                /**
+                 * any other clause would have caused a full table scan,
+                 * even if we specified an empty clauses array
+                 */
+                this.markFullTableScanned(table);
+            }
+        }
+
+        // DEPRECATED AND REMOVED METHODS
+
+        /**
+         * @deprecated Access {@link Session#state} instead.
+         */
+
+    }, {
+        key: 'getNextState',
+        value: function getNextState() {
+            warnDeprecated('`Session.prototype.getNextState` has been deprecated. Access ' + 'the `Session.prototype.state` property instead.');
+            return this.state;
+        }
+
+        /**
+         * @deprecated
+         * The Redux integration API is now decoupled from ORM and Session.<br>
+         * See the 0.9 migration guide in the GitHub repo.
+         */
+
+    }, {
+        key: 'reduce',
+        value: function reduce() {
+            throw new Error('`Session.prototype.reduce` has been removed. The Redux integration API ' + 'is now decoupled from ORM and Session - see the 0.9 migration guide ' + 'in the GitHub repo.');
+        }
+    }, {
+        key: 'accessedModelInstances',
+        get: function get() {
+            var _this2 = this;
+
+            return this.sessionBoundModels.filter(function (_ref) {
+                var modelName = _ref.modelName;
+                return !!_this2.getDataForModel(modelName).accessedInstances;
+            }).reduce(function (result, _ref2) {
+                var modelName = _ref2.modelName;
+                return _extends$d({}, result, _defineProperty$4({}, modelName, _this2.getDataForModel(modelName).accessedInstances));
+            }, {});
+        }
+    }, {
+        key: 'fullTableScannedModels',
+        get: function get() {
+            var _this3 = this;
+
+            return this.sessionBoundModels.filter(function (_ref3) {
+                var modelName = _ref3.modelName;
+                return !!_this3.getDataForModel(modelName).fullTableScanned;
+            }).map(function (_ref4) {
+                var modelName = _ref4.modelName;
+                return modelName;
+            });
+        }
+    }]);
+
+    return Session;
+}();
+
+var ITERATOR$4 = _wks('iterator');
+
+var core_isIterable = _core.isIterable = function (it) {
+  var O = Object(it);
+  return O[ITERATOR$4] !== undefined
+    || '@@iterator' in O
+    // eslint-disable-next-line no-prototype-builtins
+    || _iterators.hasOwnProperty(_classof(O));
+};
+
+var isIterable = core_isIterable;
+
+var isIterable$1 = createCommonjsModule(function (module) {
+module.exports = { "default": isIterable, __esModule: true };
+});
+
+unwrapExports(isIterable$1);
+
+var core_getIterator = _core.getIterator = function (it) {
+  var iterFn = core_getIteratorMethod(it);
+  if (typeof iterFn != 'function') throw TypeError(it + ' is not iterable!');
+  return _anObject(iterFn.call(it));
+};
+
+var getIterator = core_getIterator;
+
+var getIterator$1 = createCommonjsModule(function (module) {
+module.exports = { "default": getIterator, __esModule: true };
+});
+
+unwrapExports(getIterator$1);
+
+var slicedToArray = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+
+
+
+var _isIterable3 = _interopRequireDefault(isIterable$1);
+
+
+
+var _getIterator3 = _interopRequireDefault(getIterator$1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function () {
+  function sliceIterator(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = (0, _getIterator3.default)(arr), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"]) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  return function (arr, i) {
+    if (Array.isArray(arr)) {
+      return arr;
+    } else if ((0, _isIterable3.default)(Object(arr))) {
+      return sliceIterator(arr, i);
+    } else {
+      throw new TypeError("Invalid attempt to destructure non-iterable instance");
+    }
+  };
+}();
+});
+
+var _slicedToArray = unwrapExports(slicedToArray);
+
+var possibleConstructorReturn = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+
+
+
+var _typeof3 = _interopRequireDefault(_typeof_1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && ((typeof call === "undefined" ? "undefined" : (0, _typeof3.default)(call)) === "object" || typeof call === "function") ? call : self;
+};
+});
+
+var _possibleConstructorReturn$7 = unwrapExports(possibleConstructorReturn);
+
+// 19.1.3.19 Object.setPrototypeOf(O, proto)
+
+_export(_export.S, 'Object', { setPrototypeOf: _setProto.set });
+
+var setPrototypeOf$2 = _core.Object.setPrototypeOf;
+
+var setPrototypeOf$3 = createCommonjsModule(function (module) {
+module.exports = { "default": setPrototypeOf$2, __esModule: true };
+});
+
+unwrapExports(setPrototypeOf$3);
+
+// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
+_export(_export.S, 'Object', { create: _objectCreate });
+
+var $Object$2 = _core.Object;
+var create = function create(P, D) {
+  return $Object$2.create(P, D);
+};
+
+var create$1 = createCommonjsModule(function (module) {
+module.exports = { "default": create, __esModule: true };
+});
+
+unwrapExports(create$1);
+
+var inherits = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+
+
+
+var _setPrototypeOf2 = _interopRequireDefault(setPrototypeOf$3);
+
+
+
+var _create2 = _interopRequireDefault(create$1);
+
+
+
+var _typeof3 = _interopRequireDefault(_typeof_1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : (0, _typeof3.default)(superClass)));
+  }
+
+  subClass.prototype = (0, _create2.default)(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) _setPrototypeOf2.default ? (0, _setPrototypeOf2.default)(subClass, superClass) : subClass.__proto__ = superClass;
+};
+});
+
+var _inherits$7 = unwrapExports(inherits);
+
+/**
+ * The base implementation of methods like `_.findKey` and `_.findLastKey`,
+ * without support for iteratee shorthands, which iterates over `collection`
+ * using `eachFunc`.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to inspect.
+ * @param {Function} predicate The function invoked per iteration.
+ * @param {Function} eachFunc The function to iterate over `collection`.
+ * @returns {*} Returns the found element or its key, else `undefined`.
+ */
+function baseFindKey(collection, predicate, eachFunc) {
+  var result;
+  eachFunc(collection, function(value, key, collection) {
+    if (predicate(value, key, collection)) {
+      result = key;
+      return false;
+    }
+  });
+  return result;
+}
+
+var _baseFindKey = baseFindKey;
+
+/**
+ * This method is like `_.find` except that it returns the key of the first
+ * element `predicate` returns truthy for instead of the element itself.
+ *
+ * @static
+ * @memberOf _
+ * @since 1.1.0
+ * @category Object
+ * @param {Object} object The object to inspect.
+ * @param {Function} [predicate=_.identity] The function invoked per iteration.
+ * @returns {string|undefined} Returns the key of the matched element,
+ *  else `undefined`.
+ * @example
+ *
+ * var users = {
+ *   'barney':  { 'age': 36, 'active': true },
+ *   'fred':    { 'age': 40, 'active': false },
+ *   'pebbles': { 'age': 1,  'active': true }
+ * };
+ *
+ * _.findKey(users, function(o) { return o.age < 40; });
+ * // => 'barney' (iteration order is not guaranteed)
+ *
+ * // The `_.matches` iteratee shorthand.
+ * _.findKey(users, { 'age': 1, 'active': true });
+ * // => 'pebbles'
+ *
+ * // The `_.matchesProperty` iteratee shorthand.
+ * _.findKey(users, ['active', false]);
+ * // => 'fred'
+ *
+ * // The `_.property` iteratee shorthand.
+ * _.findKey(users, 'active');
+ * // => 'barney'
+ */
+function findKey(object, predicate) {
+  return _baseFindKey(object, _baseIteratee(predicate, 3), _baseForOwn);
+}
+
+var findKey_1 = findKey;
+
+/**
+ * The functions in this file return custom JS property descriptors
+ * that are supposed to be assigned to Model fields.
+ *
+ * Some include the logic to look up models using foreign keys and
+ * to add or remove relationships between models.
+ *
+ * @module descriptors
+ */
+
+/**
+ * Defines a basic non-key attribute.
+ * @param  {string} fieldName - the name of the field the descriptor will be assigned to.
+ */
+function attrDescriptor(fieldName) {
+    return {
+        get: function get() {
+            return this._fields[fieldName];
+        },
+        set: function set(value) {
+            return this.set(fieldName, value);
+        },
+
+
+        enumerable: true,
+        configurable: true
+    };
+}
+
+/**
+ * Forwards direction of a Foreign Key: returns one object.
+ * Also works as {@link .forwardsOneToOneDescriptor|forwardsOneToOneDescriptor}.
+ *
+ * For `book.author` referencing an `Author` model instance,
+ * `fieldName` would be `'author'` and `declaredToModelName` would be `'Author'`.
+ * @param  {string} fieldName - the name of the field the descriptor will be assigned to.
+ * @param  {string} declaredToModelName - the name of the model that the field references.
+ */
+function forwardsManyToOneDescriptor(fieldName, declaredToModelName) {
+    return {
+        get: function get() {
+            var _getClass = this.getClass(),
+                DeclaredToModel = _getClass.session[declaredToModelName];
+
+            var toId = this._fields[fieldName];
+
+
+            return DeclaredToModel.withId(toId);
+        },
+        set: function set(value) {
+            this.update(_defineProperty$4({}, fieldName, normalizeEntity(value)));
+        }
+    };
+}
+
+/**
+ * Dereferencing foreign keys in {@link module:fields.oneToOne|oneToOne}
+ * relationships works the same way as in many-to-one relationships:
+ * just look up the related model.
+ *
+ * For example, a human face tends to have a single nose.
+ * So if we want to resolve `face.nose`, we need to
+ * look up the `Nose` that has the primary key that `face` references.
+ *
+ * @see {@link module:descriptors~forwardsManyToOneDescriptor|forwardsManyToOneDescriptor}
+ */
+function forwardsOneToOneDescriptor() {
+    return forwardsManyToOneDescriptor.apply(undefined, arguments);
+}
+
+/**
+ * Here we resolve 1-to-1 relationships starting at the model on which the
+ * field was not installed. This means we need to find the instance of the
+ * other model whose {@link module:fields.oneToOne|oneToOne} FK field contains the current model's primary key.
+ *
+ * @param  {string} declaredFieldName - the name of the field referencing the current model.
+ * @param  {string} declaredFromModelName - the name of the other model.
+ */
+function backwardsOneToOneDescriptor(declaredFieldName, declaredFromModelName) {
+    return {
+        get: function get() {
+            var _getClass2 = this.getClass(),
+                DeclaredFromModel = _getClass2.session[declaredFromModelName];
+
+            return DeclaredFromModel.get(_defineProperty$4({}, declaredFieldName, this.getId()));
+        },
+        set: function set() {
+            throw new Error('Can\'t mutate a reverse one-to-one relation.');
+        }
+    };
+}
+
+/**
+ * The backwards direction of a n-to-1 relationship (i.e. 1-to-n),
+ * meaning this will return an a collection (`QuerySet`) of model instances.
+ *
+ * An example would be `author.books` referencing all instances of
+ * the `Book` model that reference the author using `fk()`.
+ */
+function backwardsManyToOneDescriptor(declaredFieldName, declaredFromModelName) {
+    return {
+        get: function get() {
+            var _getClass3 = this.getClass(),
+                DeclaredFromModel = _getClass3.session[declaredFromModelName];
+
+            return DeclaredFromModel.filter(_defineProperty$4({}, declaredFieldName, this.getId()));
+        },
+        set: function set() {
+            throw new Error('Can\'t mutate a reverse many-to-one relation.');
+        }
+    };
+}
+
+/**
+ * This descriptor is assigned to both sides of a many-to-many relationship.
+ * To indicate the backwards direction pass `true` for `reverse`.
+ */
+function manyToManyDescriptor(declaredFromModelName, declaredToModelName, throughModelName, throughFields, reverse) {
+    return {
+        get: function get() {
+            var _getClass4 = this.getClass(),
+                _getClass4$session = _getClass4.session,
+                DeclaredFromModel = _getClass4$session[declaredFromModelName],
+                DeclaredToModel = _getClass4$session[declaredToModelName],
+                ThroughModel = _getClass4$session[throughModelName];
+
+            var ThisModel = reverse ? DeclaredToModel : DeclaredFromModel;
+            var OtherModel = reverse ? DeclaredFromModel : DeclaredToModel;
+
+            var thisReferencingField = reverse ? throughFields.to : throughFields.from;
+            var otherReferencingField = reverse ? throughFields.from : throughFields.to;
+
+            var thisId = this.getId();
+
+            var throughQs = ThroughModel.filter(_defineProperty$4({}, thisReferencingField, thisId));
+
+            /**
+             * all IDs of instances of the other model that are
+             * referenced by any instance of the current model
+             */
+            var referencedOtherIds = new _Set$1(throughQs.toRefArray().map(function (obj) {
+                return obj[otherReferencingField];
+            }));
+
+            /**
+             * selects all instances of other model that are referenced
+             * by any instance of the current model
+             */
+            var qs = OtherModel.filter(function (otherModelInstance) {
+                return referencedOtherIds.has(otherModelInstance[OtherModel.idAttribute]);
+            });
+
+            /**
+             * Allows adding OtherModel instances to be referenced by the current instance.
+             *
+             * E.g. Book.first().authors.add(1, 2) would add the authors with IDs 1 and 2
+             * to the first book's list of referenced authors.
+             *
+             * @return undefined
+             */
+            qs.add = function add() {
+                for (var _len = arguments.length, entities = Array(_len), _key = 0; _key < _len; _key++) {
+                    entities[_key] = arguments[_key];
+                }
+
+                var idsToAdd = new _Set$1(entities.map(normalizeEntity));
+
+                var existingQs = throughQs.filter(function (through) {
+                    return idsToAdd.has(through[otherReferencingField]);
+                });
+
+                if (existingQs.exists()) {
+                    var existingIds = existingQs.toRefArray().map(function (through) {
+                        return through[otherReferencingField];
+                    });
+
+                    throw new Error('Tried to add already existing ' + OtherModel.modelName + ' id(s) ' + existingIds + ' to the ' + ThisModel.modelName + ' instance with id ' + thisId);
+                }
+
+                idsToAdd.forEach(function (id) {
+                    var _ThroughModel$create;
+
+                    return ThroughModel.create((_ThroughModel$create = {}, _defineProperty$4(_ThroughModel$create, otherReferencingField, id), _defineProperty$4(_ThroughModel$create, thisReferencingField, thisId), _ThroughModel$create));
+                });
+            };
+
+            /**
+             * Removes references to all OtherModel instances from the current model.
+             *
+             * E.g. Book.first().authors.clear() would cause the first book's list
+             * of referenced authors to become empty.
+             *
+             * @return undefined
+             */
+            qs.clear = function clear() {
+                throughQs.delete();
+            };
+
+            /**
+             * Removes references to all passed OtherModel instances from the current model.
+             *
+             * E.g. Book.first().authors.remove(1, 2) would cause the authors with
+             * IDs 1 and 2 to no longer be referenced by the first book.
+             *
+             * @return undefined
+             */
+            qs.remove = function remove() {
+                for (var _len2 = arguments.length, entities = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                    entities[_key2] = arguments[_key2];
+                }
+
+                var idsToRemove = new _Set$1(entities.map(normalizeEntity));
+
+                var entitiesToDelete = throughQs.filter(function (through) {
+                    return idsToRemove.has(through[otherReferencingField]);
+                });
+
+                if (entitiesToDelete.count() !== idsToRemove.size) {
+                    // Tried deleting non-existing entities.
+                    var entitiesToDeleteIds = entitiesToDelete.toRefArray().map(function (through) {
+                        return through[otherReferencingField];
+                    });
+
+                    var unexistingIds = [].concat(_toConsumableArray(idsToRemove)).filter(function (id) {
+                        return !includes_1(entitiesToDeleteIds, id);
+                    });
+
+                    throw new Error('Tried to delete non-existing ' + OtherModel.modelName + ' id(s) ' + unexistingIds + ' from the ' + ThisModel.modelName + ' instance with id ' + thisId);
+                }
+
+                entitiesToDelete.delete();
+            };
+
+            return qs;
+        },
+        set: function set() {
+            throw new Error('Tried setting a M2M field. Please use the related QuerySet methods add, remove and clear.');
+        }
+    };
+}
+
+/**
+ * Contains the logic for how fields on {@link Model}s work
+ * and which descriptors must be installed.
+ *
+ * If your goal is to define fields on a Model class,
+ * please use the more convenient methods {@link attr},
+ * {@link fk}, {@link many} and {@link oneToOne}.
+ *
+ * @module fields
+ */
+
+/**
+ * Defines algorithm for installing a field onto a model and related models.
+ * Conforms to the template method behavioral design pattern.
+ * @private
+ */
+
+var FieldInstallerTemplate = function () {
+    function FieldInstallerTemplate(opts) {
+        _classCallCheck$7(this, FieldInstallerTemplate);
+
+        this.field = opts.field;
+        this.fieldName = opts.fieldName;
+        this.model = opts.model;
+        this.orm = opts.orm;
+        /**
+         * the field itself has no knowledge of the model
+         * it is being installed upon; we need to inform it
+         * that it is a self-referencing field for the field
+         * to be able to make better informed decisions
+         */
+        if (this.field.references(this.model)) {
+            this.field.toModelName = 'this';
+        }
+    }
+
+    _createClass(FieldInstallerTemplate, [{
+        key: 'run',
+        value: function run() {
+            if (this.field.installsForwardsDescriptor) {
+                this.installForwardsDescriptor();
+            }
+            if (this.field.installsForwardsVirtualField) {
+                this.installForwardsVirtualField();
+            }
+            /**
+             * Install a backwards field on a model as a consequence
+             * of having installed the forwards field on another model.
+             */
+            if (this.field.installsBackwardsDescriptor) {
+                this.installBackwardsDescriptor();
+            }
+            if (this.field.installsBackwardsVirtualField) {
+                this.installBackwardsVirtualField();
+            }
+        }
+    }, {
+        key: 'toModel',
+        get: function get() {
+            if (typeof this._toModel === 'undefined') {
+                var toModelName = this.field.toModelName;
+
+                if (!toModelName) {
+                    this._toModel = null;
+                } else if (toModelName === 'this') {
+                    this._toModel = this.model;
+                } else {
+                    this._toModel = this.orm.get(toModelName);
+                }
+            }
+            return this._toModel;
+        }
+    }, {
+        key: 'throughModel',
+        get: function get() {
+            if (typeof this._throughModel === 'undefined') {
+                var throughModelName = this.field.getThroughModelName(this.fieldName, this.model);
+                if (!throughModelName) {
+                    this._throughModel = null;
+                } else {
+                    this._throughModel = this.orm.get(throughModelName);
+                }
+            }
+            return this._throughModel;
+        }
+    }, {
+        key: 'backwardsFieldName',
+        get: function get() {
+            return this.field.getBackwardsFieldName(this.model);
+        }
+    }]);
+
+    return FieldInstallerTemplate;
+}();
+
+/**
+ * Default implementation for the template method in FieldInstallerTemplate.
+ * @private
+ */
+
+
+var DefaultFieldInstaller = function (_FieldInstallerTempla) {
+    _inherits$7(DefaultFieldInstaller, _FieldInstallerTempla);
+
+    function DefaultFieldInstaller() {
+        _classCallCheck$7(this, DefaultFieldInstaller);
+
+        return _possibleConstructorReturn$7(this, (DefaultFieldInstaller.__proto__ || _Object$getPrototypeOf(DefaultFieldInstaller)).apply(this, arguments));
+    }
+
+    _createClass(DefaultFieldInstaller, [{
+        key: 'installForwardsDescriptor',
+        value: function installForwardsDescriptor() {
+            _Object$defineProperty(this.model.prototype, this.fieldName, this.field.createForwardsDescriptor(this.fieldName, this.model, this.toModel, this.throughModel));
+        }
+    }, {
+        key: 'installForwardsVirtualField',
+        value: function installForwardsVirtualField() {
+            this.model.virtualFields[this.fieldName] = this.field.createForwardsVirtualField(this.fieldName, this.model, this.toModel, this.throughModel);
+        }
+    }, {
+        key: 'installBackwardsDescriptor',
+        value: function installBackwardsDescriptor() {
+            var backwardsDescriptor = _Object$getOwnPropertyDescriptor(this.toModel.prototype, this.backwardsFieldName);
+            if (backwardsDescriptor) {
+                throw new Error(reverseFieldErrorMessage(this.model.modelName, this.fieldName, this.toModel.modelName, this.backwardsFieldName));
+            }
+
+            // install backwards descriptor
+            _Object$defineProperty(this.toModel.prototype, this.backwardsFieldName, this.field.createBackwardsDescriptor(this.fieldName, this.model, this.toModel, this.throughModel));
+        }
+    }, {
+        key: 'installBackwardsVirtualField',
+        value: function installBackwardsVirtualField() {
+            this.toModel.virtualFields[this.backwardsFieldName] = this.field.createBackwardsVirtualField(this.fieldName, this.model, this.toModel, this.throughModel);
+        }
+    }]);
+
+    return DefaultFieldInstaller;
+}(FieldInstallerTemplate);
+
+/**
+ * @ignore
+ */
+
+
+var Field = function () {
+    function Field() {
+        _classCallCheck$7(this, Field);
+    }
+
+    _createClass(Field, [{
+        key: 'getClass',
+        value: function getClass() {
+            return this.constructor;
+        }
+    }, {
+        key: 'references',
+        value: function references(model) {
+            return false;
+        }
+    }, {
+        key: 'getThroughModelName',
+        value: function getThroughModelName(fieldName, model) {
+            return null;
+        }
+    }, {
+        key: 'installerClass',
+        get: function get() {
+            return DefaultFieldInstaller;
+        }
+    }, {
+        key: 'installsForwardsDescriptor',
+        get: function get() {
+            return true;
+        }
+    }, {
+        key: 'installsForwardsVirtualField',
+        get: function get() {
+            return false;
+        }
+    }, {
+        key: 'installsBackwardsDescriptor',
+        get: function get() {
+            return false;
+        }
+    }, {
+        key: 'installsBackwardsVirtualField',
+        get: function get() {
+            return false;
+        }
+    }]);
+
+    return Field;
+}();
+
+/**
+ * @ignore
+ */
+
+
+var Attribute = function (_Field) {
+    _inherits$7(Attribute, _Field);
+
+    function Attribute(opts) {
+        _classCallCheck$7(this, Attribute);
+
+        var _this2 = _possibleConstructorReturn$7(this, (Attribute.__proto__ || _Object$getPrototypeOf(Attribute)).call(this, opts));
+
+        _this2.opts = opts || {};
+
+        if (_this2.opts.hasOwnProperty('getDefault')) {
+            _this2.getDefault = _this2.opts.getDefault;
+        }
+        return _this2;
+    }
+
+    _createClass(Attribute, [{
+        key: 'createForwardsDescriptor',
+        value: function createForwardsDescriptor(fieldName, model) {
+            return attrDescriptor(fieldName);
+        }
+    }]);
+
+    return Attribute;
+}(Field);
+
+/**
+ * @ignore
+ */
+
+var RelationalField = function (_Field2) {
+    _inherits$7(RelationalField, _Field2);
+
+    function RelationalField() {
+        var _ref;
+
+        _classCallCheck$7(this, RelationalField);
+
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+        }
+
+        var _this3 = _possibleConstructorReturn$7(this, (_ref = RelationalField.__proto__ || _Object$getPrototypeOf(RelationalField)).call.apply(_ref, [this].concat(args)));
+
+        if (args.length === 1 && _typeof$4(args[0]) === 'object') {
+            var opts = args[0];
+            _this3.toModelName = opts.to;
+            _this3.relatedName = opts.relatedName;
+            _this3.through = opts.through;
+            _this3.throughFields = opts.throughFields;
+            _this3.as = opts.as;
+        } else {
+            _this3.toModelName = args[0];
+            _this3.relatedName = args[1];
+        }
+        return _this3;
+    }
+
+    _createClass(RelationalField, [{
+        key: 'getBackwardsFieldName',
+        value: function getBackwardsFieldName(model) {
+            return this.relatedName || reverseFieldName(model.modelName);
+        }
+    }, {
+        key: 'createBackwardsVirtualField',
+        value: function createBackwardsVirtualField(fieldName, model, toModel, throughModel) {
+            var ThisField = this.getClass();
+            return new ThisField(model.modelName, fieldName);
+        }
+    }, {
+        key: 'references',
+        value: function references(model) {
+            return this.toModelName === model.modelName;
+        }
+    }, {
+        key: 'installsBackwardsVirtualField',
+        get: function get() {
+            return true;
+        }
+    }, {
+        key: 'installsBackwardsDescriptor',
+        get: function get() {
+            return true;
+        }
+    }, {
+        key: 'installerClass',
+        get: function get() {
+            return function (_DefaultFieldInstalle) {
+                _inherits$7(AliasedForwardsDescriptorInstaller, _DefaultFieldInstalle);
+
+                function AliasedForwardsDescriptorInstaller() {
+                    _classCallCheck$7(this, AliasedForwardsDescriptorInstaller);
+
+                    return _possibleConstructorReturn$7(this, (AliasedForwardsDescriptorInstaller.__proto__ || _Object$getPrototypeOf(AliasedForwardsDescriptorInstaller)).apply(this, arguments));
+                }
+
+                _createClass(AliasedForwardsDescriptorInstaller, [{
+                    key: 'installForwardsDescriptor',
+                    value: function installForwardsDescriptor() {
+                        _Object$defineProperty(this.model.prototype, this.field.as || this.fieldName, // use supplied name if possible
+                        this.field.createForwardsDescriptor(this.fieldName, this.model, this.toModel, this.throughModel));
+                    }
+                }]);
+
+                return AliasedForwardsDescriptorInstaller;
+            }(DefaultFieldInstaller);
+        }
+    }]);
+
+    return RelationalField;
+}(Field);
+
+/**
+ * @ignore
+ */
+
+
+var ForeignKey = function (_RelationalField) {
+    _inherits$7(ForeignKey, _RelationalField);
+
+    function ForeignKey() {
+        _classCallCheck$7(this, ForeignKey);
+
+        return _possibleConstructorReturn$7(this, (ForeignKey.__proto__ || _Object$getPrototypeOf(ForeignKey)).apply(this, arguments));
+    }
+
+    _createClass(ForeignKey, [{
+        key: 'createForwardsDescriptor',
+        value: function createForwardsDescriptor(fieldName, model, toModel, throughModel) {
+            return forwardsManyToOneDescriptor(fieldName, toModel.modelName);
+        }
+    }, {
+        key: 'createBackwardsDescriptor',
+        value: function createBackwardsDescriptor(fieldName, model, toModel, throughModel) {
+            return backwardsManyToOneDescriptor(fieldName, model.modelName);
+        }
+    }]);
+
+    return ForeignKey;
+}(RelationalField);
+
+/**
+ * @ignore
+ */
+var ManyToMany = function (_RelationalField2) {
+    _inherits$7(ManyToMany, _RelationalField2);
+
+    function ManyToMany() {
+        _classCallCheck$7(this, ManyToMany);
+
+        return _possibleConstructorReturn$7(this, (ManyToMany.__proto__ || _Object$getPrototypeOf(ManyToMany)).apply(this, arguments));
+    }
+
+    _createClass(ManyToMany, [{
+        key: 'getDefault',
+        value: function getDefault() {
+            return [];
+        }
+    }, {
+        key: 'getThroughModelName',
+        value: function getThroughModelName(fieldName, model) {
+            return this.through || m2mName(model.modelName, fieldName);
+        }
+    }, {
+        key: 'createForwardsDescriptor',
+        value: function createForwardsDescriptor(fieldName, model, toModel, throughModel) {
+            return manyToManyDescriptor(model.modelName, toModel.modelName, throughModel.modelName, this.getThroughFields(fieldName, model, toModel, throughModel), false);
+        }
+    }, {
+        key: 'createBackwardsDescriptor',
+        value: function createBackwardsDescriptor(fieldName, model, toModel, throughModel) {
+            return manyToManyDescriptor(model.modelName, toModel.modelName, throughModel.modelName, this.getThroughFields(fieldName, model, toModel, throughModel), true);
+        }
+    }, {
+        key: 'createBackwardsVirtualField',
+        value: function createBackwardsVirtualField(fieldName, model, toModel, throughModel) {
+            var ThisField = this.getClass();
+            return new ThisField({
+                to: model.modelName,
+                relatedName: fieldName,
+                through: throughModel.modelName,
+                throughFields: this.getThroughFields(fieldName, model, toModel, throughModel)
+            });
+        }
+    }, {
+        key: 'createForwardsVirtualField',
+        value: function createForwardsVirtualField(fieldName, model, toModel, throughModel) {
+            var ThisField = this.getClass();
+            return new ThisField({
+                to: toModel.modelName,
+                relatedName: fieldName,
+                through: this.through,
+                throughFields: this.getThroughFields(fieldName, model, toModel, throughModel)
+            });
+        }
+    }, {
+        key: 'getThroughFields',
+        value: function getThroughFields(fieldName, model, toModel, throughModel) {
+            if (this.throughFields) {
+                var _throughFields = _slicedToArray(this.throughFields, 2),
+                    fieldAName = _throughFields[0],
+                    fieldBName = _throughFields[1];
+
+                var fieldA = throughModel.fields[fieldAName];
+                return {
+                    to: fieldA.references(toModel) ? fieldAName : fieldBName,
+                    from: fieldA.references(toModel) ? fieldBName : fieldAName
+                };
+            }
+
+            if (model.modelName === toModel.modelName) {
+                /**
+                 * we have no way of determining the relationship's
+                 * direction here, so we need to assume that the user
+                 * did not use a custom through model
+                 * see ORM#registerManyToManyModelsFor
+                 */
+                return {
+                    to: m2mToFieldName(toModel.modelName),
+                    from: m2mFromFieldName(model.modelName)
+                };
+            }
+
+            /**
+             * determine which field references which model
+             * and infer the directions from that
+             */
+            var throughModelFieldReferencing = function throughModelFieldReferencing(otherModel) {
+                return findKey_1(throughModel.fields, function (field) {
+                    return field.references(otherModel);
+                });
+            };
+
+            return {
+                to: throughModelFieldReferencing(toModel),
+                from: throughModelFieldReferencing(model)
+            };
+        }
+    }, {
+        key: 'installsForwardsVirtualField',
+        get: function get() {
+            return true;
+        }
+    }]);
+
+    return ManyToMany;
+}(RelationalField);
+
+/**
+ * @ignore
+ */
+var OneToOne = function (_RelationalField3) {
+    _inherits$7(OneToOne, _RelationalField3);
+
+    function OneToOne() {
+        _classCallCheck$7(this, OneToOne);
+
+        return _possibleConstructorReturn$7(this, (OneToOne.__proto__ || _Object$getPrototypeOf(OneToOne)).apply(this, arguments));
+    }
+
+    _createClass(OneToOne, [{
+        key: 'getBackwardsFieldName',
+        value: function getBackwardsFieldName(model) {
+            return this.relatedName || model.modelName.toLowerCase();
+        }
+    }, {
+        key: 'createForwardsDescriptor',
+        value: function createForwardsDescriptor(fieldName, model, toModel, throughModel) {
+            return forwardsOneToOneDescriptor(fieldName, toModel.modelName);
+        }
+    }, {
+        key: 'createBackwardsDescriptor',
+        value: function createBackwardsDescriptor(fieldName, model, toModel, throughModel) {
+            return backwardsOneToOneDescriptor(fieldName, model.modelName);
+        }
+    }]);
+
+    return OneToOne;
+}(RelationalField);
+
+/**
+ * Defines a value attribute on the model.
+ * Though not required, it is recommended to define this for each non-foreign key you wish to use.
+ * Getters and setters need to be defined on each Model
+ * instantiation for undeclared data fields, which is slower.
+ * You can use the optional `getDefault` parameter to fill in unpassed values
+ * to {@link Model.create}, such as for generating ID's with UUID:
+ *
+ * ```javascript
+ * import getUUID from 'your-uuid-package-of-choice';
+ *
+ * fields = {
+ *   id: attr({ getDefault: () => getUUID() }),
+ *   title: attr(),
+ * }
+ * ```
+ *
+ * @global
+ *
+ * @param  {Object} [opts]
+ * @param {Function} [opts.getDefault] - if you give a function here, it's return
+ *                                       value from calling with zero arguments will
+ *                                       be used as the value when creating a new Model
+ *                                       instance with {@link Model#create} if the field
+ *                                       value is not passed.
+ * @return {Attribute}
+ */
+function attr(opts) {
+    return new Attribute(opts);
+}
+
+/**
+ * Generates a query specification to get the instance's
+ * corresponding table row using its primary key.
+ *
+ * @private
+ * @returns {Object}
+ */
+function getByIdQuery(modelInstance) {
+    var modelClass = modelInstance.getClass();
+    var idAttribute = modelClass.idAttribute,
+        modelName = modelClass.modelName;
+
+
+    return {
+        table: modelName,
+        clauses: [{
+            type: FILTER,
+            payload: _defineProperty$4({}, idAttribute, modelInstance.getId())
+        }]
+    };
+}
+
+/**
+ * The heart of an ORM, the data model.
+ *
+ * The fields you specify to the Model will be used to generate
+ * a schema to the database, related property accessors, and
+ * possibly through models.
+ *
+ * In each {@link Session} you instantiate from an {@link ORM} instance,
+ * you will receive a session-specific subclass of this Model. The methods
+ * you define here will be available to you in sessions.
+ *
+ * An instance of {@link Model} represents a record in the database, though
+ * it is possible to generate multiple instances from the same record in the database.
+ *
+ * To create data models in your schema, subclass {@link Model}. To define
+ * information about the data model, override static class methods. Define instance
+ * logic by defining prototype methods (without `static` keyword).
+ */
+var Model = function () {
+    /**
+     * Creates a Model instance from it's properties.
+     * Don't use this to create a new record; Use the static method {@link Model#create}.
+     * @param  {Object} props - the properties to instantiate with
+     */
+    function Model(props) {
+        _classCallCheck$7(this, Model);
+
+        this._initFields(props);
+    }
+
+    _createClass(Model, [{
+        key: '_initFields',
+        value: function _initFields(props) {
+            var _this = this;
+
+            this._fields = _extends$d({}, props);
+
+            forOwn_1(props, function (fieldValue, fieldName) {
+                // In this case, we got a prop that wasn't defined as a field.
+                // Assuming it's an arbitrary data field, making an instance-specific
+                // descriptor for it.
+                // Using the in operator as the property could be defined anywhere
+                // on the prototype chain.
+                if (!(fieldName in _this)) {
+                    _Object$defineProperty(_this, fieldName, {
+                        get: function get() {
+                            return _this._fields[fieldName];
+                        },
+                        set: function set(value) {
+                            return _this.set(fieldName, value);
+                        },
+                        configurable: true,
+                        enumerable: true
+                    });
+                }
+            });
+        }
+    }, {
+        key: 'getClass',
+
+
+        /**
+         * Gets the {@link Model} class or subclass constructor (the class that
+         * instantiated this instance).
+         *
+         * @return {Model} The {@link Model} class or subclass constructor used to instantiate
+         *                 this instance.
+         */
+        value: function getClass() {
+            return this.constructor;
+        }
+
+        /**
+         * Gets the id value of the current instance by looking up the id attribute.
+         * @return {*} The id value of the current instance.
+         */
+
+    }, {
+        key: 'getId',
+        value: function getId() {
+            return this._fields[this.getClass().idAttribute];
+        }
+
+        /**
+         * Returns a reference to the plain JS object in the store.
+         * Make sure to not mutate this.
+         *
+         * @return {Object} a reference to the plain JS object in the store
+         */
+
+    }, {
+        key: 'toString',
+
+
+        /**
+         * Returns a string representation of the {@link Model} instance.
+         *
+         * @return {string} A string representation of this {@link Model} instance.
+         */
+        value: function toString() {
+            var _this2 = this;
+
+            var ThisModel = this.getClass();
+            var className = ThisModel.modelName;
+            var fieldNames = _Object$keys(ThisModel.fields);
+            var fields = fieldNames.map(function (fieldName) {
+                var field = ThisModel.fields[fieldName];
+                if (field instanceof ManyToMany) {
+                    var ids = _this2[fieldName].toModelArray().map(function (model) {
+                        return model.getId();
+                    });
+                    return fieldName + ': [' + ids.join(', ') + ']';
+                }
+                var val = _this2._fields[fieldName];
+                return fieldName + ': ' + val;
+            }).join(', ');
+            return className + ': {' + fields + '}';
+        }
+
+        /**
+         * Returns a boolean indicating if `otherModel` equals this {@link Model} instance.
+         * Equality is determined by shallow comparing their attributes.
+         *
+         * This equality is used when you call {@link Model#update}.
+         * You can prevent model updates by returning `true` here.
+         * However, a model will always be updated if its relationships are changed.
+         *
+         * @param  {Model} otherModel - a {@link Model} instance to compare
+         * @return {Boolean} a boolean indicating if the {@link Model} instance's are equal.
+         */
+
+    }, {
+        key: 'equals',
+        value: function equals(otherModel) {
+            // eslint-disable-next-line no-underscore-dangle
+            return objectShallowEquals(this._fields, otherModel._fields);
+        }
+
+        /**
+         * Updates a property name to given value for this {@link Model} instance.
+         * The values are immediately committed to the database.
+         *
+         * @param {string} propertyName - name of the property to set
+         * @param {*} value - value assigned to the property
+         * @return {undefined}
+         */
+
+    }, {
+        key: 'set',
+        value: function set(propertyName, value) {
+            this.update(_defineProperty$4({}, propertyName, value));
+        }
+
+        /**
+         * Assigns multiple fields and corresponding values to this {@link Model} instance.
+         * The updates are immediately committed to the database.
+         *
+         * @param  {Object} userMergeObj - an object that will be merged with this instance.
+         * @return {undefined}
+         */
+
+    }, {
+        key: 'update',
+        value: function update(userMergeObj) {
+            var _this3 = this;
+
+            var ThisModel = this.getClass();
+            if (typeof ThisModel.session === 'undefined') {
+                throw new Error(['Tried to update a ' + ThisModel.modelName + ' model instance without a session. ', 'You cannot call `.update` on an instance that you did not receive from the database.'].join(''));
+            }
+
+            var mergeObj = _extends$d({}, userMergeObj);
+
+            var fields = ThisModel.fields,
+                virtualFields = ThisModel.virtualFields;
+
+
+            var m2mRelations = {};
+
+            // If an array of entities or id's is supplied for a
+            // many-to-many related field, clear the old relations
+            // and add the new ones.
+            for (var mergeKey in mergeObj) {
+                // eslint-disable-line no-restricted-syntax, guard-for-in
+                var isRealField = fields.hasOwnProperty(mergeKey);
+
+                if (isRealField) {
+                    var field = fields[mergeKey];
+
+                    if (field instanceof ForeignKey || field instanceof OneToOne) {
+                        // update one-one/fk relations
+                        mergeObj[mergeKey] = normalizeEntity(mergeObj[mergeKey]);
+                    } else if (field instanceof ManyToMany) {
+                        // field is forward relation
+                        m2mRelations[mergeKey] = mergeObj[mergeKey];
+                        delete mergeObj[mergeKey];
+                    }
+                } else if (virtualFields.hasOwnProperty(mergeKey)) {
+                    var _field = virtualFields[mergeKey];
+                    if (_field instanceof ManyToMany) {
+                        // field is backward relation
+                        m2mRelations[mergeKey] = mergeObj[mergeKey];
+                        delete mergeObj[mergeKey];
+                    }
+                }
+            }
+
+            var mergedFields = _extends$d({}, this._fields, mergeObj);
+
+            var updatedModel = new ThisModel(this._fields);
+            updatedModel._initFields(mergedFields); // eslint-disable-line no-underscore-dangle
+
+            // determine if model would have different related models after update
+            updatedModel._refreshMany2Many(m2mRelations); // eslint-disable-line no-underscore-dangle
+            var relationsEqual = _Object$keys(m2mRelations).every(function (name) {
+                return !arrayDiffActions(_this3[name], updatedModel[name]);
+            });
+            var fieldsEqual = this.equals(updatedModel);
+
+            // only update fields if they have changed (referentially)
+            if (!fieldsEqual) {
+                this._initFields(mergedFields);
+            }
+
+            // only update many-to-many relationships if any reference has changed
+            if (!relationsEqual) {
+                this._refreshMany2Many(m2mRelations);
+            }
+
+            // only apply the update if a field or relationship has changed
+            if (!fieldsEqual || !relationsEqual) {
+                ThisModel.session.applyUpdate({
+                    action: UPDATE,
+                    query: getByIdQuery(this),
+                    payload: mergeObj
+                });
+            }
+        }
+
+        /**
+         * Updates {@link Model} instance attributes to reflect the
+         * database state in the current session.
+         * @return {undefined}
+         */
+
+    }, {
+        key: 'refreshFromState',
+        value: function refreshFromState() {
+            this._initFields(this.ref);
+        }
+
+        /**
+         * Deletes the record for this {@link Model} instance.
+         * You'll still be able to access fields and values on the instance.
+         *
+         * @return {undefined}
+         */
+
+    }, {
+        key: 'delete',
+        value: function _delete() {
+            var ThisModel = this.getClass();
+            if (typeof ThisModel.session === 'undefined') {
+                throw new Error(['Tried to delete a ' + ThisModel.modelName + ' model instance without a session. ', 'You cannot call `.delete` on an instance that you did not receive from the database.'].join(''));
+            }
+
+            this._onDelete();
+            ThisModel.session.applyUpdate({
+                action: DELETE,
+                query: getByIdQuery(this)
+            });
+        }
+
+        /**
+         * Update many-many relations for model.
+         * @param relations
+         * @return undefined
+         * @private
+         */
+
+    }, {
+        key: '_refreshMany2Many',
+        value: function _refreshMany2Many(relations) {
+            var _this4 = this;
+
+            var ThisModel = this.getClass();
+            var fields = ThisModel.fields,
+                virtualFields = ThisModel.virtualFields,
+                modelName = ThisModel.modelName;
+
+
+            _Object$keys(relations).forEach(function (name) {
+                var reverse = !fields.hasOwnProperty(name);
+                var field = virtualFields[name];
+                var values = relations[name];
+
+                if (!Array.isArray(values)) {
+                    throw new TypeError('Failed to resolve many-to-many relationship: ' + modelName + '[' + name + '] must be an array (passed: ' + values + ')');
+                }
+
+                var normalizedNewIds = values.map(normalizeEntity);
+                var uniqueIds = uniq_1(normalizedNewIds);
+
+                if (normalizedNewIds.length !== uniqueIds.length) {
+                    throw new Error('Found duplicate id(s) when passing "' + normalizedNewIds + '" to ' + ThisModel.modelName + '.' + name + ' value');
+                }
+
+                var throughModelName = field.through || m2mName(ThisModel.modelName, name);
+                var ThroughModel = ThisModel.session[throughModelName];
+
+                var fromField = void 0;
+                var toField = void 0;
+
+                if (!reverse) {
+                    var _field$throughFields = field.throughFields;
+                    fromField = _field$throughFields.from;
+                    toField = _field$throughFields.to;
+                } else {
+                    var _field$throughFields2 = field.throughFields;
+                    toField = _field$throughFields2.from;
+                    fromField = _field$throughFields2.to;
+                }
+
+                var currentIds = ThroughModel.filter(function (through) {
+                    return through[fromField] === _this4[ThisModel.idAttribute];
+                }).toRefArray().map(function (ref) {
+                    return ref[toField];
+                });
+
+                var diffActions = arrayDiffActions(currentIds, normalizedNewIds);
+
+                if (diffActions) {
+                    var idsToDelete = diffActions.delete,
+                        idsToAdd = diffActions.add;
+
+                    if (idsToDelete.length > 0) {
+                        var _name;
+
+                        (_name = _this4[name]).remove.apply(_name, _toConsumableArray(idsToDelete));
+                    }
+                    if (idsToAdd.length > 0) {
+                        var _name2;
+
+                        (_name2 = _this4[name]).add.apply(_name2, _toConsumableArray(idsToAdd));
+                    }
+                }
+            });
+        }
+
+        /**
+         * @return {undefined}
+         * @private
+         */
+
+    }, {
+        key: '_onDelete',
+        value: function _onDelete() {
+            var _getClass = this.getClass(),
+                virtualFields = _getClass.virtualFields;
+
+            for (var key in virtualFields) {
+                // eslint-disable-line
+                var field = virtualFields[key];
+                if (field instanceof ManyToMany) {
+                    // Delete any many-to-many rows the entity is included in.
+                    this[key].clear();
+                } else if (field instanceof ForeignKey) {
+                    var relatedQs = this[key];
+                    if (relatedQs.exists()) {
+                        relatedQs.update(_defineProperty$4({}, field.relatedName, null));
+                    }
+                } else if (field instanceof OneToOne) {
+                    // Set null to any foreign keys or one to ones pointed to
+                    // this instance.
+                    if (this[key] !== null) {
+                        this[key][field.relatedName] = null;
+                    }
+                }
+            }
+        }
+
+        // DEPRECATED AND REMOVED METHODS
+
+        /**
+         * Returns a boolean indicating if an entity
+         * with the id `id` exists in the state.
+         *
+         * @param  {*}  id - a value corresponding to the id attribute of the {@link Model} class.
+         * @return {Boolean} a boolean indicating if entity with `id` exists in the state
+         * @deprecated Please use {@link Model.idExists} instead.
+         */
+
+    }, {
+        key: 'getNextState',
+
+
+        /**
+         * @deprecated See the 0.9 migration guide on the GitHub repo.
+         * @throws {Error} Due to deprecation.
+         */
+        value: function getNextState() {
+            throw new Error('`Model.prototype.getNextState` has been removed. See the 0.9 ' + 'migration guide on the GitHub repo.');
+        }
+    }, {
+        key: 'ref',
+        get: function get() {
+            var ThisModel = this.getClass();
+
+            // eslint-disable-next-line no-underscore-dangle
+            return ThisModel._findDatabaseRows(_defineProperty$4({}, ThisModel.idAttribute, this.getId()))[0];
+        }
+
+        /**
+         * Finds all rows in this model's table that match the given `lookupObj`.
+         * If no `lookupObj` is passed, all rows in the model's table will be returned.
+         *
+         * @param  {*}  props - a key-value that {@link Model} instances should have to be considered as existing.
+         * @return {Boolean} a boolean indicating if entity with `props` exists in the state
+         * @private
+         */
+
+    }], [{
+        key: 'toString',
+        value: function toString() {
+            return 'ModelClass: ' + this.modelName;
+        }
+
+        /**
+         * Returns the options object passed to the database for the table that represents
+         * this Model class.
+         *
+         * Returns an empty object by default, which means the database
+         * will use default options. You can either override this function to return the options
+         * you want to use, or assign the options object as a static property of the same name to the
+         * Model class.
+         *
+         * @return {Object} the options object passed to the database for the table
+         *                  representing this Model class.
+         */
+
+    }, {
+        key: 'options',
+        value: function options() {
+            return {};
+        }
+
+        /**
+         * @return {undefined}
+         */
+
+    }, {
+        key: 'markAccessed',
+        value: function markAccessed(ids) {
+            if (typeof this._session === 'undefined') {
+                throw new Error(['Tried to mark rows of the ' + this.modelName + ' model as accessed without a session. ', 'Create a session using `session = orm.session()` and call ', '`session["' + this.modelName + '"].markAccessed` instead.'].join(''));
+            }
+            this.session.markAccessed(this.modelName, ids);
+        }
+
+        /**
+         * @return {undefined}
+         */
+
+    }, {
+        key: 'markFullTableScanned',
+        value: function markFullTableScanned() {
+            if (typeof this._session === 'undefined') {
+                throw new Error(['Tried to mark the ' + this.modelName + ' model as full table scanned without a session. ', 'Create a session using `session = orm.session()` and call ', '`session["' + this.modelName + '"].markFullTableScanned` instead.'].join(''));
+            }
+            this.session.markFullTableScanned(this.modelName);
+        }
+
+        /**
+         * Returns the id attribute of this {@link Model}.
+         *
+         * @return {string} The id attribute of this {@link Model}.
+         */
+
+    }, {
+        key: 'connect',
+
+
+        /**
+         * Connect the model class to a {@link Session}.
+         *
+         * @private
+         * @param  {Session} session - The session to connect to.
+         */
+        value: function connect(session) {
+            if (!(session instanceof Session)) {
+                throw new Error('A model can only be connected to instances of Session.');
+            }
+            this._session = session;
+        }
+
+        /**
+         * Get the current {@link Session} instance.
+         *
+         * @private
+         * @return {Session} The current {@link Session} instance.
+         */
+
+    }, {
+        key: 'getQuerySet',
+
+
+        /**
+         * Returns an instance of the model's `querySetClass` field.
+         * By default, this will be an empty {@link QuerySet}.
+         *
+         * @return {Object} An instance of the model's `querySetClass`.
+         */
+        value: function getQuerySet() {
+            var QuerySetClass = this.querySetClass;
+
+            return new QuerySetClass(this);
+        }
+
+        /**
+         * @return {undefined}
+         */
+
+    }, {
+        key: 'invalidateClassCache',
+        value: function invalidateClassCache() {
+            this.isSetUp = undefined;
+            this.virtualFields = {};
+        }
+
+        /**
+         * @see {@link Model.getQuerySet}
+         */
+
+    }, {
+        key: '_getTableOpts',
+
+
+        /**
+         * @private
+         */
+        value: function _getTableOpts() {
+            if (typeof this.backend === 'function') {
+                warnDeprecated('`Model.backend` has been deprecated. Please rename to `.options`.');
+                return this.backend();
+            } else if (this.backend) {
+                warnDeprecated('`Model.backend` has been deprecated. Please rename to `.options`.');
+                return this.backend;
+            } else if (typeof this.options === 'function') {
+                return this.options();
+            }
+            return this.options;
+        }
+
+        /**
+         * Creates a new record in the database, instantiates a {@link Model} and returns it.
+         *
+         * If you pass values for many-to-many fields, instances are created on the through
+         * model as well.
+         *
+         * @param  {props} userProps - the new {@link Model}'s properties.
+         * @return {Model} a new {@link Model} instance.
+         */
+
+    }, {
+        key: 'create',
+        value: function create(userProps) {
+            var _this5 = this;
+
+            if (typeof this._session === 'undefined') {
+                throw new Error(['Tried to create a ' + this.modelName + ' model instance without a session. ', 'Create a session using `session = orm.session()` and call ', '`session["' + this.modelName + '"].create` instead.'].join(''));
+            }
+            var props = _extends$d({}, userProps);
+
+            var m2mRelations = {};
+
+            var declaredFieldNames = _Object$keys(this.fields);
+            var declaredVirtualFieldNames = _Object$keys(this.virtualFields);
+
+            declaredFieldNames.forEach(function (key) {
+                var field = _this5.fields[key];
+                var valuePassed = userProps.hasOwnProperty(key);
+                if (!(field instanceof ManyToMany)) {
+                    if (valuePassed) {
+                        var value = userProps[key];
+                        props[key] = normalizeEntity(value);
+                    } else if (field.getDefault) {
+                        props[key] = field.getDefault();
+                    }
+                } else if (valuePassed) {
+                    // If a value is supplied for a ManyToMany field,
+                    // discard them from props and save for later processing.
+                    m2mRelations[key] = userProps[key];
+                    delete props[key];
+                }
+            });
+
+            // add backward many-many if required
+            declaredVirtualFieldNames.forEach(function (key) {
+                if (!m2mRelations.hasOwnProperty(key)) {
+                    var field = _this5.virtualFields[key];
+                    if (userProps.hasOwnProperty(key) && field instanceof ManyToMany) {
+                        // If a value is supplied for a ManyToMany field,
+                        // discard them from props and save for later processing.
+                        m2mRelations[key] = userProps[key];
+                        delete props[key];
+                    }
+                }
+            });
+
+            var newEntry = this.session.applyUpdate({
+                action: CREATE,
+                table: this.modelName,
+                payload: props
+            });
+
+            var ThisModel = this;
+            var instance = new ThisModel(newEntry);
+            instance._refreshMany2Many(m2mRelations); // eslint-disable-line no-underscore-dangle
+            return instance;
+        }
+
+        /**
+         * Creates a new or update existing record in the database, instantiates a {@link Model} and returns it.
+         *
+         * If you pass values for many-to-many fields, instances are created on the through
+         * model as well.
+         *
+         * @param  {props} userProps - the required {@link Model}'s properties.
+         * @return {Model} a {@link Model} instance.
+         */
+
+    }, {
+        key: 'upsert',
+        value: function upsert(userProps) {
+            if (typeof this.session === 'undefined') {
+                throw new Error(['Tried to upsert a ' + this.modelName + ' model instance without a session. ', 'Create a session using `session = orm.session()` and call ', '`session["' + this.modelName + '"].upsert` instead.'].join(''));
+            }
+
+            var idAttribute = this.idAttribute;
+
+            if (userProps.hasOwnProperty(idAttribute)) {
+                var id = userProps[idAttribute];
+                if (this.idExists(id)) {
+                    var model = this.withId(id);
+                    model.update(userProps);
+                    return model;
+                }
+            }
+
+            return this.create(userProps);
+        }
+
+        /**
+         * Returns a {@link Model} instance for the object with id `id`.
+         * Returns `null` if the model has no instance with id `id`.
+         *
+         * You can use {@link Model#idExists} to check for existence instead.
+         *
+         * @param  {*} id - the `id` of the object to get
+         * @throws If object with id `id` doesn't exist
+         * @return {Model|null} {@link Model} instance with id `id`
+         */
+
+    }, {
+        key: 'withId',
+        value: function withId(id) {
+            return this.get(_defineProperty$4({}, this.idAttribute, id));
+        }
+
+        /**
+         * Returns a boolean indicating if an entity
+         * with the id `id` exists in the state.
+         *
+         * @param  {*}  id - a value corresponding to the id attribute of the {@link Model} class.
+         * @return {Boolean} a boolean indicating if entity with `id` exists in the state
+         *
+         * @since 0.11.0
+         */
+
+    }, {
+        key: 'idExists',
+        value: function idExists(id) {
+            return this.exists(_defineProperty$4({}, this.idAttribute, id));
+        }
+
+        /**
+         * Returns a boolean indicating if an entity
+         * with the given props exists in the state.
+         *
+         * @param  {*}  props - a key-value that {@link Model} instances should have to be considered as existing.
+         * @return {Boolean} a boolean indicating if entity with `props` exists in the state
+         */
+
+    }, {
+        key: 'exists',
+        value: function exists(lookupObj) {
+            if (typeof this.session === 'undefined') {
+                throw new Error(['Tried to check if a ' + this.modelName + ' model instance exists without a session. ', 'Create a session using `session = orm.session()` and call ', '`session["' + this.modelName + '"].exists` instead.'].join(''));
+            }
+
+            return Boolean(this._findDatabaseRows(lookupObj).length);
+        }
+
+        /**
+         * Gets the {@link Model} instance that matches properties in `lookupObj`.
+         * Throws an error if {@link Model} if multiple records match
+         * the properties.
+         *
+         * @param  {Object} lookupObj - the properties used to match a single entity.
+         * @throws {Error} If more than one entity matches the properties in `lookupObj`.
+         * @return {Model} a {@link Model} instance that matches the properties in `lookupObj`.
+         */
+
+    }, {
+        key: 'get',
+        value: function get(lookupObj) {
+            var ThisModel = this;
+
+            var rows = this._findDatabaseRows(lookupObj);
+            if (rows.length === 0) {
+                return null;
+            } else if (rows.length > 1) {
+                throw new Error('Expected to find a single row in `' + this.modelName + '.get`. Found ' + rows.length + '.');
+            }
+
+            return new ThisModel(rows[0]);
+        }
+    }, {
+        key: '_findDatabaseRows',
+        value: function _findDatabaseRows(lookupObj) {
+            var querySpec = {
+                table: this.modelName
+            };
+            if (lookupObj) {
+                querySpec.clauses = [{
+                    type: FILTER,
+                    payload: lookupObj
+                }];
+            }
+            return this.session.query(querySpec).rows;
+        }
+    }, {
+        key: 'hasId',
+        value: function hasId(id) {
+            console.warn('`Model.hasId` has been deprecated. Please use `Model.idExists` instead.');
+            return this.idExists(id);
+        }
+    }, {
+        key: 'idAttribute',
+        get: function get() {
+            if (typeof this._session === 'undefined') {
+                throw new Error(['Tried to get the ' + this.modelName + ' model\'s id attribute without a session. ', 'Create a session using `session = orm.session()` and access ', '`session["' + this.modelName + '"].idAttribute` instead.'].join(''));
+            }
+            return this.session.db.describe(this.modelName).idAttribute;
+        }
+    }, {
+        key: 'session',
+        get: function get() {
+            return this._session;
+        }
+    }, {
+        key: 'query',
+        get: function get() {
+            return this.getQuerySet();
+        }
+    }]);
+
+    return Model;
+}();
+
+Model.fields = {
+    id: attr()
+};
+Model.virtualFields = {};
+Model.querySetClass = QuerySet;
+
+/**
+ * Creates a `_.find` or `_.findLast` function.
+ *
+ * @private
+ * @param {Function} findIndexFunc The function to find the collection index.
+ * @returns {Function} Returns the new find function.
+ */
+function createFind(findIndexFunc) {
+  return function(collection, predicate, fromIndex) {
+    var iterable = Object(collection);
+    if (!isArrayLike_1(collection)) {
+      var iteratee = _baseIteratee(predicate, 3);
+      collection = keys_1(collection);
+      predicate = function(key) { return iteratee(iterable[key], key, iterable); };
+    }
+    var index = findIndexFunc(collection, predicate, fromIndex);
+    return index > -1 ? iterable[iteratee ? collection[index] : index] : undefined;
+  };
+}
+
+var _createFind = createFind;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax$2 = Math.max;
+
+/**
+ * This method is like `_.find` except that it returns the index of the first
+ * element `predicate` returns truthy for instead of the element itself.
+ *
+ * @static
+ * @memberOf _
+ * @since 1.1.0
+ * @category Array
+ * @param {Array} array The array to inspect.
+ * @param {Function} [predicate=_.identity] The function invoked per iteration.
+ * @param {number} [fromIndex=0] The index to search from.
+ * @returns {number} Returns the index of the found element, else `-1`.
+ * @example
+ *
+ * var users = [
+ *   { 'user': 'barney',  'active': false },
+ *   { 'user': 'fred',    'active': false },
+ *   { 'user': 'pebbles', 'active': true }
+ * ];
+ *
+ * _.findIndex(users, function(o) { return o.user == 'barney'; });
+ * // => 0
+ *
+ * // The `_.matches` iteratee shorthand.
+ * _.findIndex(users, { 'user': 'fred', 'active': false });
+ * // => 1
+ *
+ * // The `_.matchesProperty` iteratee shorthand.
+ * _.findIndex(users, ['active', false]);
+ * // => 0
+ *
+ * // The `_.property` iteratee shorthand.
+ * _.findIndex(users, 'active');
+ * // => 2
+ */
+function findIndex(array, predicate, fromIndex) {
+  var length = array == null ? 0 : array.length;
+  if (!length) {
+    return -1;
+  }
+  var index = fromIndex == null ? 0 : toInteger_1(fromIndex);
+  if (index < 0) {
+    index = nativeMax$2(length + index, 0);
+  }
+  return _baseFindIndex(array, _baseIteratee(predicate, 3), index);
+}
+
+var findIndex_1 = findIndex;
+
+/**
+ * Iterates over elements of `collection`, returning the first element
+ * `predicate` returns truthy for. The predicate is invoked with three
+ * arguments: (value, index|key, collection).
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object} collection The collection to inspect.
+ * @param {Function} [predicate=_.identity] The function invoked per iteration.
+ * @param {number} [fromIndex=0] The index to search from.
+ * @returns {*} Returns the matched element, else `undefined`.
+ * @example
+ *
+ * var users = [
+ *   { 'user': 'barney',  'age': 36, 'active': true },
+ *   { 'user': 'fred',    'age': 40, 'active': false },
+ *   { 'user': 'pebbles', 'age': 1,  'active': true }
+ * ];
+ *
+ * _.find(users, function(o) { return o.age < 40; });
+ * // => object for 'barney'
+ *
+ * // The `_.matches` iteratee shorthand.
+ * _.find(users, { 'age': 1, 'active': true });
+ * // => object for 'pebbles'
+ *
+ * // The `_.matchesProperty` iteratee shorthand.
+ * _.find(users, ['active', false]);
+ * // => object for 'fred'
+ *
+ * // The `_.property` iteratee shorthand.
+ * _.find(users, 'active');
+ * // => object for 'barney'
+ */
+var find = _createFind(findIndex_1);
+
+var find_1 = find;
+
+/**
+ * Creates a `baseEach` or `baseEachRight` function.
+ *
+ * @private
+ * @param {Function} eachFunc The function to iterate over a collection.
+ * @param {boolean} [fromRight] Specify iterating from right to left.
+ * @returns {Function} Returns the new base function.
+ */
+function createBaseEach(eachFunc, fromRight) {
+  return function(collection, iteratee) {
+    if (collection == null) {
+      return collection;
+    }
+    if (!isArrayLike_1(collection)) {
+      return eachFunc(collection, iteratee);
+    }
+    var length = collection.length,
+        index = fromRight ? length : -1,
+        iterable = Object(collection);
+
+    while ((fromRight ? index-- : ++index < length)) {
+      if (iteratee(iterable[index], index, iterable) === false) {
+        break;
+      }
+    }
+    return collection;
+  };
+}
+
+var _createBaseEach = createBaseEach;
+
+/**
+ * The base implementation of `_.forEach` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array|Object} Returns `collection`.
+ */
+var baseEach = _createBaseEach(_baseForOwn);
+
+var _baseEach = baseEach;
+
+/**
+ * The base implementation of `_.filter` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {Array} Returns the new filtered array.
+ */
+function baseFilter(collection, predicate) {
+  var result = [];
+  _baseEach(collection, function(value, index, collection) {
+    if (predicate(value, index, collection)) {
+      result.push(value);
+    }
+  });
+  return result;
+}
+
+var _baseFilter = baseFilter;
+
+/** Error message constants. */
+var FUNC_ERROR_TEXT$1 = 'Expected a function';
+
+/**
+ * Creates a function that negates the result of the predicate `func`. The
+ * `func` predicate is invoked with the `this` binding and arguments of the
+ * created function.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category Function
+ * @param {Function} predicate The predicate to negate.
+ * @returns {Function} Returns the new negated function.
+ * @example
+ *
+ * function isEven(n) {
+ *   return n % 2 == 0;
+ * }
+ *
+ * _.filter([1, 2, 3, 4, 5, 6], _.negate(isEven));
+ * // => [1, 3, 5]
+ */
+function negate(predicate) {
+  if (typeof predicate != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT$1);
+  }
+  return function() {
+    var args = arguments;
+    switch (args.length) {
+      case 0: return !predicate.call(this);
+      case 1: return !predicate.call(this, args[0]);
+      case 2: return !predicate.call(this, args[0], args[1]);
+      case 3: return !predicate.call(this, args[0], args[1], args[2]);
+    }
+    return !predicate.apply(this, args);
+  };
+}
+
+var negate_1 = negate;
+
+/**
+ * The opposite of `_.filter`; this method returns the elements of `collection`
+ * that `predicate` does **not** return truthy for.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} [predicate=_.identity] The function invoked per iteration.
+ * @returns {Array} Returns the new filtered array.
+ * @see _.filter
+ * @example
+ *
+ * var users = [
+ *   { 'user': 'barney', 'age': 36, 'active': false },
+ *   { 'user': 'fred',   'age': 40, 'active': true }
+ * ];
+ *
+ * _.reject(users, function(o) { return !o.active; });
+ * // => objects for ['fred']
+ *
+ * // The `_.matches` iteratee shorthand.
+ * _.reject(users, { 'age': 40, 'active': true });
+ * // => objects for ['barney']
+ *
+ * // The `_.matchesProperty` iteratee shorthand.
+ * _.reject(users, ['active', false]);
+ * // => objects for ['fred']
+ *
+ * // The `_.property` iteratee shorthand.
+ * _.reject(users, 'active');
+ * // => objects for ['barney']
+ */
+function reject(collection, predicate) {
+  var func = isArray_1(collection) ? _arrayFilter : _baseFilter;
+  return func(collection, negate_1(_baseIteratee(predicate, 3)));
+}
+
+var reject_1 = reject;
+
+/**
+ * Iterates over elements of `collection`, returning an array of all elements
+ * `predicate` returns truthy for. The predicate is invoked with three
+ * arguments: (value, index|key, collection).
+ *
+ * **Note:** Unlike `_.remove`, this method returns a new array.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} [predicate=_.identity] The function invoked per iteration.
+ * @returns {Array} Returns the new filtered array.
+ * @see _.reject
+ * @example
+ *
+ * var users = [
+ *   { 'user': 'barney', 'age': 36, 'active': true },
+ *   { 'user': 'fred',   'age': 40, 'active': false }
+ * ];
+ *
+ * _.filter(users, function(o) { return !o.active; });
+ * // => objects for ['fred']
+ *
+ * // The `_.matches` iteratee shorthand.
+ * _.filter(users, { 'age': 36, 'active': true });
+ * // => objects for ['barney']
+ *
+ * // The `_.matchesProperty` iteratee shorthand.
+ * _.filter(users, ['active', false]);
+ * // => objects for ['fred']
+ *
+ * // The `_.property` iteratee shorthand.
+ * _.filter(users, 'active');
+ * // => objects for ['barney']
+ */
+function filter(collection, predicate) {
+  var func = isArray_1(collection) ? _arrayFilter : _baseFilter;
+  return func(collection, _baseIteratee(predicate, 3));
+}
+
+var filter_1 = filter;
+
+/**
+ * The base implementation of `_.map` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the new mapped array.
+ */
+function baseMap(collection, iteratee) {
+  var index = -1,
+      result = isArrayLike_1(collection) ? Array(collection.length) : [];
+
+  _baseEach(collection, function(value, key, collection) {
+    result[++index] = iteratee(value, key, collection);
+  });
+  return result;
+}
+
+var _baseMap = baseMap;
+
+/**
+ * The base implementation of `_.sortBy` which uses `comparer` to define the
+ * sort order of `array` and replaces criteria objects with their corresponding
+ * values.
+ *
+ * @private
+ * @param {Array} array The array to sort.
+ * @param {Function} comparer The function to define sort order.
+ * @returns {Array} Returns `array`.
+ */
+function baseSortBy(array, comparer) {
+  var length = array.length;
+
+  array.sort(comparer);
+  while (length--) {
+    array[length] = array[length].value;
+  }
+  return array;
+}
+
+var _baseSortBy = baseSortBy;
+
+/**
+ * Compares values to sort them in ascending order.
+ *
+ * @private
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @returns {number} Returns the sort order indicator for `value`.
+ */
+function compareAscending(value, other) {
+  if (value !== other) {
+    var valIsDefined = value !== undefined,
+        valIsNull = value === null,
+        valIsReflexive = value === value,
+        valIsSymbol = isSymbol_1(value);
+
+    var othIsDefined = other !== undefined,
+        othIsNull = other === null,
+        othIsReflexive = other === other,
+        othIsSymbol = isSymbol_1(other);
+
+    if ((!othIsNull && !othIsSymbol && !valIsSymbol && value > other) ||
+        (valIsSymbol && othIsDefined && othIsReflexive && !othIsNull && !othIsSymbol) ||
+        (valIsNull && othIsDefined && othIsReflexive) ||
+        (!valIsDefined && othIsReflexive) ||
+        !valIsReflexive) {
+      return 1;
+    }
+    if ((!valIsNull && !valIsSymbol && !othIsSymbol && value < other) ||
+        (othIsSymbol && valIsDefined && valIsReflexive && !valIsNull && !valIsSymbol) ||
+        (othIsNull && valIsDefined && valIsReflexive) ||
+        (!othIsDefined && valIsReflexive) ||
+        !othIsReflexive) {
+      return -1;
+    }
+  }
+  return 0;
+}
+
+var _compareAscending = compareAscending;
+
+/**
+ * Used by `_.orderBy` to compare multiple properties of a value to another
+ * and stable sort them.
+ *
+ * If `orders` is unspecified, all values are sorted in ascending order. Otherwise,
+ * specify an order of "desc" for descending or "asc" for ascending sort order
+ * of corresponding values.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {boolean[]|string[]} orders The order to sort by for each property.
+ * @returns {number} Returns the sort order indicator for `object`.
+ */
+function compareMultiple(object, other, orders) {
+  var index = -1,
+      objCriteria = object.criteria,
+      othCriteria = other.criteria,
+      length = objCriteria.length,
+      ordersLength = orders.length;
+
+  while (++index < length) {
+    var result = _compareAscending(objCriteria[index], othCriteria[index]);
+    if (result) {
+      if (index >= ordersLength) {
+        return result;
+      }
+      var order = orders[index];
+      return result * (order == 'desc' ? -1 : 1);
+    }
+  }
+  // Fixes an `Array#sort` bug in the JS engine embedded in Adobe applications
+  // that causes it, under certain circumstances, to provide the same value for
+  // `object` and `other`. See https://github.com/jashkenas/underscore/pull/1247
+  // for more details.
+  //
+  // This also ensures a stable sort in V8 and other engines.
+  // See https://bugs.chromium.org/p/v8/issues/detail?id=90 for more details.
+  return object.index - other.index;
+}
+
+var _compareMultiple = compareMultiple;
+
+/**
+ * The base implementation of `_.orderBy` without param guards.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function[]|Object[]|string[]} iteratees The iteratees to sort by.
+ * @param {string[]} orders The sort orders of `iteratees`.
+ * @returns {Array} Returns the new sorted array.
+ */
+function baseOrderBy(collection, iteratees, orders) {
+  var index = -1;
+  iteratees = _arrayMap(iteratees.length ? iteratees : [identity_1], _baseUnary(_baseIteratee));
+
+  var result = _baseMap(collection, function(value, key, collection) {
+    var criteria = _arrayMap(iteratees, function(iteratee) {
+      return iteratee(value);
+    });
+    return { 'criteria': criteria, 'index': ++index, 'value': value };
+  });
+
+  return _baseSortBy(result, function(object, other) {
+    return _compareMultiple(object, other, orders);
+  });
+}
+
+var _baseOrderBy = baseOrderBy;
+
+/**
+ * This method is like `_.sortBy` except that it allows specifying the sort
+ * orders of the iteratees to sort by. If `orders` is unspecified, all values
+ * are sorted in ascending order. Otherwise, specify an order of "desc" for
+ * descending or "asc" for ascending sort order of corresponding values.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Collection
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Array[]|Function[]|Object[]|string[]} [iteratees=[_.identity]]
+ *  The iteratees to sort by.
+ * @param {string[]} [orders] The sort orders of `iteratees`.
+ * @param- {Object} [guard] Enables use as an iteratee for methods like `_.reduce`.
+ * @returns {Array} Returns the new sorted array.
+ * @example
+ *
+ * var users = [
+ *   { 'user': 'fred',   'age': 48 },
+ *   { 'user': 'barney', 'age': 34 },
+ *   { 'user': 'fred',   'age': 40 },
+ *   { 'user': 'barney', 'age': 36 }
+ * ];
+ *
+ * // Sort by `user` in ascending order and by `age` in descending order.
+ * _.orderBy(users, ['user', 'age'], ['asc', 'desc']);
+ * // => objects for [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 40]]
+ */
+function orderBy(collection, iteratees, orders, guard) {
+  if (collection == null) {
+    return [];
+  }
+  if (!isArray_1(iteratees)) {
+    iteratees = iteratees == null ? [] : [iteratees];
+  }
+  orders = guard ? undefined : orders;
+  if (!isArray_1(orders)) {
+    orders = orders == null ? [] : [orders];
+  }
+  return _baseOrderBy(collection, iteratees, orders);
+}
+
+var orderBy_1 = orderBy;
+
+/**
+ * Checks if the given arguments are from an iteratee call.
+ *
+ * @private
+ * @param {*} value The potential iteratee value argument.
+ * @param {*} index The potential iteratee index or key argument.
+ * @param {*} object The potential iteratee object argument.
+ * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
+ *  else `false`.
+ */
+function isIterateeCall(value, index, object) {
+  if (!isObject_1(object)) {
+    return false;
+  }
+  var type = typeof index;
+  if (type == 'number'
+        ? (isArrayLike_1(object) && _isIndex(index, object.length))
+        : (type == 'string' && index in object)
+      ) {
+    return eq_1(object[index], value);
+  }
+  return false;
+}
+
+var _isIterateeCall = isIterateeCall;
+
+/**
+ * Creates an array of elements, sorted in ascending order by the results of
+ * running each element in a collection thru each iteratee. This method
+ * performs a stable sort, that is, it preserves the original sort order of
+ * equal elements. The iteratees are invoked with one argument: (value).
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {...(Function|Function[])} [iteratees=[_.identity]]
+ *  The iteratees to sort by.
+ * @returns {Array} Returns the new sorted array.
+ * @example
+ *
+ * var users = [
+ *   { 'user': 'fred',   'age': 48 },
+ *   { 'user': 'barney', 'age': 36 },
+ *   { 'user': 'fred',   'age': 40 },
+ *   { 'user': 'barney', 'age': 34 }
+ * ];
+ *
+ * _.sortBy(users, [function(o) { return o.user; }]);
+ * // => objects for [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 40]]
+ *
+ * _.sortBy(users, ['user', 'age']);
+ * // => objects for [['barney', 34], ['barney', 36], ['fred', 40], ['fred', 48]]
+ */
+var sortBy = _baseRest(function(collection, iteratees) {
+  if (collection == null) {
+    return [];
+  }
+  var length = iteratees.length;
+  if (length > 1 && _isIterateeCall(collection, iteratees[0], iteratees[1])) {
+    iteratees = [];
+  } else if (length > 2 && _isIterateeCall(iteratees[0], iteratees[1], iteratees[2])) {
+    iteratees = [iteratees[0]];
+  }
+  return _baseOrderBy(collection, _baseFlatten(iteratees, 1), []);
+});
+
+var sortBy_1 = sortBy;
+
+var DEFAULT_OPTS = {
+    idAttribute: 'id',
+    arrName: 'items',
+    mapName: 'itemsById'
+};
+
+// Input is the current max id and the new id passed to the create action.
+// Both may be undefined. The current max id in the case that this is the first Model
+// being created, and the new id if the id was not explicitly passed to the
+// database.
+//
+// Return value is the new max id and the id to use to create the new row.
+// If the id's are strings, the id must be passed explicitly every time.
+// In this case, the current max id will remain `NaN` due to `Math.max`, but that's fine.
+function idSequencer(_currMax, userPassedId) {
+    var currMax = _currMax;
+    var newMax = void 0;
+    var newId = void 0;
+
+    if (currMax === undefined) {
+        currMax = -1;
+    }
+
+    if (userPassedId === undefined) {
+        newMax = currMax + 1;
+        newId = newMax;
+    } else {
+        newMax = Math.max(currMax + 1, userPassedId);
+        newId = userPassedId;
+    }
+
+    return [newMax, // new max id
+    newId];
+}
+
+/**
+ * Handles the underlying data structure for a {@link Model} class.
+ */
+var Table = function () {
+    /**
+     * Creates a new {@link Table} instance.
+     * @param  {Object} userOpts - options to use.
+     * @param  {string} [userOpts.idAttribute=id] - the id attribute of the entity.
+     * @param  {string} [userOpts.arrName=items] - the state attribute where an array of
+     *                                             entity id's are stored
+     * @param  {string} [userOpts.mapName=itemsById] - the state attribute where the entity objects
+     *                                                 are stored in a id to entity object
+     *                                                 map.
+     */
+    function Table(userOpts) {
+        _classCallCheck$7(this, Table);
+
+        _Object$assign(this, DEFAULT_OPTS, userOpts);
+    }
+
+    /**
+     * Returns a reference to the object at index `id`
+     * in state `branch`.
+     *
+     * @param  {Object} branch - the state
+     * @param  {Number} id - the id of the object to get
+     * @return {Object|undefined} A reference to the raw object in the state or
+     *                            `undefined` if not found.
+     */
+
+
+    _createClass(Table, [{
+        key: 'accessId',
+        value: function accessId(branch, id) {
+            return branch[this.mapName][id];
+        }
+    }, {
+        key: 'idExists',
+        value: function idExists(branch, id) {
+            return branch[this.mapName].hasOwnProperty(id);
+        }
+    }, {
+        key: 'accessIdList',
+        value: function accessIdList(branch) {
+            return branch[this.arrName];
+        }
+    }, {
+        key: 'accessList',
+        value: function accessList(branch) {
+            var _this = this;
+
+            return branch[this.arrName].map(function (id) {
+                return _this.accessId(branch, id);
+            });
+        }
+    }, {
+        key: 'getMaxId',
+        value: function getMaxId(branch) {
+            return this.getMeta(branch, 'maxId');
+        }
+    }, {
+        key: 'setMaxId',
+        value: function setMaxId(tx, branch, newMaxId) {
+            return this.setMeta(tx, branch, 'maxId', newMaxId);
+        }
+    }, {
+        key: 'nextId',
+        value: function nextId(id) {
+            return id + 1;
+        }
+    }, {
+        key: 'query',
+        value: function query(branch, clauses) {
+            var _this2 = this;
+
+            if (clauses.length === 0) {
+                return this.accessList(branch);
+            }
+
+            var idAttribute = this.idAttribute;
+
+
+            var optimallyOrderedClauses = sortBy_1(clauses, function (clause) {
+                if (clauseFiltersByAttribute(clause, idAttribute)) {
+                    return 1;
+                }
+
+                if (clauseReducesResultSetSize(clause)) {
+                    return 2;
+                }
+
+                return 3;
+            });
+
+            var reducer = function reducer(rows, clause) {
+                var type = clause.type,
+                    payload = clause.payload;
+
+                if (!rows) {
+                    if (clauseFiltersByAttribute(clause, idAttribute)) {
+                        var id = payload[idAttribute];
+                        // Payload specified a primary key; Since that is
+                        // unique, we can directly return that.
+                        return _this2.idExists(branch, id) ? [_this2.accessId(branch, id)] : [];
+                    }
+
+                    return reducer(_this2.accessList(branch), clause);
+                }
+
+                switch (type) {
+                    case FILTER:
+                        {
+                            return filter_1(rows, payload);
+                        }
+                    case EXCLUDE:
+                        {
+                            return reject_1(rows, payload);
+                        }
+                    case ORDER_BY:
+                        {
+                            var _payload = _slicedToArray(payload, 2),
+                                iteratees = _payload[0],
+                                orders = _payload[1];
+
+                            return orderBy_1(rows, iteratees, orders);
+                        }
+                    default:
+                        return rows;
+                }
+            };
+
+            return optimallyOrderedClauses.reduce(reducer, undefined);
+        }
+
+        /**
+         * Returns the default state for the data structure.
+         * @return {Object} The default state for this {@link Backend} instance's data structure
+         */
+
+    }, {
+        key: 'getEmptyState',
+        value: function getEmptyState() {
+            var _ref;
+
+            return _ref = {}, _defineProperty$4(_ref, this.arrName, []), _defineProperty$4(_ref, this.mapName, {}), _defineProperty$4(_ref, 'meta', {}), _ref;
+        }
+    }, {
+        key: 'setMeta',
+        value: function setMeta(tx, branch, key, value) {
+            var batchToken = tx.batchToken,
+                withMutations = tx.withMutations;
+
+            if (withMutations) {
+                var res = ops.mutable.setIn(['meta', key], value, branch);
+                return res;
+            }
+
+            return ops.batch.setIn(batchToken, ['meta', key], value, branch);
+        }
+    }, {
+        key: 'getMeta',
+        value: function getMeta(branch, key) {
+            return branch.meta[key];
+        }
+
+        /**
+         * Returns the data structure including a new object `entry`
+         * @param  {Object} tx - transaction info
+         * @param  {Object} branch - the data structure state
+         * @param  {Object} entry - the object to insert
+         * @return {Object} an object with two keys: `state` and `created`.
+         *                  `state` is the new table state and `created` is the
+         *                  row that was created.
+         */
+
+    }, {
+        key: 'insert',
+        value: function insert(tx, branch, entry) {
+            var _ops$batch$merge2;
+
+            var batchToken = tx.batchToken,
+                withMutations = tx.withMutations;
+
+
+            var hasId = entry.hasOwnProperty(this.idAttribute);
+
+            var workingState = branch;
+
+            // This will not affect string id's.
+
+            var _idSequencer = idSequencer(this.getMaxId(branch), entry[this.idAttribute]),
+                _idSequencer2 = _slicedToArray(_idSequencer, 2),
+                newMaxId = _idSequencer2[0],
+                id = _idSequencer2[1];
+
+            workingState = this.setMaxId(tx, branch, newMaxId);
+
+            var finalEntry = hasId ? entry : ops.batch.set(batchToken, this.idAttribute, id, entry);
+
+            if (withMutations) {
+                ops.mutable.push(id, workingState[this.arrName]);
+                ops.mutable.set(id, finalEntry, workingState[this.mapName]);
+                return {
+                    state: workingState,
+                    created: finalEntry
+                };
+            }
+
+            var nextState = ops.batch.merge(batchToken, (_ops$batch$merge2 = {}, _defineProperty$4(_ops$batch$merge2, this.arrName, ops.batch.push(batchToken, id, workingState[this.arrName])), _defineProperty$4(_ops$batch$merge2, this.mapName, ops.batch.merge(batchToken, _defineProperty$4({}, id, finalEntry), workingState[this.mapName])), _ops$batch$merge2), workingState);
+
+            return {
+                state: nextState,
+                created: finalEntry
+            };
+        }
+
+        /**
+         * Returns the data structure with objects where `rows`
+         * are merged with `mergeObj`.
+         *
+         * @param  {Object} tx - transaction info
+         * @param  {Object} branch - the data structure state
+         * @param  {Object[]} rows - rows to update
+         * @param  {Object} mergeObj - The object to merge with each row.
+         * @return {Object}
+         */
+
+    }, {
+        key: 'update',
+        value: function update(tx, branch, rows, mergeObj) {
+            var _this3 = this;
+
+            var batchToken = tx.batchToken,
+                withMutations = tx.withMutations;
+            var mapName = this.mapName;
+
+
+            var mapFunction = function mapFunction(row) {
+                var merge = withMutations ? ops.mutable.merge : ops.batch.merge(batchToken);
+                return merge(mergeObj, row);
+            };
+
+            var set = withMutations ? ops.mutable.set : ops.batch.set(batchToken);
+
+            var newMap = rows.reduce(function (map, row) {
+                var result = mapFunction(row);
+                return set(result[_this3.idAttribute], result, map);
+            }, branch[mapName]);
+            return ops.batch.set(batchToken, mapName, newMap, branch);
+        }
+
+        /**
+         * Returns the data structure without rows `rows`.
+         * @param  {Object} tx - transaction info
+         * @param  {Object} branch - the data structure state
+         * @param  {Object[]} rows - rows to update
+         * @return {Object} the data structure without ids in `idsToDelete`.
+         */
+
+    }, {
+        key: 'delete',
+        value: function _delete(tx, branch, rows) {
+            var _this4 = this,
+                _ops$batch$merge3;
+
+            var batchToken = tx.batchToken,
+                withMutations = tx.withMutations;
+            var arrName = this.arrName,
+                mapName = this.mapName;
+
+            var arr = branch[arrName];
+
+            var idsToDelete = rows.map(function (row) {
+                return row[_this4.idAttribute];
+            });
+            if (withMutations) {
+                idsToDelete.forEach(function (id) {
+                    var idx = arr.indexOf(id);
+                    if (idx !== -1) {
+                        ops.mutable.splice(idx, 1, [], arr);
+                    }
+
+                    ops.mutable.omit(id, branch[mapName]);
+                });
+                return branch;
+            }
+
+            return ops.batch.merge(batchToken, (_ops$batch$merge3 = {}, _defineProperty$4(_ops$batch$merge3, arrName, ops.batch.filter(batchToken, function (id) {
+                return !includes_1(idsToDelete, id);
+            }, branch[arrName])), _defineProperty$4(_ops$batch$merge3, mapName, ops.batch.omit(batchToken, idsToDelete, branch[mapName])), _ops$batch$merge3), branch);
+        }
+    }]);
+
+    return Table;
+}();
+
+function replaceTableState(tableName, newTableState, tx, state) {
+    var batchToken = tx.batchToken,
+        withMutations = tx.withMutations;
+
+
+    if (withMutations) {
+        state[tableName] = newTableState;
+        return state;
+    }
+
+    return ops.batch.set(batchToken, tableName, newTableState, state);
+}
+
+function query(tables, querySpec, state) {
+    var tableName = querySpec.table,
+        clauses = querySpec.clauses;
+
+    var table = tables[tableName];
+    var rows = table.query(state[tableName], clauses);
+    return {
+        rows: rows
+    };
+}
+
+function update(tables, updateSpec, tx, state) {
+    var action = updateSpec.action,
+        payload = updateSpec.payload;
+
+
+    var tableName = void 0;
+    var nextTableState = void 0;
+    var resultPayload = void 0;
+
+    if (action === CREATE) {
+        tableName = updateSpec.table;
+
+        var table = tables[tableName];
+        var currTableState = state[tableName];
+        var result = table.insert(tx, currTableState, payload);
+        nextTableState = result.state;
+        resultPayload = result.created;
+    } else {
+        var querySpec = updateSpec.query;
+        tableName = querySpec.table;
+
+        var _query = query(tables, querySpec, state),
+            rows = _query.rows;
+
+        var _table = tables[tableName];
+        var _currTableState = state[tableName];
+
+        if (action === UPDATE) {
+            nextTableState = _table.update(tx, _currTableState, rows, payload);
+            // return updated rows
+            resultPayload = query(tables, querySpec, state).rows;
+        } else if (action === DELETE) {
+            nextTableState = _table.delete(tx, _currTableState, rows);
+            // return original rows that we just deleted
+            resultPayload = rows;
+        } else {
+            throw new Error('Database received unknown update type: ' + action);
+        }
+    }
+
+    var nextDBState = replaceTableState(tableName, nextTableState, tx, state);
+    return {
+        status: SUCCESS,
+        state: nextDBState,
+        payload: resultPayload
+    };
+}
+
+function createDatabase(schemaSpec) {
+    var tablesSpec = schemaSpec.tables;
+
+    var tables = mapValues_1(tablesSpec, function (tableSpec) {
+        return new Table(tableSpec);
+    });
+
+    var getEmptyState = function getEmptyState() {
+        return mapValues_1(tables, function (table) {
+            return table.getEmptyState();
+        });
+    };
+    return {
+        getEmptyState: getEmptyState,
+        query: query.bind(null, tables),
+        update: update.bind(null, tables),
+        // Used to inspect the schema.
+        describe: function describe(tableName) {
+            return tables[tableName];
+        }
+    };
+}
+
+var lib$2 = createCommonjsModule(function (module, exports) {
+
+exports.__esModule = true;
+exports.defaultMemoize = defaultMemoize;
+exports.createSelectorCreator = createSelectorCreator;
+exports.createStructuredSelector = createStructuredSelector;
+function defaultEqualityCheck(a, b) {
+  return a === b;
+}
+
+function areArgumentsShallowlyEqual(equalityCheck, prev, next) {
+  if (prev === null || next === null || prev.length !== next.length) {
+    return false;
+  }
+
+  // Do this in a for loop (and not a `forEach` or an `every`) so we can determine equality as fast as possible.
+  var length = prev.length;
+  for (var i = 0; i < length; i++) {
+    if (!equalityCheck(prev[i], next[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function defaultMemoize(func) {
+  var equalityCheck = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultEqualityCheck;
+
+  var lastArgs = null;
+  var lastResult = null;
+  // we reference arguments instead of spreading them for performance reasons
+  return function () {
+    if (!areArgumentsShallowlyEqual(equalityCheck, lastArgs, arguments)) {
+      // apply arguments instead of spreading for performance.
+      lastResult = func.apply(null, arguments);
+    }
+
+    lastArgs = arguments;
+    return lastResult;
+  };
+}
+
+function getDependencies(funcs) {
+  var dependencies = Array.isArray(funcs[0]) ? funcs[0] : funcs;
+
+  if (!dependencies.every(function (dep) {
+    return typeof dep === 'function';
+  })) {
+    var dependencyTypes = dependencies.map(function (dep) {
+      return typeof dep;
+    }).join(', ');
+    throw new Error('Selector creators expect all input-selectors to be functions, ' + ('instead received the following types: [' + dependencyTypes + ']'));
+  }
+
+  return dependencies;
+}
+
+function createSelectorCreator(memoize) {
+  for (var _len = arguments.length, memoizeOptions = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    memoizeOptions[_key - 1] = arguments[_key];
+  }
+
+  return function () {
+    for (var _len2 = arguments.length, funcs = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      funcs[_key2] = arguments[_key2];
+    }
+
+    var recomputations = 0;
+    var resultFunc = funcs.pop();
+    var dependencies = getDependencies(funcs);
+
+    var memoizedResultFunc = memoize.apply(undefined, [function () {
+      recomputations++;
+      // apply arguments instead of spreading for performance.
+      return resultFunc.apply(null, arguments);
+    }].concat(memoizeOptions));
+
+    // If a selector is called with the exact same arguments we don't need to traverse our dependencies again.
+    var selector = defaultMemoize(function () {
+      var params = [];
+      var length = dependencies.length;
+
+      for (var i = 0; i < length; i++) {
+        // apply arguments instead of spreading and mutate a local list of params for performance.
+        params.push(dependencies[i].apply(null, arguments));
+      }
+
+      // apply arguments instead of spreading for performance.
+      return memoizedResultFunc.apply(null, params);
+    });
+
+    selector.resultFunc = resultFunc;
+    selector.recomputations = function () {
+      return recomputations;
+    };
+    selector.resetRecomputations = function () {
+      return recomputations = 0;
+    };
+    return selector;
+  };
+}
+
+var createSelector = exports.createSelector = createSelectorCreator(defaultMemoize);
+
+function createStructuredSelector(selectors) {
+  var selectorCreator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : createSelector;
+
+  if (typeof selectors !== 'object') {
+    throw new Error('createStructuredSelector expects first argument to be an object ' + ('where each property is a selector, instead received a ' + typeof selectors));
+  }
+  var objectKeys = Object.keys(selectors);
+  return selectorCreator(objectKeys.map(function (key) {
+    return selectors[key];
+  }), function () {
+    for (var _len3 = arguments.length, values = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      values[_key3] = arguments[_key3];
+    }
+
+    return values.reduce(function (composition, value, index) {
+      composition[objectKeys[index]] = value;
+      return composition;
+    }, {});
+  });
+}
+});
+
+unwrapExports(lib$2);
+var lib_1$2 = lib$2.defaultMemoize;
+var lib_2$2 = lib$2.createSelectorCreator;
+var lib_3$2 = lib$2.createStructuredSelector;
+var lib_4$2 = lib$2.createSelector;
+
+/**
+ * A specialized version of `_.every` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {boolean} Returns `true` if all elements pass the predicate check,
+ *  else `false`.
+ */
+function arrayEvery(array, predicate) {
+  var index = -1,
+      length = array == null ? 0 : array.length;
+
+  while (++index < length) {
+    if (!predicate(array[index], index, array)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+var _arrayEvery = arrayEvery;
+
+/**
+ * The base implementation of `_.every` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {boolean} Returns `true` if all elements pass the predicate check,
+ *  else `false`
+ */
+function baseEvery(collection, predicate) {
+  var result = true;
+  _baseEach(collection, function(value, index, collection) {
+    result = !!predicate(value, index, collection);
+    return result;
+  });
+  return result;
+}
+
+var _baseEvery = baseEvery;
+
+/**
+ * Checks if `predicate` returns truthy for **all** elements of `collection`.
+ * Iteration is stopped once `predicate` returns falsey. The predicate is
+ * invoked with three arguments: (value, index|key, collection).
+ *
+ * **Note:** This method returns `true` for
+ * [empty collections](https://en.wikipedia.org/wiki/Empty_set) because
+ * [everything is true](https://en.wikipedia.org/wiki/Vacuous_truth) of
+ * elements of empty collections.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} [predicate=_.identity] The function invoked per iteration.
+ * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
+ * @returns {boolean} Returns `true` if all elements pass the predicate check,
+ *  else `false`.
+ * @example
+ *
+ * _.every([true, 1, null, 'yes'], Boolean);
+ * // => false
+ *
+ * var users = [
+ *   { 'user': 'barney', 'age': 36, 'active': false },
+ *   { 'user': 'fred',   'age': 40, 'active': false }
+ * ];
+ *
+ * // The `_.matches` iteratee shorthand.
+ * _.every(users, { 'user': 'barney', 'active': false });
+ * // => false
+ *
+ * // The `_.matchesProperty` iteratee shorthand.
+ * _.every(users, ['active', false]);
+ * // => true
+ *
+ * // The `_.property` iteratee shorthand.
+ * _.every(users, 'active');
+ * // => false
+ */
+function every(collection, predicate, guard) {
+  var func = isArray_1(collection) ? _arrayEvery : _baseEvery;
+  if (guard && _isIterateeCall(collection, predicate, guard)) {
+    predicate = undefined;
+  }
+  return func(collection, _baseIteratee(predicate, 3));
+}
+
+var every_1 = every;
+
+var defaultEqualityCheck = function defaultEqualityCheck(a, b) {
+    return a === b;
+};
+
+var argsAreEqual = function argsAreEqual(lastArgs, nextArgs, equalityCheck) {
+    return nextArgs.every(function (arg, index) {
+        return equalityCheck(arg, lastArgs[index]);
+    });
+};
+
+var rowsAreEqual = function rowsAreEqual(ids, rowsA, rowsB) {
+    return ids.every(function (id) {
+        return rowsA[id] === rowsB[id];
+    });
+};
+
+var tablesAreEqual = function tablesAreEqual(rowsA, rowsB) {
+    var rowIdsA = _Object$keys(rowsA);
+    var rowIdsB = _Object$keys(rowsB);
+
+    if (rowIdsA.length !== rowIdsB.length) {
+        /**
+         * the table contains new rows or old ones were removed
+         * this immediately means the table has been updated
+         */
+        return false;
+    }
+
+    return rowsAreEqual(rowIdsA, rowsA, rowsB) && rowsAreEqual(rowIdsB, rowsA, rowsB);
+};
+
+var accessedModelInstancesAreEqual = function accessedModelInstancesAreEqual(previous, ormState) {
+    var accessedModelInstances = previous.accessedModelInstances;
+
+
+    return every_1(accessedModelInstances, function (accessedInstances, modelName) {
+        var previousRows = previous.ormState[modelName].itemsById;
+        var rows = ormState[modelName].itemsById;
+
+
+        var accessedIds = _Object$keys(accessedInstances);
+        return rowsAreEqual(accessedIds, previousRows, rows);
+    });
+};
+
+var fullTableScannedModelsAreEqual = function fullTableScannedModelsAreEqual(previous, ormState) {
+    var fullTableScannedModels = previous.fullTableScannedModels;
+
+
+    return fullTableScannedModels.every(function (modelName) {
+        var previousRows = previous.ormState[modelName].itemsById;
+        var rows = ormState[modelName].itemsById;
+
+        /**
+         * all of this model's instances were checked against some condition
+         * invalidate them unless none of them have changed
+         */
+
+        return tablesAreEqual(previousRows, rows);
+    });
+};
+
+/**
+ * A memoizer to use with redux-orm
+ * selectors. When the memoized function is first run,
+ * the memoizer will remember the models that are accessed
+ * during that function run.
+ *
+ * On subsequent runs, the memoizer will check if those
+ * models' states have changed compared to the previous run.
+ *
+ * Memoization algorithm operates like this:
+ *
+ * 1. Has the selector been run before? If not, go to 5.
+ *
+ * 2. If the selector has other input selectors in addition to the
+ *    ORM state selector, check their results for equality with the previous results.
+ *    If they aren't equal, go to 5.
+ *
+ * 3. Is the ORM state referentially equal to the previous ORM state the selector
+ *    was called with? If yes, return the previous result.
+ *
+ * 4. Check which Model's instances the selector has accessed on previous runs.
+ *    Check for equality with each of those states versus their states in the
+ *    previous ORM state. If all of them are equal, return the previous result.
+ *
+ * 5. Run the selector. Check the Session object used by the selector for
+ *    which Model's states were accessed, and merge them with the previously
+ *    saved information about accessed models (if-else branching can change
+ *    which models are accessed on different inputs). Save the ORM state and
+ *    other arguments the selector was called with, overriding previously
+ *    saved values. Save the selector result. Return the selector result.
+ *
+ * @private
+ * @param  {Function} func - function to memoize
+ * @param  {Function} argEqualityCheck - equality check function to use with normal
+ *                                       selector args
+ * @param  {ORM} orm - a redux-orm ORM instance
+ * @return {Function} `func` memoized.
+ */
+function memoize$1(func) {
+    var argEqualityCheck = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultEqualityCheck;
+    var orm = arguments[2];
+
+    var previous = {
+        /* result of the previous function call */
+        result: null,
+        /* arguments to the previous function call (excluding ORM state) */
+        args: null,
+        /**
+         * lets us know how the models looked like
+         * during the previous function call
+         */
+        ormState: null,
+        /**
+        * array of names of models whose tables have been scanned completely
+        * during previous function call (contains only model names)
+        * format (e.g.): ['Book']
+        */
+        fullTableScannedModels: [],
+        /**
+        * map of which model instances have been accessed
+        * during previous function call (contains only IDs of accessed instances)
+        * format (e.g.): { Book: { 1: true, 3: true } }
+        */
+        accessedModelInstances: {}
+    };
+
+    return function () {
+        for (var _len = arguments.length, stateAndArgs = Array(_len), _key = 0; _key < _len; _key++) {
+            stateAndArgs[_key] = arguments[_key];
+        }
+
+        var ormState = stateAndArgs[0],
+            args = stateAndArgs.slice(1);
+
+
+        var selectorWasCalledBefore = previous.args && previous.ormState;
+
+        if (selectorWasCalledBefore && argsAreEqual(previous.args, args, argEqualityCheck) && accessedModelInstancesAreEqual(previous, ormState) && fullTableScannedModelsAreEqual(previous, ormState)) {
+            /**
+             * the instances that were accessed as well as
+             * the arguments that were passed to func the previous time that
+             * func was called have not changed
+             */
+            return previous.result;
+        }
+
+        /* previous result is no longer valid, update cached values */
+        previous.args = args;
+
+        var session = orm.session(ormState);
+        previous.ormState = ormState;
+
+        /* this is where we call the actual function */
+        var result = func.apply(undefined, [session].concat(_toConsumableArray(args)));
+        previous.result = result;
+
+        /* rows retrieved during function call */
+        previous.accessedModelInstances = session.accessedModelInstances;
+        /* tables that had to be scanned completely */
+        previous.fullTableScannedModels = session.fullTableScannedModels;
+
+        return result;
+    };
+}
+
+/**
+ * @module redux
+ */
+
+/**
+ * Calls all models' reducers if they exist.
+ * @return {undefined}
+ */
+function defaultUpdater(session, action) {
+    session.sessionBoundModels.forEach(function (modelClass) {
+        if (typeof modelClass.reducer === 'function') {
+            // This calls this.applyUpdate to update this.state
+            modelClass.reducer(action, modelClass, session);
+        }
+    });
+}
+
+/**
+ * Call the returned function to pass actions to Redux-ORM.
+ *
+ * @global
+ *
+ * @param {ORM} orm - the ORM instance.
+ * @param {Function} [updater] - the function updating the ORM state based on the given action.
+ * @return {Function} reducer that will update the ORM state.
+ */
+function createReducer(orm) {
+    var updater = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultUpdater;
+
+    return function (state, action) {
+        var session = orm.session(state || orm.getEmptyState());
+        updater(session, action);
+        return session.state;
+    };
+}
+
+/**
+ * Returns a memoized selector based on passed arguments.
+ * This is similar to `reselect`'s `createSelector`,
+ * except you can also pass a single function to be memoized.
+ *
+ * If you pass multiple functions, the format will be the
+ * same as in `reselect`. The last argument is the selector
+ * function and the previous are input selectors.
+ *
+ * When you use this method to create a selector, the returned selector
+ * expects the whole `redux-orm` state branch as input. In the selector
+ * function that you pass as the last argument, you will receive a
+ * `session` argument (a `Session` instance) followed by any
+ * input arguments, like in `reselect`.
+ *
+ * This is an example selector:
+ *
+ * ```javascript
+ * // orm is an instance of ORM
+ * const bookSelector = createSelector(orm, session => {
+ *     return session.Book.map(book => {
+ *         return Object.assign({}, book.ref, {
+ *             authors: book.authors.map(author => author.name),
+ *             genres: book.genres.map(genre => genre.name),
+ *         });
+ *     });
+ * });
+ * ```
+ *
+ * redux-orm uses a special memoization function to avoid recomputations.
+ *
+ * Everytime a selector runs, this function records which instances
+ * of your `Model`s were accessed.<br>
+ * On subsequent runs, the selector first checks if the previously
+ * accessed instances or `args` have changed in any way:
+ * <ul>
+ *     <li>If yes, the selector calls the function you passed to it.</li>
+ *     <li>If not, it just returns the previous result
+ *         (unless you call it for the first time).</li>
+ * </ul>
+ *
+ * This way you can use the `PureRenderMixin` in your React components
+ * for performance gains.
+ *
+ * @global
+ *
+ * @param {ORM} orm - the ORM instance
+ * @param  {...Function} args - zero or more input selectors
+ *                              and the selector function.
+ * @return {Function} memoized selector
+ */
+function createSelector(orm) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+    }
+
+    if (args.length === 1) {
+        return memoize$1(args[0], undefined, orm);
+    }
+
+    return lib_2$2(memoize$1, undefined, orm).apply(undefined, args);
+}
+
+var ORM_DEFAULTS = {
+    createDatabase: createDatabase
+};
+
+/**
+ * ORM - the Object Relational Mapper.
+ *
+ * Use instances of this class to:
+ *
+ * - Register your {@link Model} classes using {@link ORM#register}
+ * - Get the empty state for the underlying database with {@link ORM#getEmptyState}
+ * - Start an immutable database session with {@link ORM#session}
+ * - Start a mutating database session with {@link ORM#mutableSession}
+ *
+ * Internally, this class handles generating a schema specification from models
+ * to the database.
+ */
+var ORM = function () {
+    /**
+     * Creates a new ORM instance.
+     */
+    function ORM(opts) {
+        _classCallCheck$7(this, ORM);
+
+        var _Object$assign$$1 = _Object$assign({}, ORM_DEFAULTS, opts || {}),
+            createDatabase$$1 = _Object$assign$$1.createDatabase;
+
+        this.createDatabase = createDatabase$$1;
+        this.registry = [];
+        this.implicitThroughModels = [];
+        this.installedFields = {};
+    }
+
+    /**
+     * Registers a {@link Model} class to the ORM.
+     *
+     * If the model has declared any ManyToMany fields, their
+     * through models will be generated and registered with
+     * this call, unless a custom through model has been specified.
+     *
+     * @param  {...Model} model - a {@link Model} class to register
+     * @return {undefined}
+     */
+
+
+    _createClass(ORM, [{
+        key: 'register',
+        value: function register() {
+            var _this = this;
+
+            for (var _len = arguments.length, models = Array(_len), _key = 0; _key < _len; _key++) {
+                models[_key] = arguments[_key];
+            }
+
+            models.forEach(function (model) {
+                if (model.modelName === undefined) {
+                    throw new Error('A model was passed that doesn\'t have a modelName set');
+                }
+
+                model.invalidateClassCache();
+
+                _this.registerManyToManyModelsFor(model);
+                _this.registry.push(model);
+            });
+        }
+    }, {
+        key: 'registerManyToManyModelsFor',
+        value: function registerManyToManyModelsFor(model) {
+            var _this4 = this;
+
+            var fields = model.fields;
+
+            var thisModelName = model.modelName;
+
+            forOwn_1(fields, function (fieldInstance, fieldName) {
+                if (!(fieldInstance instanceof ManyToMany)) {
+                    return;
+                }
+
+                var toModelName = void 0;
+                if (fieldInstance.toModelName === 'this') {
+                    toModelName = thisModelName;
+                } else {
+                    toModelName = fieldInstance.toModelName; // eslint-disable-line prefer-destructuring
+                }
+
+                var selfReferencing = thisModelName === toModelName;
+                var fromFieldName = m2mFromFieldName(thisModelName);
+                var toFieldName = m2mToFieldName(toModelName);
+
+                if (fieldInstance.through) {
+                    if (selfReferencing && !fieldInstance.throughFields) {
+                        throw new Error('Self-referencing many-to-many relationship at ' + ('"' + thisModelName + '.' + fieldName + '" using custom ') + ('model "' + fieldInstance.through + '" has no ') + 'throughFields key. Cannot determine which ' + 'fields reference the instances partaking ' + 'in the relationship.');
+                    }
+                } else {
+                    var _Through$fields;
+
+                    var Through = function (_Model) {
+                        _inherits$7(ThroughModel, _Model);
+
+                        function ThroughModel() {
+                            _classCallCheck$7(this, ThroughModel);
+
+                            return _possibleConstructorReturn$7(this, (ThroughModel.__proto__ || _Object$getPrototypeOf(ThroughModel)).apply(this, arguments));
+                        }
+
+                        return ThroughModel;
+                    }(Model);
+
+                    Through.modelName = m2mName(thisModelName, fieldName);
+
+                    var PlainForeignKey = function (_ForeignKey) {
+                        _inherits$7(ThroughForeignKeyField, _ForeignKey);
+
+                        function ThroughForeignKeyField() {
+                            _classCallCheck$7(this, ThroughForeignKeyField);
+
+                            return _possibleConstructorReturn$7(this, (ThroughForeignKeyField.__proto__ || _Object$getPrototypeOf(ThroughForeignKeyField)).apply(this, arguments));
+                        }
+
+                        _createClass(ThroughForeignKeyField, [{
+                            key: 'installsBackwardsVirtualField',
+                            get: function get() {
+                                return false;
+                            }
+                        }, {
+                            key: 'installsBackwardsDescriptor',
+                            get: function get() {
+                                return false;
+                            }
+                        }]);
+
+                        return ThroughForeignKeyField;
+                    }(ForeignKey);
+                    var ForeignKeyClass = selfReferencing ? PlainForeignKey : ForeignKey;
+                    Through.fields = (_Through$fields = {
+                        id: attr()
+                    }, _defineProperty$4(_Through$fields, fromFieldName, new ForeignKeyClass(thisModelName)), _defineProperty$4(_Through$fields, toFieldName, new ForeignKeyClass(toModelName)), _Through$fields);
+
+                    Through.invalidateClassCache();
+                    _this4.implicitThroughModels.push(Through);
+                }
+            });
+        }
+
+        /**
+         * Gets a {@link Model} class by its name from the registry.
+         * @param  {string} modelName - the name of the {@link Model} class to get
+         * @throws If {@link Model} class is not found.
+         * @return {Model} the {@link Model} class, if found
+         */
+
+    }, {
+        key: 'get',
+        value: function get(modelName) {
+            var found = find_1(this.registry.concat(this.implicitThroughModels), function (model) {
+                return model.modelName === modelName;
+            });
+
+            if (typeof found === 'undefined') {
+                throw new Error('Did not find model ' + modelName + ' from registry.');
+            }
+            return found;
+        }
+    }, {
+        key: 'getModelClasses',
+        value: function getModelClasses() {
+            this._setupModelPrototypes(this.registry);
+            this._setupModelPrototypes(this.implicitThroughModels);
+            return this.registry.concat(this.implicitThroughModels);
+        }
+    }, {
+        key: 'generateSchemaSpec',
+        value: function generateSchemaSpec() {
+            var models = this.getModelClasses();
+            var tables = models.reduce(function (spec, modelClass) {
+                var tableName = modelClass.modelName;
+                var tableSpec = modelClass._getTableOpts(); // eslint-disable-line no-underscore-dangle
+                spec[tableName] = _Object$assign({}, { fields: modelClass.fields }, tableSpec);
+                return spec;
+            }, {});
+            return { tables: tables };
+        }
+    }, {
+        key: 'getDatabase',
+        value: function getDatabase() {
+            if (!this.db) {
+                this.db = this.createDatabase(this.generateSchemaSpec());
+            }
+            return this.db;
+        }
+
+        /**
+         * Returns the empty database state.
+         * @return {Object} the empty state
+         */
+
+    }, {
+        key: 'getEmptyState',
+        value: function getEmptyState() {
+            return this.getDatabase().getEmptyState();
+        }
+
+        /**
+         * Begins an immutable database session.
+         *
+         * @param  {Object} state  - the state the database manages
+         * @return {Session} a new {@link Session} instance
+         */
+
+    }, {
+        key: 'session',
+        value: function session(state) {
+            return new Session(this, this.getDatabase(), state);
+        }
+
+        /**
+         * Begins a mutable database session.
+         *
+         * @param  {Object} state  - the state the database manages
+         * @return {Session} a new {@link Session} instance
+         */
+
+    }, {
+        key: 'mutableSession',
+        value: function mutableSession(state) {
+            return new Session(this, this.getDatabase(), state, true);
+        }
+
+        /**
+         * @private
+         */
+
+    }, {
+        key: '_setupModelPrototypes',
+        value: function _setupModelPrototypes(models) {
+            var _this5 = this;
+
+            models.forEach(function (model) {
+                if (!model.isSetUp) {
+                    var fields = model.fields,
+                        modelName = model.modelName,
+                        querySetClass = model.querySetClass;
+
+                    forOwn_1(fields, function (field, fieldName) {
+                        if (!_this5._isFieldInstalled(modelName, fieldName)) {
+                            _this5._installField(field, fieldName, model);
+                            _this5._setFieldInstalled(modelName, fieldName);
+                        }
+                    });
+                    attachQuerySetMethods(model, querySetClass);
+                    model.isSetUp = true;
+                }
+            });
+        }
+
+        /**
+         * @private
+         */
+
+    }, {
+        key: '_isFieldInstalled',
+        value: function _isFieldInstalled(modelName, fieldName) {
+            return this.installedFields.hasOwnProperty(modelName) ? !!this.installedFields[modelName][fieldName] : false;
+        }
+
+        /**
+         * @private
+         */
+
+    }, {
+        key: '_setFieldInstalled',
+        value: function _setFieldInstalled(modelName, fieldName) {
+            if (!this.installedFields.hasOwnProperty(modelName)) {
+                this.installedFields[modelName] = {};
+            }
+            this.installedFields[modelName][fieldName] = true;
+        }
+
+        /**
+         * Installs a field on a model and its related models if necessary.
+         * @private
+         */
+
+    }, {
+        key: '_installField',
+        value: function _installField(field, fieldName, model) {
+            var FieldInstaller = field.installerClass;
+            new FieldInstaller({
+                field: field,
+                fieldName: fieldName,
+                model: model,
+                orm: this
+            }).run();
+        }
+
+        // DEPRECATED AND REMOVED METHODS
+
+        /**
+         * @deprecated Use {@link ORM#mutableSession} instead.
+         */
+
+    }, {
+        key: 'withMutations',
+        value: function withMutations(state) {
+            warnDeprecated('`ORM.prototype.withMutations` has been deprecated. ' + 'Use `ORM.prototype.mutableSession` instead.');
+            return this.mutableSession(state);
+        }
+
+        /**
+         * @deprecated Use {@link ORM#session} instead.
+         */
+
+    }, {
+        key: 'from',
+        value: function from(state) {
+            warnDeprecated('`ORM.prototype.from` has been deprecated. ' + 'Use `ORM.prototype.session` instead.');
+            return this.session(state);
+        }
+
+        /**
+         * @deprecated Access {@link Session#state} instead.
+         */
+
+    }, {
+        key: 'reducer',
+        value: function reducer() {
+            warnDeprecated('`ORM.prototype.reducer` has been deprecated. Access ' + 'the `Session.prototype.state` property instead.');
+            return createReducer(this);
+        }
+
+        /**
+         * @deprecated Use `import { createSelector } from "redux-orm"` instead.
+         */
+
+    }, {
+        key: 'createSelector',
+        value: function createSelector$$1() {
+            warnDeprecated('`ORM.prototype.createSelector` has been deprecated. ' + 'Import `createSelector` from Redux-ORM instead.');
+
+            for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                args[_key2] = arguments[_key2];
+            }
+
+            return createSelector.apply(undefined, [this].concat(args));
+        }
+
+        /**
+         * @deprecated Use {@link ORM#getEmptyState} instead.
+         */
+
+    }, {
+        key: 'getDefaultState',
+        value: function getDefaultState() {
+            warnDeprecated('`ORM.prototype.getDefaultState` has been deprecated. Use ' + '`ORM.prototype.getEmptyState` instead.');
+            return this.getEmptyState();
+        }
+
+        /**
+         * @deprecated Define a Model class instead.
+         */
+
+    }, {
+        key: 'define',
+        value: function define() {
+            throw new Error('`ORM.prototype.define` has been removed. Please define a Model class.');
+        }
+    }]);
+
+    return ORM;
+}();
+
+/**
+ *   getItem by key
+ *
+ *
+ **/
+
+function reducerItemSelector$$1(reducer, modelName, key) {
+  return createSelector(orm, function (session$$1) {
+    return session$$1[modelName].idExists(key) ? session$$1[modelName].withId(key) : session$$1[modelName].create({});
+  })(reducer);
+}
+/**
+ *   getList all
+ *
+ *
+ **/
+
+function reducerListSelector$$1(reducer, modelName) {
+  return createSelector(orm, function (session$$1) {
+    return session$$1[modelName].all().filter(function (model) {
+      return !(JSON.stringify(model) === "{}" || model.id === "");
+    }).toModelArray(); // return session[modelName].all().toModelArray()
+  })(reducer);
+}
+
+function _classCallCheck$8(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+var classCallCheck$1 = _classCallCheck$8;
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass$1(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+var createClass$1 = _createClass$1;
+
+var _typeof_1$1 = createCommonjsModule(function (module) {
+function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+
+function _typeof(obj) {
+  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+    module.exports = _typeof = function _typeof(obj) {
+      return _typeof2(obj);
+    };
+  } else {
+    module.exports = _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+    };
+  }
+
+  return _typeof(obj);
+}
+
+module.exports = _typeof;
+});
+
+function _assertThisInitialized$1(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+var assertThisInitialized = _assertThisInitialized$1;
+
+function _possibleConstructorReturn$8(self, call) {
+  if (call && (_typeof_1$1(call) === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  return assertThisInitialized(self);
+}
+
+var possibleConstructorReturn$1 = _possibleConstructorReturn$8;
+
+var getPrototypeOf$4 = createCommonjsModule(function (module) {
+function _getPrototypeOf(o) {
+  module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+module.exports = _getPrototypeOf;
+});
+
+var setPrototypeOf$5 = createCommonjsModule(function (module) {
+function _setPrototypeOf(o, p) {
+  module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+module.exports = _setPrototypeOf;
+});
+
+function _inherits$8(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) setPrototypeOf$5(subClass, superClass);
+}
+
+var inherits$1 = _inherits$8;
+
+var Attr =
+/*#__PURE__*/
+function (_Attribute) {
+  inherits$1(Attr, _Attribute);
+
+  function Attr(opts) {
+    var _this;
+
+    classCallCheck$1(this, Attr);
+
+    _this = possibleConstructorReturn$1(this, getPrototypeOf$4(Attr).call(this, opts));
+
+    if (opts && typeof opts === 'string') {
+      _this.fieldName = opts;
+    }
+
+    if (_this.opts.hasOwnProperty('fieldName')) {
+      _this.fieldName = _this.opts.fieldName;
+    }
+
+    if (_this.opts.hasOwnProperty('get')) {
+      _this.getMethod = _this.opts.get;
+    }
+
+    if (_this.opts.hasOwnProperty('set')) {
+      _this.setMethod = _this.opts.set;
+    }
+
+    return _this;
+  }
+
+  createClass$1(Attr, [{
+    key: "createForwardsDescriptor",
+    value: function createForwardsDescriptor(fieldName, model) {
+      var getMethod = this.getMethod;
+      var setMethod = this.setMethod;
+      var mapperFieldName = this.fieldName; // const fieldName=this.fieldName
+
+      /*
+      console.log(model.prototype,fieldName)
+      Object.defineProperty(
+          model.prototype,
+          fieldName,
+          {
+              get() {
+                  console.log(getMethod,this._fields[fieldName])
+                  return getMethod ? getMethod.call(this,this._fields[this.fieldName || fieldName],this._fields):this._fields[this.fieldsName || fieldName]
+              },
+              set(value) {
+                  return setMethod ? setMethod.call(this,this.set(this.fieldName || fieldName, value)): this.set(this.fieldName || fieldName, value)
+              },
+              enumerable: true,
+              configurable: true,
+          }
+      )
+      */
+
+      return {
+        get: function get() {
+          // console.log(this.fieldName)
+          return getMethod ? getMethod.call(this, this._fields[mapperFieldName || fieldName], this._fields) : this._fields[mapperFieldName || fieldName];
+        },
+        set: function set(value) {
+          return setMethod ? setMethod.call(this, this.set(this.fieldName || fieldName, value)) : this.set(this.fieldName || fieldName, value);
+        },
+        enumerable: true,
+        configurable: true
+      };
+    }
+  }]);
+
+  return Attr;
+}(Attribute);
+
+function attr$1(opt) {
+  return new Attr(opt);
+}
+
+var BaseModel =
+/*#__PURE__*/
+function (_Model) {
+  inherits$1(BaseModel, _Model);
+
+  function BaseModel() {
+    classCallCheck$1(this, BaseModel);
+
+    return possibleConstructorReturn$1(this, getPrototypeOf$4(BaseModel).apply(this, arguments));
+  }
+
+  createClass$1(BaseModel, [{
+    key: "_initFields",
+    value: function _initFields(props) {
+      var _this2 = this;
+
+      var _this = this; // this._fields = Object.assign({}, props);
+
+
+      this._fields = Object.assign({}, props);
+
+      var _loop = function _loop() {
+        var fieldName = p; // console.log(fieldName,!(fieldName in _this),!(fieldName in this.getClass().fields))
+
+        if (!(fieldName in _this) === false && !(fieldName in _this2.getClass().fields) === false) {
+          Object.defineProperty(_this, fieldName, {
+            get: function get() {
+              return _this._fields[fieldName];
+            },
+            set: function set(value) {
+              return _this.set(fieldName, value);
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } else {
+          Object.defineProperty(_this, fieldName, {
+            get: function get() {
+              return "please register the property before using\uFF1A".concat(fieldName, " -->").concat(this.getClass().modelName);
+            },
+            set: function set(value) {
+              console.info("please register the property before using\uFF1A".concat(fieldName, " -->").concat(this.getClass().modelName)); // return _this.set(fieldName, value);
+
+              return null;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        }
+      };
+
+      for (var p in props) {
+        _loop();
+      } // });
+
+    }
+  }, {
+    key: "toData",
+    value: function toData() {
+      return this._fields;
+    }
+  }]);
+
+  return BaseModel;
+}(Model);
+
+BaseModel.reducer = function (action, modelClass, session) {
+  var modelName = modelClass.modelName;
+
+  switch (action.type) {
+    case "".concat(modelName, "/newItem"):
+      modelClass.create(action.payload);
+      break;
+
+    case "".concat(modelName, "/savePage"):
+      modelClass.all().toModelArray().forEach(function (model) {
+        return model.delete();
+      });
+      action.payload.items.map(function (m) {
+        return modelClass.create(m);
+      });
+      break;
+
+    case "".concat(modelName, "/saveList"):
+      action.payload.items.map(function (m) {
+        return modelClass.create(m);
+      });
+      break;
+
+    case "".concat(modelName, "/updateItem"):
+      modelClass.withId(action.payload.id).update(action.payload);
+      break;
+
+    case "".concat(modelName, "/saveItem"):
+      modelClass.upsert(action.payload);
+      break;
+
+    case "".concat(modelName, "/deleteItem"):
+      var model = modelClass.withId(action.payload);
+      model.delete();
+      break;
+
+    default: //  console.log(modelClass,action.type)
+
+  }
+
+  return session.state;
+};
+
+BaseModel.modelName = 'BaseModel';
+BaseModel.fields = {
+  id: attr$1()
+};
+
+ORM.prototype.getDatabase = function getDatabase() {
+  this.db = this.createDatabase(this.generateSchemaSpec());
+  return this.db;
+};
+
+var orm = new ORM({// createDatabase:createDatabase
+});
+var emptyDBState = orm.getEmptyState();
+var session = orm.session(emptyDBState);
+
+var index$9 = /*#__PURE__*/Object.freeze({
+	BaseModel: BaseModel,
+	Attr: Attr,
+	orm: orm,
+	session: session,
+	createReducer: createReducer,
+	reducerItemSelector: reducerItemSelector$$1,
+	reducerListSelector: reducerListSelector$$1,
+	attr: attr$1
+});
+
 // export * as router from './router'
 
-export { index$2 as ModuleRouter, index$3 as ModuleAction, index$4 as ModuleReducer, index$6 as ModuleSaga, index$7 as ModuleContainer, index$5 as ModuleMiddleware };
+export { index$2 as ModuleRouter, index$3 as ModuleAction, index$4 as ModuleReducer, index$6 as ModuleSaga, index$7 as ModuleContainer, index$5 as ModuleMiddleware, index$9 as ModuleModel };

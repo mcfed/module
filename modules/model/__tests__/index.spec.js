@@ -33,9 +33,11 @@ describe('ORM initial', () => {
       serverName:"abd",
       serverStatus:"1",
       serverIp:"127.0.0.1",
-      serverPort:"8080"
+      serverPort:"8080",
+      ip:"address"
     })
-    console.log(testModel.withId("abc").serverStatus)
+    console.log(JSON.stringify(testModel.withId("abc").toData()))
+    console.log(JSON.stringify(testModel.withId("abc").ip))
     // console.log(testModel.all().toModelArray())
     // console.log(test.serverName)
     done()

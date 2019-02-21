@@ -19,7 +19,7 @@ export default function createMessage(message) {
   return ({ getState, dispatch }) => (next) =>
     (action) => {
       if (SHOW_SUCCESS===action.type) {
-          message.success(action.payload)
+          message.success(action.payload||"操作成功")
       }else if(SHOW_ERROR===action.type){
           message.error(action.payload)
       }

@@ -1,6 +1,6 @@
 import {createSelector} from 'redux-orm'
 // import orm from './index'
-import orm from './index'
+import {orm} from './index'
 
 
 /**
