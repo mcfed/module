@@ -8428,28 +8428,52 @@ function fetch(method, action) {
     }
   }, _marked, this);
 }
-function defaultSaga(actions, Api) {
+function defaultSaga(actions, Api, namespace) {
   var saga = {
     refreshList:
     /*#__PURE__*/
-    regenerator.mark(function refreshList(action, namespaceSelector) {
-      var params;
+    regenerator.mark(function refreshList(action) {
+      var params, listAction;
       return regenerator.wrap(function refreshList$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
               _context2.next = 2;
               return select(function (state) {
-                //    return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(actions.listAction.toString()))
-                return {};
+                return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(saga.fetchList.toString())); // return {}
               });
 
             case 2:
               params = _context2.sent;
-              _context2.next = 5;
-              return call(saga.fetchList, params);
+              // console.log(saga.fetchList,saga.fetchList())
+              //临时方案后续处理
+              listAction = {
+                type: [namespace, "fetchList"].join("/"),
+                payload: params,
+                meta: {
+                  sagaAction: true
+                }
+              };
+              _context2.next = 6;
+              return put({
+                type: "@@MIDDLEWARE/FETCH_PARAMS",
+                payload: listAction,
+                "@@redux-saga/SAGA_ACTION": true
+              });
 
-            case 5:
+            case 6:
+              _context2.next = 8;
+              return put({
+                type: "@@MIDDLEWARE/FETCH_REQ",
+                payload: listAction,
+                "@@redux-saga/SAGA_ACTION": true
+              });
+
+            case 8:
+              _context2.next = 10;
+              return fork(saga.fetchList, listAction);
+
+            case 10:
             case "end":
               return _context2.stop();
           }
@@ -8600,11 +8624,11 @@ function defaultSaga(actions, Api) {
               }
 
               _context6.next = 7;
-              return saga.refreshList(action);
+              return put(showSuccess());
 
             case 7:
               _context6.next = 9;
-              return put(showSuccess());
+              return saga.refreshList(action);
 
             case 9:
               _context6.next = 13;

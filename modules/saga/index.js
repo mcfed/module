@@ -14,14 +14,23 @@ export function* fetch(method,action){
   return result
 }
 
-export function defaultSaga(actions,Api){
+export function defaultSaga(actions,Api,namespace){
   const saga= {
-    refreshList:function* (action,namespaceSelector){
+    refreshList:function* (action){
       const params = yield effects.select((state)=>{
-    //    return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(actions.listAction.toString()))
-        return {}
+       return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(saga.fetchList.toString()))
+        // return {}
       })
-      yield effects.call(saga.fetchList,params)
+      // console.log(saga.fetchList,saga.fetchList())
+      //临时方案后续处理
+      const listAction={
+        type:[namespace,"fetchList"].join("/"),
+        payload:params,
+        meta:{sagaAction:true}
+      }
+      yield effects.put({type:"@@MIDDLEWARE/FETCH_PARAMS",payload:listAction,"@@redux-saga/SAGA_ACTION": true})
+      yield effects.put({type:"@@MIDDLEWARE/FETCH_REQ",payload:listAction,"@@redux-saga/SAGA_ACTION": true})
+      yield effects.fork(saga.fetchList,listAction)
     },
     fetchItem: function* (action){
       const result = yield fetch(Api.fetchItem, action);
@@ -54,8 +63,8 @@ export function defaultSaga(actions,Api){
       const payload = {ids:[].concat(action.payload)}
       const result = yield fetch(Api.fetchDelete, Object.assign(action,{payload}));
       if(result.code === 0){
-        yield saga.refreshList(action)
         yield effects.put(showSuccess())
+        yield saga.refreshList(action)
       }else{
         yield effects.put(showError(result.message))
       }
