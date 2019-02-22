@@ -1,4 +1,4 @@
-import orm,{session,createReducer} from '../index'
+import {orm,session,createReducer} from '../index'
 import BaseModel from '../BaseModel'
 import {attr} from '../Attr'
 
@@ -36,8 +36,8 @@ describe('ORM initial', () => {
       serverPort:"8080",
       ip:"address"
     })
-    console.log(JSON.stringify(testModel.withId("abc").toData()))
-    console.log(JSON.stringify(testModel.withId("abc").ip))
+    // console.log(JSON.stringify(testModel.withId("abc").toData()))
+    // console.log(JSON.stringify(testModel.withId("abc").ip))
     // console.log(testModel.all().toModelArray())
     // console.log(test.serverName)
     done()

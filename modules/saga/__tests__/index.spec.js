@@ -1,4 +1,4 @@
-import { sagaCreator } from '../index'
+import {defaultSaga as sagaCreator } from '../index'
 
 describe("测试sagaCreator", () => {
     const Api={
