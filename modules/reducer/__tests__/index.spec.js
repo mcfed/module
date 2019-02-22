@@ -1,4 +1,4 @@
-import {reducerActionCreator} from '../index'
+import {defaultReducer} from '../index'
 
 describe("reducerActionCreator", () => {
   const actions={
@@ -7,11 +7,11 @@ describe("reducerActionCreator", () => {
     saveItem:"saveItem",
     deleteItem:"deleteItem"
   }
-  it.skip("reducerActionCreator", (done) => {
-    expect(reducerActionCreator(actions)).toHaveProperty('saveParams')
-    expect(reducerActionCreator(actions)).toHaveProperty('saveList')
-    expect(reducerActionCreator(actions)).toHaveProperty('saveItem')
-    expect(reducerActionCreator(actions)).toHaveProperty('deleteItem')
+  it("reducerActionCreator", (done) => {
+    // expect(defaultReducer()).toHaveProperty('saveParams')
+    expect(defaultReducer()).toHaveProperty('saveList')
+    expect(defaultReducer()).toHaveProperty('saveItem')
+    expect(defaultReducer()).toHaveProperty('deleteItem')
     done()
   });
 });
