@@ -21,10 +21,19 @@ export const defaultState={
 
 export function defaultReducer(){
   return {
+
+    savePage:(state,{payload})=>{
+      return {
+        ...state,
+        // items:payload.items,
+        total:payload.totalCount,
+        current:payload.currentPage
+      }
+    },
     saveList:(state,{payload})=>{
       return {
         ...state,
-        items:payload.items,
+        // items:payload.items,
         total:payload.totalCount,
         current:payload.currentPage
       }

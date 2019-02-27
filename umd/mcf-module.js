@@ -17,6 +17,10 @@
 		return module = { exports: {} }, fn(module, module.exports), module.exports;
 	}
 
+	function getCjsExportFromNamespace (n) {
+		return n && n.default || n;
+	}
+
 	var actions = createCommonjsModule(function (module, exports) {
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -3863,6 +3867,8 @@
 		withRouter: withRouter
 	});
 
+	var _reactRouter = getCjsExportFromNamespace(es$1);
+
 	var ConnectedRouter = createCommonjsModule(function (module, exports) {
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -4150,7 +4156,7 @@
 	      return _react2.default;
 
 	    case 'Router':
-	      return es$1.Router;
+	      return _reactRouter.Router;
 	  }
 
 	  return undefined;
@@ -4931,7 +4937,7 @@
 	function _get_original__(variableName) {
 	  switch (variableName) {
 	    case 'matchPath':
-	      return es$1.matchPath;
+	      return _reactRouter.matchPath;
 
 	    case 'createSelectors':
 	      return createSelectors;
@@ -6682,22 +6688,30 @@
 	};
 	function defaultReducer() {
 	  return {
-	    saveList: function saveList(state, _ref) {
+	    savePage: function savePage(state, _ref) {
 	      var payload = _ref.payload;
 	      return objectSpread({}, state, {
-	        items: payload.items,
+	        // items:payload.items,
 	        total: payload.totalCount,
 	        current: payload.currentPage
 	      });
 	    },
-	    saveItem: function saveItem(state, _ref2) {
+	    saveList: function saveList(state, _ref2) {
 	      var payload = _ref2.payload;
+	      return objectSpread({}, state, {
+	        // items:payload.items,
+	        total: payload.totalCount,
+	        current: payload.currentPage
+	      });
+	    },
+	    saveItem: function saveItem(state, _ref3) {
+	      var payload = _ref3.payload;
 	      return objectSpread({}, state, {
 	        item: payload
 	      });
 	    },
-	    deleteItem: function deleteItem(state, _ref3) {
-	      var payload = _ref3.payload;
+	    deleteItem: function deleteItem(state, _ref4) {
+	      var payload = _ref4.payload;
 	      return objectSpread({}, state, {
 	        item: {}
 	      });
@@ -8671,6 +8685,28 @@
 		takeSagas: takeSagas
 	});
 
+	function getDictList(dictData, dicName) {
+	  // console.log(dictData)
+	  return dictData[dicName] || [];
+	}
+	function getDictLabel(dictData, dicName, value) {
+	  var label = '';
+
+	  try {
+	    var map = getDictList(dictData, dicName);
+	    map.forEach(function (arr) {
+	      if (arr.value === value) {
+	        label = arr.label; // throw 'Finish and value = ' + label 
+	      }
+	    });
+	  } catch (e) {
+	    console.log(e);
+	  } // console.log(label)
+
+
+	  return label;
+	}
+
 	// export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"
 
 	var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) {
@@ -8680,6 +8716,15 @@
 	    },
 	    querys: function querys(type) {
 	      return state.fetchingReducer.params.get(type.toString ? type.toString() : type) || {};
+	    },
+	    dicts: function dicts(type, value) {
+	      if (arguments.length > 1) {
+	        return getDictLabel(state.appReducer, type, value);
+	      } else if (arguments.legnth == 1) {
+	        return getDictList(state.appReducer, type);
+	      }
+
+	      return "";
 	    },
 	    locale: function locale(type, value) {
 	      if (state.intl) {
@@ -9697,9 +9742,17 @@
 	// 24.3.3 JSON[@@toStringTag]
 	_setToStringTag(_global.JSON, 'JSON', true);
 
+
+
+	var es6_object_toString = /*#__PURE__*/Object.freeze({
+
+	});
+
 	_wksDefine('asyncIterator');
 
 	_wksDefine('observable');
+
+	getCjsExportFromNamespace(es6_object_toString);
 
 	var symbol = _core.Symbol;
 

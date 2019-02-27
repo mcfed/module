@@ -1,5 +1,6 @@
 import {bindActionCreators as bindActions} from 'redux'
 export {connect} from 'react-redux'
+import {DictUtils} from '../utils'
 // import {injectIntl} from 'react-intl'
 // export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"
 
@@ -12,6 +13,14 @@ export const defaultMergeProps=(state, dispatch, ownProps)=>{
     querys:function(type){
       return state.fetchingReducer.params.get(type.toString?type.toString():type) || {}
     },
+    dicts:function(type,value){
+      if(arguments.length>1){
+        return DictUtils.getDictLabel(state.appReducer,type,value)
+      }else if(arguments.legnth == 1 ){
+        return DictUtils.getDictList(state.appReducer,type)
+      }
+      return ""
+    },
     locale:function(type,value){
       if(state.intl){
         if(state.messages[type]){
@@ -20,7 +29,7 @@ export const defaultMergeProps=(state, dispatch, ownProps)=>{
           return state.intl.formatMessage({id:type})
         }
       }
-      return "" 
+      return ""
     }
   })
 }

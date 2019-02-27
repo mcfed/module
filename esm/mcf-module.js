@@ -6711,22 +6711,30 @@ var defaultState = {
 };
 function defaultReducer() {
   return {
-    saveList: function saveList(state, _ref) {
+    savePage: function savePage(state, _ref) {
       var payload = _ref.payload;
       return objectSpread({}, state, {
-        items: payload.items,
+        // items:payload.items,
         total: payload.totalCount,
         current: payload.currentPage
       });
     },
-    saveItem: function saveItem(state, _ref2) {
+    saveList: function saveList(state, _ref2) {
       var payload = _ref2.payload;
+      return objectSpread({}, state, {
+        // items:payload.items,
+        total: payload.totalCount,
+        current: payload.currentPage
+      });
+    },
+    saveItem: function saveItem(state, _ref3) {
+      var payload = _ref3.payload;
       return objectSpread({}, state, {
         item: payload
       });
     },
-    deleteItem: function deleteItem(state, _ref3) {
-      var payload = _ref3.payload;
+    deleteItem: function deleteItem(state, _ref4) {
+      var payload = _ref4.payload;
       return objectSpread({}, state, {
         item: {}
       });
@@ -8702,6 +8710,28 @@ var index$6 = /*#__PURE__*/Object.freeze({
 	takeSagas: takeSagas
 });
 
+function getDictList(dictData, dicName) {
+  // console.log(dictData)
+  return dictData[dicName] || [];
+}
+function getDictLabel(dictData, dicName, value) {
+  var label = '';
+
+  try {
+    var map = getDictList(dictData, dicName);
+    map.forEach(function (arr) {
+      if (arr.value === value) {
+        label = arr.label; // throw 'Finish and value = ' + label 
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  } // console.log(label)
+
+
+  return label;
+}
+
 // export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"
 
 var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) {
@@ -8711,6 +8741,15 @@ var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) 
     },
     querys: function querys(type) {
       return state.fetchingReducer.params.get(type.toString ? type.toString() : type) || {};
+    },
+    dicts: function dicts(type, value) {
+      if (arguments.length > 1) {
+        return getDictLabel(state.appReducer, type, value);
+      } else if (arguments.legnth == 1) {
+        return getDictList(state.appReducer, type);
+      }
+
+      return "";
     },
     locale: function locale(type, value) {
       if (state.intl) {
