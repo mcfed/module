@@ -8423,7 +8423,7 @@
 	            case 0:
 	              _context2.next = 2;
 	              return select(function (state) {
-	                return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(saga.fetchList.toString())); // return {}
+	                return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(saga.fetchPage.toString())); // return {}
 	              });
 
 	            case 2:
@@ -8648,7 +8648,7 @@
 
 	            case 7:
 	              _context7.next = 9;
-	              return saga.refreshList(action);
+	              return saga.refreshPage(action);
 
 	            case 9:
 	              _context7.next = 13;

@@ -18,7 +18,7 @@ export function defaultSaga(actions,Api,namespace){
   const saga= {
     refreshPage:function* (action){
       const params = yield effects.select((state)=>{
-       return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(saga.fetchList.toString()))
+       return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(saga.fetchPage.toString()))
         // return {}
       })
       // console.log(saga.fetchList,saga.fetchList())
@@ -72,7 +72,7 @@ export function defaultSaga(actions,Api,namespace){
       const result = yield fetch(Api.fetchDelete, Object.assign(action,{payload}));
       if(result.code === 0){
         yield effects.put(showSuccess())
-        yield saga.refreshList(action)
+        yield saga.refreshPage(action)
       }else{
         yield effects.put(showError(result.message))
       }
