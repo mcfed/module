@@ -32,7 +32,7 @@ export function defaultReducer(){
     saveList:(state,{payload})=>{
       return {
         ...state,
-        items:payload.items,
+        // items:payload.items,
         total:payload.totalCount,
         current:payload.currentPage
       }

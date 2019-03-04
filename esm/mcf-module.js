@@ -6722,7 +6722,7 @@ function defaultReducer() {
     saveList: function saveList(state, _ref2) {
       var payload = _ref2.payload;
       return objectSpread({}, state, {
-        items: payload.items,
+        // items:payload.items,
         total: payload.totalCount,
         current: payload.currentPage
       });
@@ -8438,11 +8438,11 @@ function fetch(method, action) {
 }
 function defaultSaga(actions, Api, namespace) {
   var saga = {
-    refreshList:
+    refreshPage:
     /*#__PURE__*/
-    regenerator.mark(function refreshList(action) {
-      var params, listAction;
-      return regenerator.wrap(function refreshList$(_context2) {
+    regenerator.mark(function refreshPage(action) {
+      var params, pageAction;
+      return regenerator.wrap(function refreshPage$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
@@ -8455,8 +8455,8 @@ function defaultSaga(actions, Api, namespace) {
               params = _context2.sent;
               // console.log(saga.fetchList,saga.fetchList())
               //临时方案后续处理
-              listAction = {
-                type: [namespace, "fetchList"].join("/"),
+              pageAction = {
+                type: [namespace, "fetchPage"].join("/"),
                 payload: params,
                 meta: {
                   sagaAction: true
@@ -8479,25 +8479,25 @@ function defaultSaga(actions, Api, namespace) {
 
             case 8:
               _context2.next = 10;
-              return fork(saga.fetchList, listAction);
+              return fork(saga.fetchPage, pageAction);
 
             case 10:
             case "end":
               return _context2.stop();
           }
         }
-      }, refreshList, this);
+      }, refreshPage, this);
     }),
-    fetchItem:
+    fetchPage:
     /*#__PURE__*/
-    regenerator.mark(function fetchItem(action) {
+    regenerator.mark(function fetchPage(action) {
       var result;
-      return regenerator.wrap(function fetchItem$(_context3) {
+      return regenerator.wrap(function fetchPage$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
               _context3.next = 2;
-              return fetch(Api.fetchItem, action);
+              return call(Api.fetchList, action.payload);
 
             case 2:
               result = _context3.sent;
@@ -8508,7 +8508,7 @@ function defaultSaga(actions, Api, namespace) {
               }
 
               _context3.next = 6;
-              return put(actions.saveItem(result.data));
+              return put(actions.savePage(result.data));
 
             case 6:
               _context3.next = 10;
@@ -8523,18 +8523,18 @@ function defaultSaga(actions, Api, namespace) {
               return _context3.stop();
           }
         }
-      }, fetchItem, this);
+      }, fetchPage, this);
     }),
-    fetchList:
+    fetchItem:
     /*#__PURE__*/
-    regenerator.mark(function fetchList(action) {
+    regenerator.mark(function fetchItem(action) {
       var result;
-      return regenerator.wrap(function fetchList$(_context4) {
+      return regenerator.wrap(function fetchItem$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
               _context4.next = 2;
-              return call(Api.fetchList, action.payload);
+              return fetch(Api.fetchItem, action);
 
             case 2:
               result = _context4.sent;
@@ -8545,7 +8545,7 @@ function defaultSaga(actions, Api, namespace) {
               }
 
               _context4.next = 6;
-              return put(actions.saveList(result.data));
+              return put(actions.saveItem(result.data));
 
             case 6:
               _context4.next = 10;
@@ -8560,49 +8560,86 @@ function defaultSaga(actions, Api, namespace) {
               return _context4.stop();
           }
         }
+      }, fetchItem, this);
+    }),
+    fetchList:
+    /*#__PURE__*/
+    regenerator.mark(function fetchList(action) {
+      var result;
+      return regenerator.wrap(function fetchList$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              _context5.next = 2;
+              return call(Api.fetchList, action.payload);
+
+            case 2:
+              result = _context5.sent;
+
+              if (!(result.code === 0)) {
+                _context5.next = 8;
+                break;
+              }
+
+              _context5.next = 6;
+              return put(actions.saveList(result.data));
+
+            case 6:
+              _context5.next = 10;
+              break;
+
+            case 8:
+              _context5.next = 10;
+              return put(showError(result.message));
+
+            case 10:
+            case "end":
+              return _context5.stop();
+          }
+        }
       }, fetchList, this);
     }),
     fetchSave:
     /*#__PURE__*/
     regenerator.mark(function fetchSave(action) {
       var result;
-      return regenerator.wrap(function fetchSave$(_context5) {
+      return regenerator.wrap(function fetchSave$(_context6) {
         while (1) {
-          switch (_context5.prev = _context5.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
-              _context5.next = 2;
+              _context6.next = 2;
               return fetch(Api.fetchSave, action);
 
             case 2:
-              result = _context5.sent;
+              result = _context6.sent;
 
               if (!(result.code === 0)) {
-                _context5.next = 12;
+                _context6.next = 12;
                 break;
               }
 
-              _context5.next = 6;
+              _context6.next = 6;
               return put(actions.saveItem(result.data));
 
             case 6:
-              _context5.next = 8;
+              _context6.next = 8;
               return put(showSuccess());
 
             case 8:
-              _context5.next = 10;
+              _context6.next = 10;
               return put(goBack());
 
             case 10:
-              _context5.next = 14;
+              _context6.next = 14;
               break;
 
             case 12:
-              _context5.next = 14;
+              _context6.next = 14;
               return put(showError(result.message));
 
             case 14:
             case "end":
-              return _context5.stop();
+              return _context6.stop();
           }
         }
       }, fetchSave, this);
@@ -8611,44 +8648,44 @@ function defaultSaga(actions, Api, namespace) {
     /*#__PURE__*/
     regenerator.mark(function fetchDelete(action) {
       var payload, result;
-      return regenerator.wrap(function fetchDelete$(_context6) {
+      return regenerator.wrap(function fetchDelete$(_context7) {
         while (1) {
-          switch (_context6.prev = _context6.next) {
+          switch (_context7.prev = _context7.next) {
             case 0:
               payload = {
                 ids: [].concat(action.payload)
               };
-              _context6.next = 3;
+              _context7.next = 3;
               return fetch(Api.fetchDelete, Object.assign(action, {
                 payload: payload
               }));
 
             case 3:
-              result = _context6.sent;
+              result = _context7.sent;
 
               if (!(result.code === 0)) {
-                _context6.next = 11;
+                _context7.next = 11;
                 break;
               }
 
-              _context6.next = 7;
+              _context7.next = 7;
               return put(showSuccess());
 
             case 7:
-              _context6.next = 9;
+              _context7.next = 9;
               return saga.refreshList(action);
 
             case 9:
-              _context6.next = 13;
+              _context7.next = 13;
               break;
 
             case 11:
-              _context6.next = 13;
+              _context7.next = 13;
               return put(showError(result.message));
 
             case 13:
             case "end":
-              return _context6.stop();
+              return _context7.stop();
           }
         }
       }, fetchDelete, this);
@@ -8659,45 +8696,45 @@ function defaultSaga(actions, Api, namespace) {
 function takeSagas(sagaTypes, saga) {
   var optimize,
       s,
-      _args7 = arguments;
-  return regenerator.wrap(function takeSagas$(_context7) {
+      _args8 = arguments;
+  return regenerator.wrap(function takeSagas$(_context8) {
     while (1) {
-      switch (_context7.prev = _context7.next) {
+      switch (_context8.prev = _context8.next) {
         case 0:
-          optimize = _args7.length > 2 && _args7[2] !== undefined ? _args7[2] : {};
-          _context7.t0 = regenerator.keys(saga);
+          optimize = _args8.length > 2 && _args8[2] !== undefined ? _args8[2] : {};
+          _context8.t0 = regenerator.keys(saga);
 
         case 2:
-          if ((_context7.t1 = _context7.t0()).done) {
-            _context7.next = 13;
+          if ((_context8.t1 = _context8.t0()).done) {
+            _context8.next = 13;
             break;
           }
 
-          s = _context7.t1.value;
+          s = _context8.t1.value;
 
           if (!optimize[s]) {
-            _context7.next = 9;
+            _context8.next = 9;
             break;
           }
 
-          _context7.next = 7;
+          _context8.next = 7;
           return optimize[s](sagaTypes[s].toString(), saga[s]);
 
         case 7:
-          _context7.next = 11;
+          _context8.next = 11;
           break;
 
         case 9:
-          _context7.next = 11;
+          _context8.next = 11;
           return takeEvery$2(sagaTypes[s].toString(), saga[s]);
 
         case 11:
-          _context7.next = 2;
+          _context8.next = 2;
           break;
 
         case 13:
         case "end":
-          return _context7.stop();
+          return _context8.stop();
       }
     }
   }, _marked2, this);

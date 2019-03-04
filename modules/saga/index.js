@@ -16,21 +16,29 @@ export function* fetch(method,action){
 
 export function defaultSaga(actions,Api,namespace){
   const saga= {
-    refreshList:function* (action){
+    refreshPage:function* (action){
       const params = yield effects.select((state)=>{
        return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(saga.fetchList.toString()))
         // return {}
       })
       // console.log(saga.fetchList,saga.fetchList())
       //临时方案后续处理
-      const listAction={
-        type:[namespace,"fetchList"].join("/"),
+      const pageAction={
+        type:[namespace,"fetchPage"].join("/"),
         payload:params,
         meta:{sagaAction:true}
       }
       yield effects.put({type:"@@MIDDLEWARE/FETCH_PARAMS",payload:listAction,"@@redux-saga/SAGA_ACTION": true})
       yield effects.put({type:"@@MIDDLEWARE/FETCH_REQ",payload:listAction,"@@redux-saga/SAGA_ACTION": true})
-      yield effects.fork(saga.fetchList,listAction)
+      yield effects.fork(saga.fetchPage,pageAction)
+    },
+    fetchPage: function* (action) {
+      const result = yield effects.call(Api.fetchList, action.payload);
+      if(result.code === 0){
+        yield effects.put(actions.savePage(result.data));
+      }else{
+        yield effects.put(showError(result.message))
+      }
     },
     fetchItem: function* (action){
       const result = yield fetch(Api.fetchItem, action);

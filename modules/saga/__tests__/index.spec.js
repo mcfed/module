@@ -4,6 +4,7 @@ describe("测试sagaCreator", () => {
     const Api={
       fetchItem:jest.fn(),
       fetchList:jest.fn(),
+      fetchPage:jest.fn(),
       fetchSave:jest.fn(),
       fetchDelete:jest.fn()
     }
@@ -14,6 +15,7 @@ describe("测试sagaCreator", () => {
     }
     it("sagaCreator", (done) => {
       expect(sagaCreator(actions,Api)).toHaveProperty('fetchItem')
+      expect(sagaCreator(actions,Api)).toHaveProperty('fetchPage')
       expect(sagaCreator(actions,Api)).toHaveProperty('fetchList')
       expect(sagaCreator(actions,Api)).toHaveProperty('fetchSave')
       expect(sagaCreator(actions,Api)).toHaveProperty('fetchDelete')
