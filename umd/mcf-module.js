@@ -17,6 +17,10 @@
 		return module = { exports: {} }, fn(module, module.exports), module.exports;
 	}
 
+	function getCjsExportFromNamespace (n) {
+		return n && n.default || n;
+	}
+
 	var actions = createCommonjsModule(function (module, exports) {
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -3863,6 +3867,8 @@
 		withRouter: withRouter
 	});
 
+	var _reactRouter = getCjsExportFromNamespace(es$1);
+
 	var ConnectedRouter = createCommonjsModule(function (module, exports) {
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -4150,7 +4156,7 @@
 	      return _react2.default;
 
 	    case 'Router':
-	      return es$1.Router;
+	      return _reactRouter.Router;
 	  }
 
 	  return undefined;
@@ -4931,7 +4937,7 @@
 	function _get_original__(variableName) {
 	  switch (variableName) {
 	    case 'matchPath':
-	      return es$1.matchPath;
+	      return _reactRouter.matchPath;
 
 	    case 'createSelectors':
 	      return createSelectors;
@@ -9736,9 +9742,17 @@
 	// 24.3.3 JSON[@@toStringTag]
 	_setToStringTag(_global.JSON, 'JSON', true);
 
+
+
+	var es6_object_toString = /*#__PURE__*/Object.freeze({
+
+	});
+
 	_wksDefine('asyncIterator');
 
 	_wksDefine('observable');
+
+	getCjsExportFromNamespace(es6_object_toString);
 
 	var symbol = _core.Symbol;
 
@@ -20034,13 +20048,13 @@
 	      var getMethod = this.getMethod;
 	      var setMethod = this.setMethod;
 	      var mapperFieldName = this.fieldName || fieldName;
-	      console.log(this.fieldName, fieldName);
 	      return {
 	        get: function get() {
-	          console.log(mapperFieldName, getMethod, setMethod);
+	          // console.log(mapperFieldName,getMethod)
 	          return getMethod ? getMethod.call(this, this._fields[mapperFieldName], this._fields) : this._fields[mapperFieldName];
 	        },
 	        set: function set(value) {
+	          // console.log(mapperFieldName,setMethod)
 	          return setMethod ? setMethod.call(this, this.set(mapperFieldName, value)) : this.set(mapperFieldName || fieldName, value);
 	        },
 	        enumerable: true,

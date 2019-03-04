@@ -20065,13 +20065,13 @@ function (_Attribute) {
       var getMethod = this.getMethod;
       var setMethod = this.setMethod;
       var mapperFieldName = this.fieldName || fieldName;
-      console.log(this.fieldName, fieldName);
       return {
         get: function get() {
-          console.log(mapperFieldName, getMethod, setMethod);
+          // console.log(mapperFieldName,getMethod)
           return getMethod ? getMethod.call(this, this._fields[mapperFieldName], this._fields) : this._fields[mapperFieldName];
         },
         set: function set(value) {
+          // console.log(mapperFieldName,setMethod)
           return setMethod ? setMethod.call(this, this.set(mapperFieldName, value)) : this.set(mapperFieldName || fieldName, value);
         },
         enumerable: true,
