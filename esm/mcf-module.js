@@ -6722,7 +6722,7 @@ function defaultReducer() {
     saveList: function saveList(state, _ref2) {
       var payload = _ref2.payload;
       return objectSpread({}, state, {
-        // items:payload.items,
+        items: payload.items,
         total: payload.totalCount,
         current: payload.currentPage
       });
@@ -20041,7 +20041,7 @@ function (_Attribute) {
     _this = possibleConstructorReturn$1(this, getPrototypeOf$4(Attr).call(this, opts));
 
     if (opts && typeof opts === 'string') {
-      _this.fieldName = opts;
+      _this.fieldName = _this.opts;
     }
 
     if (_this.opts.hasOwnProperty('fieldName')) {
@@ -20064,34 +20064,15 @@ function (_Attribute) {
     value: function createForwardsDescriptor(fieldName, model) {
       var getMethod = this.getMethod;
       var setMethod = this.setMethod;
-      var mapperFieldName = this.fieldName; // const fieldName=this.fieldName
-
-      /*
-      console.log(model.prototype,fieldName)
-      Object.defineProperty(
-          model.prototype,
-          fieldName,
-          {
-              get() {
-                  console.log(getMethod,this._fields[fieldName])
-                  return getMethod ? getMethod.call(this,this._fields[this.fieldName || fieldName],this._fields):this._fields[this.fieldsName || fieldName]
-              },
-              set(value) {
-                  return setMethod ? setMethod.call(this,this.set(this.fieldName || fieldName, value)): this.set(this.fieldName || fieldName, value)
-              },
-              enumerable: true,
-              configurable: true,
-          }
-      )
-      */
-
+      var mapperFieldName = this.fieldName || fieldName;
+      console.log(this.fieldName, fieldName);
       return {
         get: function get() {
-          // console.log(this.fieldName)
-          return getMethod ? getMethod.call(this, this._fields[mapperFieldName || fieldName], this._fields) : this._fields[mapperFieldName || fieldName];
+          console.log(mapperFieldName, getMethod, setMethod);
+          return getMethod ? getMethod.call(this, this._fields[mapperFieldName], this._fields) : this._fields[mapperFieldName];
         },
         set: function set(value) {
-          return setMethod ? setMethod.call(this, this.set(this.fieldName || fieldName, value)) : this.set(this.fieldName || fieldName, value);
+          return setMethod ? setMethod.call(this, this.set(mapperFieldName, value)) : this.set(mapperFieldName || fieldName, value);
         },
         enumerable: true,
         configurable: true

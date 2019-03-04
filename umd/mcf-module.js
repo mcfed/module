@@ -17,10 +17,6 @@
 		return module = { exports: {} }, fn(module, module.exports), module.exports;
 	}
 
-	function getCjsExportFromNamespace (n) {
-		return n && n.default || n;
-	}
-
 	var actions = createCommonjsModule(function (module, exports) {
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -3867,8 +3863,6 @@
 		withRouter: withRouter
 	});
 
-	var _reactRouter = getCjsExportFromNamespace(es$1);
-
 	var ConnectedRouter = createCommonjsModule(function (module, exports) {
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -4156,7 +4150,7 @@
 	      return _react2.default;
 
 	    case 'Router':
-	      return _reactRouter.Router;
+	      return es$1.Router;
 	  }
 
 	  return undefined;
@@ -4937,7 +4931,7 @@
 	function _get_original__(variableName) {
 	  switch (variableName) {
 	    case 'matchPath':
-	      return _reactRouter.matchPath;
+	      return es$1.matchPath;
 
 	    case 'createSelectors':
 	      return createSelectors;
@@ -6699,7 +6693,7 @@
 	    saveList: function saveList(state, _ref2) {
 	      var payload = _ref2.payload;
 	      return objectSpread({}, state, {
-	        // items:payload.items,
+	        items: payload.items,
 	        total: payload.totalCount,
 	        current: payload.currentPage
 	      });
@@ -9742,17 +9736,9 @@
 	// 24.3.3 JSON[@@toStringTag]
 	_setToStringTag(_global.JSON, 'JSON', true);
 
-
-
-	var es6_object_toString = /*#__PURE__*/Object.freeze({
-
-	});
-
 	_wksDefine('asyncIterator');
 
 	_wksDefine('observable');
-
-	getCjsExportFromNamespace(es6_object_toString);
 
 	var symbol = _core.Symbol;
 
@@ -20024,7 +20010,7 @@
 	    _this = possibleConstructorReturn$1(this, getPrototypeOf$4(Attr).call(this, opts));
 
 	    if (opts && typeof opts === 'string') {
-	      _this.fieldName = opts;
+	      _this.fieldName = _this.opts;
 	    }
 
 	    if (_this.opts.hasOwnProperty('fieldName')) {
@@ -20047,34 +20033,15 @@
 	    value: function createForwardsDescriptor(fieldName, model) {
 	      var getMethod = this.getMethod;
 	      var setMethod = this.setMethod;
-	      var mapperFieldName = this.fieldName; // const fieldName=this.fieldName
-
-	      /*
-	      console.log(model.prototype,fieldName)
-	      Object.defineProperty(
-	          model.prototype,
-	          fieldName,
-	          {
-	              get() {
-	                  console.log(getMethod,this._fields[fieldName])
-	                  return getMethod ? getMethod.call(this,this._fields[this.fieldName || fieldName],this._fields):this._fields[this.fieldsName || fieldName]
-	              },
-	              set(value) {
-	                  return setMethod ? setMethod.call(this,this.set(this.fieldName || fieldName, value)): this.set(this.fieldName || fieldName, value)
-	              },
-	              enumerable: true,
-	              configurable: true,
-	          }
-	      )
-	      */
-
+	      var mapperFieldName = this.fieldName || fieldName;
+	      console.log(this.fieldName, fieldName);
 	      return {
 	        get: function get() {
-	          // console.log(this.fieldName)
-	          return getMethod ? getMethod.call(this, this._fields[mapperFieldName || fieldName], this._fields) : this._fields[mapperFieldName || fieldName];
+	          console.log(mapperFieldName, getMethod, setMethod);
+	          return getMethod ? getMethod.call(this, this._fields[mapperFieldName], this._fields) : this._fields[mapperFieldName];
 	        },
 	        set: function set(value) {
-	          return setMethod ? setMethod.call(this, this.set(this.fieldName || fieldName, value)) : this.set(this.fieldName || fieldName, value);
+	          return setMethod ? setMethod.call(this, this.set(mapperFieldName, value)) : this.set(mapperFieldName || fieldName, value);
 	        },
 	        enumerable: true,
 	        configurable: true
