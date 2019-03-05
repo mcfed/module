@@ -20131,18 +20131,7 @@
 	      var _loop = function _loop() {
 	        var fieldName = p; // console.log(fieldName,!(fieldName in _this),!(fieldName in this.getClass().fields))
 
-	        if (!(fieldName in _this) === false && !(fieldName in _this2.getClass().fields) === false) {
-	          Object.defineProperty(_this, fieldName, {
-	            get: function get() {
-	              return _this._fields[fieldName];
-	            },
-	            set: function set(value) {
-	              return _this.set(fieldName, value);
-	            },
-	            configurable: true,
-	            enumerable: true
-	          });
-	        } else {
+	        if (!(fieldName in _this) === false && !(fieldName in _this2.getClass().fields) === false) ; else {
 	          Object.defineProperty(_this, fieldName, {
 	            get: function get() {
 	              return "please register the property before using\uFF1A".concat(fieldName, " -->").concat(this.getClass().modelName);

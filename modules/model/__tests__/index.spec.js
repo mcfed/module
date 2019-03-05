@@ -13,7 +13,11 @@ describe('ORM initial', () => {
       id: attr(),
       serverName:attr(),
       serverStatus:attr(),
-      serverIp:attr(),
+      serverIp:attr({
+        get:function(val){
+          return "http://"+val
+        }
+      }),
       serverPort:attr(),
       serverAddress:attr({
         get:function(val,row){
@@ -66,6 +70,12 @@ describe('ORM initial', () => {
     done()
   })
 
+  it('testModel serverIp has value ',(done)=>{
+    // console.log(testModel.serverIp)
+    expect(testModel.serverIp).toBe("http://127.0.0.1")
+    done()
+  })
+
   it('testModel port <-serverPort ',(done)=>{
     expect(testModel.port).toBe("8080")
     done()
@@ -75,12 +85,11 @@ describe('ORM initial', () => {
     expect(testModel.serverAddress).toBe("127.0.0.1:8080")
     done()
   })
-  // it('testModel serverName set',(done)=>{
-  //   testModel.serverName="abc"
-  //   let t1=Test.withId("abc").update({
-  //     serverName:"abc"
-  //   })
-  //   expect(t1.serverName).toBe("abc[abc]")
-  //   done()
-  // })
+  it('testModel serverName set',(done)=>{
+    testModel.serverName="abc"
+    let t1=Test.all().toModelArray()[0]
+    // console.log(t1['serverAddress'])
+    expect(t1.serverAddress).toBe("127.0.0.1:8080")
+    done()
+  })
 })

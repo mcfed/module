@@ -11,16 +11,17 @@ export default class BaseModel extends Model {
         let fieldName = p
           // console.log(fieldName,!(fieldName in _this),!(fieldName in this.getClass().fields))
           if (!(fieldName in _this)=== false && !(fieldName in this.getClass().fields)=== false) {
-              Object.defineProperty(_this, fieldName, {
-                  get: function get() {
-                      return _this._fields[fieldName];
-                  },
-                  set: function set(value) {
-                      return _this.set(fieldName, value);
-                  },
-                  configurable: true,
-                  enumerable: true
-              });
+            // console.log("define")
+              // Object.defineProperty(_this, fieldName, {
+              //     get: function get() {
+              //         return _this._fields[fieldName];
+              //     },
+              //     set: function set(value) {
+              //         return _this.set(fieldName, value);
+              //     },
+              //     configurable: true,
+              //     enumerable: true
+              // });
           }else{
             Object.defineProperty(_this, fieldName, {
                 get: function get() {
