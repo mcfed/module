@@ -25,16 +25,21 @@ export function defaultReducer(){
       return {
         ...state,
         // items:payload.items,
-        total:payload.totalCount,
-        current:payload.currentPage
+        page:{
+          total:payload.totalCount,
+          pageSize:payload.pageSize,
+          current:payload.currentPage
+        }
       }
     },
     saveList:(state,{payload})=>{
       return {
         ...state,
         // items:payload.items,
-        total:payload.totalCount,
-        current:payload.currentPage
+        page:{
+          total:payload.totalCount,
+          current:payload.currentPage
+        }
       }
     },
     saveItem:(state,{payload})=>{

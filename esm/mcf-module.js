@@ -6715,16 +6715,21 @@ function defaultReducer() {
       var payload = _ref.payload;
       return objectSpread({}, state, {
         // items:payload.items,
-        total: payload.totalCount,
-        current: payload.currentPage
+        page: {
+          total: payload.totalCount,
+          pageSize: payload.pageSize,
+          current: payload.currentPage
+        }
       });
     },
     saveList: function saveList(state, _ref2) {
       var payload = _ref2.payload;
       return objectSpread({}, state, {
         // items:payload.items,
-        total: payload.totalCount,
-        current: payload.currentPage
+        page: {
+          total: payload.totalCount,
+          current: payload.currentPage
+        }
       });
     },
     saveItem: function saveItem(state, _ref3) {
@@ -9128,7 +9133,7 @@ var store = _global[SHARED] || (_global[SHARED] = {});
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
   version: _core.version,
-  mode: 'pure',
+  mode: _library ? 'pure' : 'global',
   copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
 });
 });

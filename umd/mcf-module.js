@@ -6692,16 +6692,21 @@
 	      var payload = _ref.payload;
 	      return objectSpread({}, state, {
 	        // items:payload.items,
-	        total: payload.totalCount,
-	        current: payload.currentPage
+	        page: {
+	          total: payload.totalCount,
+	          pageSize: payload.pageSize,
+	          current: payload.currentPage
+	        }
 	      });
 	    },
 	    saveList: function saveList(state, _ref2) {
 	      var payload = _ref2.payload;
 	      return objectSpread({}, state, {
 	        // items:payload.items,
-	        total: payload.totalCount,
-	        current: payload.currentPage
+	        page: {
+	          total: payload.totalCount,
+	          current: payload.currentPage
+	        }
 	      });
 	    },
 	    saveItem: function saveItem(state, _ref3) {
