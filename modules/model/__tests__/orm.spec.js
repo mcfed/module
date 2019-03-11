@@ -131,6 +131,7 @@ describe('orm 示例', () => {
 
   it('oneToOne',(done)=>{
     console.log(Movie.withId("1").person.name)
+    done()
   })
 
 })
