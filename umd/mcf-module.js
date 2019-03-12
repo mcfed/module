@@ -8514,7 +8514,7 @@
 	          switch (_context4.prev = _context4.next) {
 	            case 0:
 	              _context4.next = 2;
-	              return fetch(Api.fetchItem, action);
+	              return call(Api.fetchItem, action.payload);
 
 	            case 2:
 	              result = _context4.sent;
@@ -8588,7 +8588,7 @@
 	          switch (_context6.prev = _context6.next) {
 	            case 0:
 	              _context6.next = 2;
-	              return fetch(Api.fetchSave, action);
+	              return call(Api.fetchSave, action.payload);
 
 	            case 2:
 	              result = _context6.sent;
@@ -8632,13 +8632,12 @@
 	        while (1) {
 	          switch (_context7.prev = _context7.next) {
 	            case 0:
+	              // console.log(action.payload)
 	              payload = {
 	                ids: [].concat(action.payload)
 	              };
 	              _context7.next = 3;
-	              return fetch(Api.fetchDelete, Object.assign(action, {
-	                payload: payload
-	              }));
+	              return call(Api.fetchDelete, payload);
 
 	            case 3:
 	              result = _context7.sent;
@@ -8653,7 +8652,7 @@
 
 	            case 7:
 	              _context7.next = 9;
-	              return saga.refreshPage(action);
+	              return call(saga.refreshPage);
 
 	            case 9:
 	              _context7.next = 13;

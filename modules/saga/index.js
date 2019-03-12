@@ -41,7 +41,7 @@ export function defaultSaga(actions,Api,namespace){
       }
     },
     fetchItem: function* (action){
-      const result = yield fetch(Api.fetchItem, action);
+      const result = yield effects.call(Api.fetchItem, action.payload);
       if(result.code === 0){
         yield effects.put(actions.saveItem(result.data));
       } else {
@@ -57,8 +57,7 @@ export function defaultSaga(actions,Api,namespace){
       }
     },
     fetchSave: function* (action){
-      const result = yield fetch(Api.fetchSave, action);
-
+      const result = yield effects.call(Api.fetchSave, action.payload);
       if(result.code === 0){
         yield effects.put(actions.saveItem(result.data));
         yield effects.put(showSuccess())
@@ -68,11 +67,13 @@ export function defaultSaga(actions,Api,namespace){
       }
     },
     fetchDelete: function* (action){
+      // console.log(action.payload)
       const payload = {ids:[].concat(action.payload)}
-      const result = yield fetch(Api.fetchDelete, Object.assign(action,{payload}));
+      const result = yield effects.call(Api.fetchDelete,payload);
       if(result.code === 0){
         yield effects.put(showSuccess())
-        yield saga.refreshPage(action)
+        yield effects.call(saga.refreshPage)
+
       }else{
         yield effects.put(showError(result.message))
       }

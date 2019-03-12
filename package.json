@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "connected-react-router": "5.0.0",
+    "node-notifier": "^5.4.0",
     "prop-types": "^15.6.2",
     "react": "^16.0.0",
     "react-dom": "16.0.0",
