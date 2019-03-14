@@ -28,8 +28,8 @@ export function defaultSaga(actions,Api,namespace){
         payload:params,
         meta:{sagaAction:true}
       }
-      yield effects.put({type:"@@MIDDLEWARE/FETCH_PARAMS",payload:listAction,"@@redux-saga/SAGA_ACTION": true})
-      yield effects.put({type:"@@MIDDLEWARE/FETCH_REQ",payload:listAction,"@@redux-saga/SAGA_ACTION": true})
+      yield effects.put({type:"@@MIDDLEWARE/FETCH_PARAMS",payload:pageAction,"@@redux-saga/SAGA_ACTION": true})
+      yield effects.put({type:"@@MIDDLEWARE/FETCH_REQ",payload:pageAction,"@@redux-saga/SAGA_ACTION": true})
       yield effects.fork(saga.fetchPage,pageAction)
     },
     fetchPage: function* (action) {
