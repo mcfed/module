@@ -6,21 +6,21 @@ const FETCH_RES="@@MIDDLEWARE/FETCH_RES"
 export function fetchReq(payload){
   return{
     type:FETCH_REQ,
-    payload:payload
+    payload
   }
 }
 
 export function fetchRes(payload){
   return{
     type:FETCH_RES,
-    payload:payload
+    payload
   }
 }
 
 export function fetchParams(payload){
   return{
     type:FETCH_PARAMS,
-    payload:payload
+    payload
   }
 }
 
@@ -39,12 +39,12 @@ export function fetchParams(payload){
      case FETCH_REQ:
        return {
          ...state,
-         fetching: new Map(fetching.set(payload.type, payload.payload))
+         fetching: new Map(fetching.set(payload.type, true))
        }
      case FETCH_RES:
        return {
          ...state,
-         fetching: new Map(fetching.set(payload.type, payload.payload))
+         fetching: new Map(fetching.set(payload.type, false))
        }
      default:
        return state

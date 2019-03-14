@@ -1,5 +1,6 @@
-export {bindActionCreators} from 'redux'
+import {bindActionCreators as bindActions} from 'redux'
 export {connect} from 'react-redux'
+import {DictUtils} from '../utils'
 // import {injectIntl} from 'react-intl'
 // export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"
 
@@ -7,19 +8,41 @@ export {connect} from 'react-redux'
 export const defaultMergeProps=(state, dispatch, ownProps)=>{
   return Object.assign({}, ownProps, state, dispatch,{
     spins:function(type){
-      return state.fetchingReducer.fetching.get(type)
+      return state.fetchingReducer.fetching.get(type.toString?type.toString():type)
     },
     querys:function(type){
-      return state.fetchingReducer.params.get(type) || {}
+      return state.fetchingReducer.params.get(type.toString?type.toString():type) || {}
+    },
+    dicts:function(type,value){
+      if(arguments.length>1){
+        return DictUtils.getDictLabel(state.appReducer,type,value)
+      }else if(arguments.legnth == 1 ){
+        return DictUtils.getDictList(state.appReducer,type)
+      }
+      return ""
     },
     locale:function(type,value){
-
-      return state.intl && state.intl.formatMessage(state.messages[type],value)
+      if(state.intl){
+        if(state.messages[type]){
+          return state.intl.formatMessage(state.messages[type],value)
+        }else{
+          return state.intl.formatMessage({id:type})
+        }
+      }
+      return ""
     }
   })
 }
 
-
+export function bindActionCreators(actions,dispatch){
+  let newActions=bindActions(actions,dispatch)
+  for(var a in actions){
+    // console.log(actions[a])
+    newActions[a].toString=actions[a].toString
+  }
+  // console.log(newActions)
+  return newActions
+}
 
 /*
 export const mapActionDispatchToProps = (dispatch,props,action)=>{

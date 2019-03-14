@@ -1,6 +1,7 @@
  function globalReducer(state = {
    dicts: {},
-   bizCodes: {}
+   bizCodes: {},
+   config:{}
  }, { type, payload }) {
    const { fetching, params } = state
    switch (type) {
@@ -13,6 +14,11 @@
        return {
          ...state,
          bizCodes: payload
+       }
+     case '@@MIDDLEWARE/UPGRADE_CONFIG':
+       return {
+         ...state,
+         config:Object.assign({},state.config,payload)
        }
      case '@@MIDDLEWARE/UPGRADE_USER':
        return {

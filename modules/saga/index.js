@@ -1,59 +1,79 @@
 import * as effects from 'redux-saga/effects'
 export * as effects from 'redux-saga/effects'
 import {fetchReq,fetchRes,fetchParams,showError,showSuccess} from '../middleware'
+import * as ModuleRouter from '../router'
+const { goBack } = ModuleRouter
 
 export function* fetch(method,action){
   let result
   yield effects.put(fetchParams(action))
-  yield effects.put(fetchReq({type:action.type,payload:true}))
+  // yield effects.put(fetchReq({type:action.type,payload:true}))
   result = yield effects.call(method,action.payload)
-  yield effects.put(fetchRes({type:action.type,payload:false}))
+  // yield effects.put(fetchRes({type:action.type,payload:false}))
 
   return result
 }
 
-export function sagaCreator(actions,Api,emitter){
+export function defaultSaga(actions,Api,namespace){
   const saga= {
-    refreshList:function* ({TYPES,Api,namespace},action){
-      // console.log(TYPES,Api,namespace)
+    refreshPage:function* (action){
       const params = yield effects.select((state)=>{
-        return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(actions.listAction.toString()))
+       return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(saga.fetchPage.toString()))
+        // return {}
       })
-      yield effects.call(saga.fetchList,{TYPES,Api,namespace},{type:TYPES.LIST_ACTION,payload:params})
+      // console.log(saga.fetchList,saga.fetchList())
+      //临时方案后续处理
+      const pageAction={
+        type:[namespace,"fetchPage"].join("/"),
+        payload:params,
+        meta:{sagaAction:true}
+      }
+      yield effects.put({type:"@@MIDDLEWARE/FETCH_PARAMS",payload:listAction,"@@redux-saga/SAGA_ACTION": true})
+      yield effects.put({type:"@@MIDDLEWARE/FETCH_REQ",payload:listAction,"@@redux-saga/SAGA_ACTION": true})
+      yield effects.fork(saga.fetchPage,pageAction)
     },
-    fetchItem: function* ({TYPES,Api,namespace},action){
-      const result = yield fetch(Api.fetchItem, action);
+    fetchPage: function* (action) {
+      const result = yield effects.call(Api.fetchList, action.payload);
       if(result.code === 0){
-        yield effects.put({type:TYPES.SAVE_ITEM,payload:result.data});
-        // yield effects.put({type:"@@MIDDLEWARE/SHOW_SUCCESS",payload:"操作成功"})
+        yield effects.put(actions.savePage(result.data));
+      }else{
+        yield effects.put(showError(result.message))
+      }
+    },
+    fetchItem: function* (action){
+      const result = yield effects.call(Api.fetchItem, action.payload);
+      if(result.code === 0){
+        yield effects.put(actions.saveItem(result.data));
       } else {
         yield effects.put(showError(result.message))
       }
     },
-    fetchList: function* ({TYPES,Api,namespace},action) {
-      const result = yield fetch(Api.fetchList, action);
+    fetchList: function* (action) {
+      const result = yield effects.call(Api.fetchList, action.payload);
       if(result.code === 0){
-        yield effects.put({type:TYPES.SAVE_LIST,payload:result.data});
+        yield effects.put(actions.saveList(result.data));
       }else{
         yield effects.put(showError(result.message))
       }
     },
-    fetchSave: function* ({TYPES,Api,namespace},action){
-      const result = yield fetch(Api.fetchSave, action);
-
+    fetchSave: function* (action){
+      const result = yield effects.call(Api.fetchSave, action.payload);
       if(result.code === 0){
-        yield effects.put({type:TYPES.SAVE_ITEM,payload:result.data});
-        yield effects.put(showSuccess("操作成功"))
+        yield effects.put(actions.saveItem(result.data));
+        yield effects.put(showSuccess())
+        yield effects.put(goBack())
       }else{
         yield effects.put(showError(result.message))
       }
     },
-    fetchDelete: function* ({TYPES,Api,namespace},action){
+    fetchDelete: function* (action){
+      // console.log(action.payload)
       const payload = {ids:[].concat(action.payload)}
-      const result = yield fetch(Api.fetchDelete, Object.assign(action,{payload}));
+      const result = yield effects.call(Api.fetchDelete,payload);
       if(result.code === 0){
-        yield saga.refreshList({TYPES,Api,namespace},action)
-        yield effects.put(showSuccess("操作成功"))
+        yield effects.put(showSuccess())
+        yield effects.call(saga.refreshPage)
+
       }else{
         yield effects.put(showError(result.message))
       }
@@ -61,4 +81,14 @@ export function sagaCreator(actions,Api,emitter){
   }
 
   return saga
+}
+
+export function *takeSagas(sagaTypes,saga,optimize={}){
+  for(var s in saga){
+    if(optimize[s]){
+      yield optimize[s](sagaTypes[s].toString(),saga[s])
+    }else{
+      yield effects.takeEvery(sagaTypes[s].toString(),saga[s])
+    }
+  }
 }
