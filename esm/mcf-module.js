@@ -1594,6 +1594,283 @@ var ActionTypes = {
 };
 
 /**
+ * @param {any} obj The object to inspect.
+ * @returns {boolean} True if the argument appears to be a plain object.
+ */
+function isPlainObject(obj) {
+  if (typeof obj !== 'object' || obj === null) return false;
+  var proto = obj;
+
+  while (Object.getPrototypeOf(proto) !== null) {
+    proto = Object.getPrototypeOf(proto);
+  }
+
+  return Object.getPrototypeOf(obj) === proto;
+}
+
+/**
+ * Creates a Redux store that holds the state tree.
+ * The only way to change the data in the store is to call `dispatch()` on it.
+ *
+ * There should only be a single store in your app. To specify how different
+ * parts of the state tree respond to actions, you may combine several reducers
+ * into a single reducer function by using `combineReducers`.
+ *
+ * @param {Function} reducer A function that returns the next state tree, given
+ * the current state tree and the action to handle.
+ *
+ * @param {any} [preloadedState] The initial state. You may optionally specify it
+ * to hydrate the state from the server in universal apps, or to restore a
+ * previously serialized user session.
+ * If you use `combineReducers` to produce the root reducer function, this must be
+ * an object with the same shape as `combineReducers` keys.
+ *
+ * @param {Function} [enhancer] The store enhancer. You may optionally specify it
+ * to enhance the store with third-party capabilities such as middleware,
+ * time travel, persistence, etc. The only store enhancer that ships with Redux
+ * is `applyMiddleware()`.
+ *
+ * @returns {Store} A Redux store that lets you read the state, dispatch actions
+ * and subscribe to changes.
+ */
+
+function createStore(reducer, preloadedState, enhancer) {
+  var _ref2;
+
+  if (typeof preloadedState === 'function' && typeof enhancer === 'function' || typeof enhancer === 'function' && typeof arguments[3] === 'function') {
+    throw new Error('It looks like you are passing several store enhancers to ' + 'createStore(). This is not supported. Instead, compose them ' + 'together to a single function');
+  }
+
+  if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
+    enhancer = preloadedState;
+    preloadedState = undefined;
+  }
+
+  if (typeof enhancer !== 'undefined') {
+    if (typeof enhancer !== 'function') {
+      throw new Error('Expected the enhancer to be a function.');
+    }
+
+    return enhancer(createStore)(reducer, preloadedState);
+  }
+
+  if (typeof reducer !== 'function') {
+    throw new Error('Expected the reducer to be a function.');
+  }
+
+  var currentReducer = reducer;
+  var currentState = preloadedState;
+  var currentListeners = [];
+  var nextListeners = currentListeners;
+  var isDispatching = false;
+
+  function ensureCanMutateNextListeners() {
+    if (nextListeners === currentListeners) {
+      nextListeners = currentListeners.slice();
+    }
+  }
+  /**
+   * Reads the state tree managed by the store.
+   *
+   * @returns {any} The current state tree of your application.
+   */
+
+
+  function getState() {
+    if (isDispatching) {
+      throw new Error('You may not call store.getState() while the reducer is executing. ' + 'The reducer has already received the state as an argument. ' + 'Pass it down from the top reducer instead of reading it from the store.');
+    }
+
+    return currentState;
+  }
+  /**
+   * Adds a change listener. It will be called any time an action is dispatched,
+   * and some part of the state tree may potentially have changed. You may then
+   * call `getState()` to read the current state tree inside the callback.
+   *
+   * You may call `dispatch()` from a change listener, with the following
+   * caveats:
+   *
+   * 1. The subscriptions are snapshotted just before every `dispatch()` call.
+   * If you subscribe or unsubscribe while the listeners are being invoked, this
+   * will not have any effect on the `dispatch()` that is currently in progress.
+   * However, the next `dispatch()` call, whether nested or not, will use a more
+   * recent snapshot of the subscription list.
+   *
+   * 2. The listener should not expect to see all state changes, as the state
+   * might have been updated multiple times during a nested `dispatch()` before
+   * the listener is called. It is, however, guaranteed that all subscribers
+   * registered before the `dispatch()` started will be called with the latest
+   * state by the time it exits.
+   *
+   * @param {Function} listener A callback to be invoked on every dispatch.
+   * @returns {Function} A function to remove this change listener.
+   */
+
+
+  function subscribe(listener) {
+    if (typeof listener !== 'function') {
+      throw new Error('Expected the listener to be a function.');
+    }
+
+    if (isDispatching) {
+      throw new Error('You may not call store.subscribe() while the reducer is executing. ' + 'If you would like to be notified after the store has been updated, subscribe from a ' + 'component and invoke store.getState() in the callback to access the latest state. ' + 'See https://redux.js.org/api-reference/store#subscribe(listener) for more details.');
+    }
+
+    var isSubscribed = true;
+    ensureCanMutateNextListeners();
+    nextListeners.push(listener);
+    return function unsubscribe() {
+      if (!isSubscribed) {
+        return;
+      }
+
+      if (isDispatching) {
+        throw new Error('You may not unsubscribe from a store listener while the reducer is executing. ' + 'See https://redux.js.org/api-reference/store#subscribe(listener) for more details.');
+      }
+
+      isSubscribed = false;
+      ensureCanMutateNextListeners();
+      var index = nextListeners.indexOf(listener);
+      nextListeners.splice(index, 1);
+    };
+  }
+  /**
+   * Dispatches an action. It is the only way to trigger a state change.
+   *
+   * The `reducer` function, used to create the store, will be called with the
+   * current state tree and the given `action`. Its return value will
+   * be considered the **next** state of the tree, and the change listeners
+   * will be notified.
+   *
+   * The base implementation only supports plain object actions. If you want to
+   * dispatch a Promise, an Observable, a thunk, or something else, you need to
+   * wrap your store creating function into the corresponding middleware. For
+   * example, see the documentation for the `redux-thunk` package. Even the
+   * middleware will eventually dispatch plain object actions using this method.
+   *
+   * @param {Object} action A plain object representing “what changed”. It is
+   * a good idea to keep actions serializable so you can record and replay user
+   * sessions, or use the time travelling `redux-devtools`. An action must have
+   * a `type` property which may not be `undefined`. It is a good idea to use
+   * string constants for action types.
+   *
+   * @returns {Object} For convenience, the same action object you dispatched.
+   *
+   * Note that, if you use a custom middleware, it may wrap `dispatch()` to
+   * return something else (for example, a Promise you can await).
+   */
+
+
+  function dispatch(action) {
+    if (!isPlainObject(action)) {
+      throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
+    }
+
+    if (typeof action.type === 'undefined') {
+      throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
+    }
+
+    if (isDispatching) {
+      throw new Error('Reducers may not dispatch actions.');
+    }
+
+    try {
+      isDispatching = true;
+      currentState = currentReducer(currentState, action);
+    } finally {
+      isDispatching = false;
+    }
+
+    var listeners = currentListeners = nextListeners;
+
+    for (var i = 0; i < listeners.length; i++) {
+      var listener = listeners[i];
+      listener();
+    }
+
+    return action;
+  }
+  /**
+   * Replaces the reducer currently used by the store to calculate the state.
+   *
+   * You might need this if your app implements code splitting and you want to
+   * load some of the reducers dynamically. You might also need this if you
+   * implement a hot reloading mechanism for Redux.
+   *
+   * @param {Function} nextReducer The reducer for the store to use instead.
+   * @returns {void}
+   */
+
+
+  function replaceReducer(nextReducer) {
+    if (typeof nextReducer !== 'function') {
+      throw new Error('Expected the nextReducer to be a function.');
+    }
+
+    currentReducer = nextReducer;
+    dispatch({
+      type: ActionTypes.REPLACE
+    });
+  }
+  /**
+   * Interoperability point for observable/reactive libraries.
+   * @returns {observable} A minimal observable of state changes.
+   * For more information, see the observable proposal:
+   * https://github.com/tc39/proposal-observable
+   */
+
+
+  function observable() {
+    var _ref;
+
+    var outerSubscribe = subscribe;
+    return _ref = {
+      /**
+       * The minimal observable subscription method.
+       * @param {Object} observer Any object that can be used as an observer.
+       * The observer object should have a `next` method.
+       * @returns {subscription} An object with an `unsubscribe` method that can
+       * be used to unsubscribe the observable from the store, and prevent further
+       * emission of values from the observable.
+       */
+      subscribe: function subscribe(observer) {
+        if (typeof observer !== 'object' || observer === null) {
+          throw new TypeError('Expected the observer to be an object.');
+        }
+
+        function observeState() {
+          if (observer.next) {
+            observer.next(getState());
+          }
+        }
+
+        observeState();
+        var unsubscribe = outerSubscribe(observeState);
+        return {
+          unsubscribe: unsubscribe
+        };
+      }
+    }, _ref[result] = function () {
+      return this;
+    }, _ref;
+  } // When a store is created, an "INIT" action is dispatched so that every
+  // reducer returns their initial state. This effectively populates
+  // the initial state tree.
+
+
+  dispatch({
+    type: ActionTypes.INIT
+  });
+  return _ref2 = {
+    dispatch: dispatch,
+    subscribe: subscribe,
+    getState: getState,
+    replaceReducer: replaceReducer
+  }, _ref2[result] = observable, _ref2;
+}
+
+/**
  * Prints a warning in the console if it exists.
  *
  * @param {String} message The warning message.
@@ -1614,6 +1891,145 @@ function warning$1(message) {
     throw new Error(message);
   } catch (e) {} // eslint-disable-line no-empty
 
+}
+
+function getUndefinedStateErrorMessage(key, action) {
+  var actionType = action && action.type;
+  var actionDescription = actionType && "action \"" + String(actionType) + "\"" || 'an action';
+  return "Given " + actionDescription + ", reducer \"" + key + "\" returned undefined. " + "To ignore an action, you must explicitly return the previous state. " + "If you want this reducer to hold no value, you can return null instead of undefined.";
+}
+
+function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, unexpectedKeyCache) {
+  var reducerKeys = Object.keys(reducers);
+  var argumentName = action && action.type === ActionTypes.INIT ? 'preloadedState argument passed to createStore' : 'previous state received by the reducer';
+
+  if (reducerKeys.length === 0) {
+    return 'Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.';
+  }
+
+  if (!isPlainObject(inputState)) {
+    return "The " + argumentName + " has unexpected type of \"" + {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + "\". Expected argument to be an object with the following " + ("keys: \"" + reducerKeys.join('", "') + "\"");
+  }
+
+  var unexpectedKeys = Object.keys(inputState).filter(function (key) {
+    return !reducers.hasOwnProperty(key) && !unexpectedKeyCache[key];
+  });
+  unexpectedKeys.forEach(function (key) {
+    unexpectedKeyCache[key] = true;
+  });
+  if (action && action.type === ActionTypes.REPLACE) return;
+
+  if (unexpectedKeys.length > 0) {
+    return "Unexpected " + (unexpectedKeys.length > 1 ? 'keys' : 'key') + " " + ("\"" + unexpectedKeys.join('", "') + "\" found in " + argumentName + ". ") + "Expected to find one of the known reducer keys instead: " + ("\"" + reducerKeys.join('", "') + "\". Unexpected keys will be ignored.");
+  }
+}
+
+function assertReducerShape(reducers) {
+  Object.keys(reducers).forEach(function (key) {
+    var reducer = reducers[key];
+    var initialState = reducer(undefined, {
+      type: ActionTypes.INIT
+    });
+
+    if (typeof initialState === 'undefined') {
+      throw new Error("Reducer \"" + key + "\" returned undefined during initialization. " + "If the state passed to the reducer is undefined, you must " + "explicitly return the initial state. The initial state may " + "not be undefined. If you don't want to set a value for this reducer, " + "you can use null instead of undefined.");
+    }
+
+    if (typeof reducer(undefined, {
+      type: ActionTypes.PROBE_UNKNOWN_ACTION()
+    }) === 'undefined') {
+      throw new Error("Reducer \"" + key + "\" returned undefined when probed with a random type. " + ("Don't try to handle " + ActionTypes.INIT + " or other actions in \"redux/*\" ") + "namespace. They are considered private. Instead, you must return the " + "current state for any unknown actions, unless it is undefined, " + "in which case you must return the initial state, regardless of the " + "action type. The initial state may not be undefined, but can be null.");
+    }
+  });
+}
+/**
+ * Turns an object whose values are different reducer functions, into a single
+ * reducer function. It will call every child reducer, and gather their results
+ * into a single state object, whose keys correspond to the keys of the passed
+ * reducer functions.
+ *
+ * @param {Object} reducers An object whose values correspond to different
+ * reducer functions that need to be combined into one. One handy way to obtain
+ * it is to use ES6 `import * as reducers` syntax. The reducers may never return
+ * undefined for any action. Instead, they should return their initial state
+ * if the state passed to them was undefined, and the current state for any
+ * unrecognized action.
+ *
+ * @returns {Function} A reducer function that invokes every reducer inside the
+ * passed object, and builds a state object with the same shape.
+ */
+
+
+function combineReducers(reducers) {
+  var reducerKeys = Object.keys(reducers);
+  var finalReducers = {};
+
+  for (var i = 0; i < reducerKeys.length; i++) {
+    var key = reducerKeys[i];
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (typeof reducers[key] === 'undefined') {
+        warning$1("No reducer provided for key \"" + key + "\"");
+      }
+    }
+
+    if (typeof reducers[key] === 'function') {
+      finalReducers[key] = reducers[key];
+    }
+  }
+
+  var finalReducerKeys = Object.keys(finalReducers);
+  var unexpectedKeyCache;
+
+  if (process.env.NODE_ENV !== 'production') {
+    unexpectedKeyCache = {};
+  }
+
+  var shapeAssertionError;
+
+  try {
+    assertReducerShape(finalReducers);
+  } catch (e) {
+    shapeAssertionError = e;
+  }
+
+  return function combination(state, action) {
+    if (state === void 0) {
+      state = {};
+    }
+
+    if (shapeAssertionError) {
+      throw shapeAssertionError;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      var warningMessage = getUnexpectedStateShapeWarningMessage(state, finalReducers, action, unexpectedKeyCache);
+
+      if (warningMessage) {
+        warning$1(warningMessage);
+      }
+    }
+
+    var hasChanged = false;
+    var nextState = {};
+
+    for (var _i = 0; _i < finalReducerKeys.length; _i++) {
+      var _key = finalReducerKeys[_i];
+      var reducer = finalReducers[_key];
+      var previousStateForKey = state[_key];
+      var nextStateForKey = reducer(previousStateForKey, action);
+
+      if (typeof nextStateForKey === 'undefined') {
+        var errorMessage = getUndefinedStateErrorMessage(_key, action);
+        throw new Error(errorMessage);
+      }
+
+      nextState[_key] = nextStateForKey;
+      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+    }
+
+    return hasChanged ? nextState : state;
+  };
 }
 
 function bindActionCreator(actionCreator, dispatch) {
@@ -7515,6 +7931,8 @@ if (hadRuntime) {
 
 var regenerator = runtimeModule;
 
+var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _typeof$3 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var sym = function sym(id) {
@@ -7523,7 +7941,9 @@ var sym = function sym(id) {
 
 var TASK = /*#__PURE__*/sym('TASK');
 var HELPER = /*#__PURE__*/sym('HELPER');
+var MATCH = /*#__PURE__*/sym('MATCH');
 var CANCEL = /*#__PURE__*/sym('CANCEL_PROMISE');
+var SAGA_ACTION = /*#__PURE__*/sym('SAGA_ACTION');
 var SELF_CANCELLATION = /*#__PURE__*/sym('SELF_CANCELLATION');
 var konst = function konst(v) {
   return function () {
@@ -7600,6 +8020,47 @@ var is$1 = {
   }
 };
 
+var object = {
+  assign: function assign(target, source) {
+    for (var i in source) {
+      if (hasOwn$1(source, i)) {
+        target[i] = source[i];
+      }
+    }
+  }
+};
+
+function remove(array, item) {
+  var index = array.indexOf(item);
+  if (index >= 0) {
+    array.splice(index, 1);
+  }
+}
+
+var array = {
+  from: function from(obj) {
+    var arr = Array(obj.length);
+    for (var i in obj) {
+      if (hasOwn$1(obj, i)) {
+        arr[i] = obj[i];
+      }
+    }
+    return arr;
+  }
+};
+
+function deferred() {
+  var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  var def = _extends$a({}, props);
+  var promise = new Promise(function (resolve, reject) {
+    def.resolve = resolve;
+    def.reject = reject;
+  });
+  def.promise = promise;
+  return def;
+}
+
 function delay(ms) {
   var val = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
@@ -7616,6 +8077,16 @@ function delay(ms) {
 
   return promise;
 }
+
+function autoInc() {
+  var seed = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+  return function () {
+    return ++seed;
+  };
+}
+
+var uid = /*#__PURE__*/autoInc();
 
 var kThrow = function kThrow(err) {
   throw err;
@@ -7668,8 +8139,18 @@ var updateIncentive = function updateIncentive(deprecated, preferred) {
   return deprecated + ' has been deprecated in favor of ' + preferred + ', please update your code';
 };
 
+var internalErr = function internalErr(err) {
+  return new Error('\n  redux-saga: Error checking hooks detected an inconsistent state. This is likely a bug\n  in redux-saga code and not yours. Thanks for reporting this in the project\'s github repo.\n  Error: ' + err + '\n');
+};
+
 var createSetContextWarning = function createSetContextWarning(ctx, props) {
   return (ctx ? ctx + '.' : '') + 'setContext(props): argument ' + props + ' is not a plain object';
+};
+
+var wrapSagaDispatch = function wrapSagaDispatch(dispatch) {
+  return function (action) {
+    return dispatch(Object.defineProperty(action, SAGA_ACTION, { value: true }));
+  };
 };
 
 var IO = /*#__PURE__*/sym('IO');
@@ -8066,10 +8547,265 @@ var buffers = {
   }
 };
 
+var queue = [];
+/**
+  Variable to hold a counting semaphore
+  - Incrementing adds a lock and puts the scheduler in a `suspended` state (if it's not
+    already suspended)
+  - Decrementing releases a lock. Zero locks puts the scheduler in a `released` state. This
+    triggers flushing the queued tasks.
+**/
+var semaphore = 0;
+
+/**
+  Executes a task 'atomically'. Tasks scheduled during this execution will be queued
+  and flushed after this task has finished (assuming the scheduler endup in a released
+  state).
+**/
+function exec(task) {
+  try {
+    suspend();
+    task();
+  } finally {
+    release();
+  }
+}
+
+/**
+  Executes or queues a task depending on the state of the scheduler (`suspended` or `released`)
+**/
+function asap(task) {
+  queue.push(task);
+
+  if (!semaphore) {
+    suspend();
+    flush$1();
+  }
+}
+
+/**
+  Puts the scheduler in a `suspended` state. Scheduled tasks will be queued until the
+  scheduler is released.
+**/
+function suspend() {
+  semaphore++;
+}
+
+/**
+  Puts the scheduler in a `released` state.
+**/
+function release() {
+  semaphore--;
+}
+
+/**
+  Releases the current lock. Executes all queued tasks if the scheduler is in the released state.
+**/
+function flush$1() {
+  release();
+
+  var task = void 0;
+  while (!semaphore && (task = queue.shift()) !== undefined) {
+    exec(task);
+  }
+}
+
+var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var CHANNEL_END_TYPE = '@@redux-saga/CHANNEL_END';
 var END = { type: CHANNEL_END_TYPE };
+var isEnd = function isEnd(a) {
+  return a && a.type === CHANNEL_END_TYPE;
+};
 
-if (process.env.NODE_ENV !== 'production') ;
+function emitter() {
+  var subscribers = [];
+
+  function subscribe(sub) {
+    subscribers.push(sub);
+    return function () {
+      return remove(subscribers, sub);
+    };
+  }
+
+  function emit(item) {
+    var arr = subscribers.slice();
+    for (var i = 0, len = arr.length; i < len; i++) {
+      arr[i](item);
+    }
+  }
+
+  return {
+    subscribe: subscribe,
+    emit: emit
+  };
+}
+
+var INVALID_BUFFER = 'invalid buffer passed to channel factory function';
+var UNDEFINED_INPUT_ERROR = 'Saga was provided with an undefined action';
+
+if (process.env.NODE_ENV !== 'production') {
+  UNDEFINED_INPUT_ERROR += '\nHints:\n    - check that your Action Creator returns a non-undefined value\n    - if the Saga was started using runSaga, check that your subscribe source provides the action to its listeners\n  ';
+}
+
+function channel() {
+  var buffer = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : buffers.fixed();
+
+  var closed = false;
+  var takers = [];
+
+  check(buffer, is$1.buffer, INVALID_BUFFER);
+
+  function checkForbiddenStates() {
+    if (closed && takers.length) {
+      throw internalErr('Cannot have a closed channel with pending takers');
+    }
+    if (takers.length && !buffer.isEmpty()) {
+      throw internalErr('Cannot have pending takers with non empty buffer');
+    }
+  }
+
+  function put(input) {
+    checkForbiddenStates();
+    check(input, is$1.notUndef, UNDEFINED_INPUT_ERROR);
+    if (closed) {
+      return;
+    }
+    if (!takers.length) {
+      return buffer.put(input);
+    }
+    for (var i = 0; i < takers.length; i++) {
+      var cb = takers[i];
+      if (!cb[MATCH] || cb[MATCH](input)) {
+        takers.splice(i, 1);
+        return cb(input);
+      }
+    }
+  }
+
+  function take(cb) {
+    checkForbiddenStates();
+    check(cb, is$1.func, "channel.take's callback must be a function");
+
+    if (closed && buffer.isEmpty()) {
+      cb(END);
+    } else if (!buffer.isEmpty()) {
+      cb(buffer.take());
+    } else {
+      takers.push(cb);
+      cb.cancel = function () {
+        return remove(takers, cb);
+      };
+    }
+  }
+
+  function flush(cb) {
+    checkForbiddenStates(); // TODO: check if some new state should be forbidden now
+    check(cb, is$1.func, "channel.flush' callback must be a function");
+    if (closed && buffer.isEmpty()) {
+      cb(END);
+      return;
+    }
+    cb(buffer.flush());
+  }
+
+  function close() {
+    checkForbiddenStates();
+    if (!closed) {
+      closed = true;
+      if (takers.length) {
+        var arr = takers;
+        takers = [];
+        for (var i = 0, len = arr.length; i < len; i++) {
+          arr[i](END);
+        }
+      }
+    }
+  }
+
+  return {
+    take: take,
+    put: put,
+    flush: flush,
+    close: close,
+    get __takers__() {
+      return takers;
+    },
+    get __closed__() {
+      return closed;
+    }
+  };
+}
+
+function eventChannel(subscribe) {
+  var buffer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : buffers.none();
+  var matcher = arguments[2];
+
+  /**
+    should be if(typeof matcher !== undefined) instead?
+    see PR #273 for a background discussion
+  **/
+  if (arguments.length > 2) {
+    check(matcher, is$1.func, 'Invalid match function passed to eventChannel');
+  }
+
+  var chan = channel(buffer);
+  var close = function close() {
+    if (!chan.__closed__) {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+      chan.close();
+    }
+  };
+  var unsubscribe = subscribe(function (input) {
+    if (isEnd(input)) {
+      close();
+      return;
+    }
+    if (matcher && !matcher(input)) {
+      return;
+    }
+    chan.put(input);
+  });
+  if (chan.__closed__) {
+    unsubscribe();
+  }
+
+  if (!is$1.func(unsubscribe)) {
+    throw new Error('in eventChannel: subscribe should return a function to unsubscribe');
+  }
+
+  return {
+    take: chan.take,
+    flush: chan.flush,
+    close: close
+  };
+}
+
+function stdChannel(subscribe) {
+  var chan = eventChannel(function (cb) {
+    return subscribe(function (input) {
+      if (input[SAGA_ACTION]) {
+        cb(input);
+        return;
+      }
+      asap(function () {
+        return cb(input);
+      });
+    });
+  });
+
+  return _extends$b({}, chan, {
+    take: function take(cb, matcher) {
+      if (arguments.length > 1) {
+        check(matcher, is$1.func, "channel.take's matcher argument must be a function");
+        cb[MATCH] = matcher;
+      }
+      chan.take(cb);
+    }
+  });
+}
 
 function takeEvery(patternOrChannel, worker) {
   for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
@@ -8395,6 +9131,1238 @@ function createModule() {
   };
 }
 
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  }
+}
+
+var arrayWithoutHoles = _arrayWithoutHoles;
+
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+}
+
+var iterableToArray = _iterableToArray;
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance");
+}
+
+var nonIterableSpread = _nonIterableSpread;
+
+function _toConsumableArray(arr) {
+  return arrayWithoutHoles(arr) || iterableToArray(arr) || nonIterableSpread();
+}
+
+var toConsumableArray = _toConsumableArray;
+
+var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _typeof$4 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+function _defineEnumerableProperties(obj, descs) { for (var key in descs) { var desc = descs[key]; desc.configurable = desc.enumerable = true; if ("value" in desc) desc.writable = true; Object.defineProperty(obj, key, desc); } return obj; }
+
+var NOT_ITERATOR_ERROR = 'proc first argument (Saga function result) must be an iterator';
+
+var CHANNEL_END = {
+  toString: function toString() {
+    return '@@redux-saga/CHANNEL_END';
+  }
+};
+var TASK_CANCEL = {
+  toString: function toString() {
+    return '@@redux-saga/TASK_CANCEL';
+  }
+};
+
+var matchers = {
+  wildcard: function wildcard() {
+    return kTrue;
+  },
+  default: function _default(pattern) {
+    return (typeof pattern === 'undefined' ? 'undefined' : _typeof$4(pattern)) === 'symbol' ? function (input) {
+      return input.type === pattern;
+    } : function (input) {
+      return input.type === String(pattern);
+    };
+  },
+  array: function array$$1(patterns) {
+    return function (input) {
+      return patterns.some(function (p) {
+        return matcher(p)(input);
+      });
+    };
+  },
+  predicate: function predicate(_predicate) {
+    return function (input) {
+      return _predicate(input);
+    };
+  }
+};
+
+function matcher(pattern) {
+  // prettier-ignore
+  return (pattern === '*' ? matchers.wildcard : is$1.array(pattern) ? matchers.array : is$1.stringableFunc(pattern) ? matchers.default : is$1.func(pattern) ? matchers.predicate : matchers.default)(pattern);
+}
+
+/**
+  Used to track a parent task and its forks
+  In the new fork model, forked tasks are attached by default to their parent
+  We model this using the concept of Parent task && main Task
+  main task is the main flow of the current Generator, the parent tasks is the
+  aggregation of the main tasks + all its forked tasks.
+  Thus the whole model represents an execution tree with multiple branches (vs the
+  linear execution tree in sequential (non parallel) programming)
+
+  A parent tasks has the following semantics
+  - It completes if all its forks either complete or all cancelled
+  - If it's cancelled, all forks are cancelled as well
+  - It aborts if any uncaught error bubbles up from forks
+  - If it completes, the return value is the one returned by the main task
+**/
+function forkQueue(name, mainTask, cb) {
+  var tasks = [],
+      result = void 0,
+      completed = false;
+  addTask(mainTask);
+
+  function abort(err) {
+    cancelAll();
+    cb(err, true);
+  }
+
+  function addTask(task) {
+    tasks.push(task);
+    task.cont = function (res, isErr) {
+      if (completed) {
+        return;
+      }
+
+      remove(tasks, task);
+      task.cont = noop$2;
+      if (isErr) {
+        abort(res);
+      } else {
+        if (task === mainTask) {
+          result = res;
+        }
+        if (!tasks.length) {
+          completed = true;
+          cb(result);
+        }
+      }
+    };
+    // task.cont.cancel = task.cancel
+  }
+
+  function cancelAll() {
+    if (completed) {
+      return;
+    }
+    completed = true;
+    tasks.forEach(function (t) {
+      t.cont = noop$2;
+      t.cancel();
+    });
+    tasks = [];
+  }
+
+  return {
+    addTask: addTask,
+    cancelAll: cancelAll,
+    abort: abort,
+    getTasks: function getTasks() {
+      return tasks;
+    },
+    taskNames: function taskNames() {
+      return tasks.map(function (t) {
+        return t.name;
+      });
+    }
+  };
+}
+
+function createTaskIterator(_ref) {
+  var context = _ref.context,
+      fn = _ref.fn,
+      args = _ref.args;
+
+  if (is$1.iterator(fn)) {
+    return fn;
+  }
+
+  // catch synchronous failures; see #152 and #441
+  var result = void 0,
+      error = void 0;
+  try {
+    result = fn.apply(context, args);
+  } catch (err) {
+    error = err;
+  }
+
+  // i.e. a generator function returns an iterator
+  if (is$1.iterator(result)) {
+    return result;
+  }
+
+  // do not bubble up synchronous failures for detached forks
+  // instead create a failed task. See #152 and #441
+  return error ? makeIterator(function () {
+    throw error;
+  }) : makeIterator(function () {
+    var pc = void 0;
+    var eff = { done: false, value: result };
+    var ret = function ret(value) {
+      return { done: true, value: value };
+    };
+    return function (arg) {
+      if (!pc) {
+        pc = true;
+        return eff;
+      } else {
+        return ret(arg);
+      }
+    };
+  }());
+}
+
+var wrapHelper = function wrapHelper(helper) {
+  return { fn: helper };
+};
+
+function proc(iterator) {
+  var subscribe = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
+    return noop$2;
+  };
+  var dispatch = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : noop$2;
+  var getState = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : noop$2;
+  var parentContext = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+  var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
+  var parentEffectId = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 0;
+  var name = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 'anonymous';
+  var cont = arguments[8];
+
+  check(iterator, is$1.iterator, NOT_ITERATOR_ERROR);
+
+  var effectsString = '[...effects]';
+  var runParallelEffect = deprecate(runAllEffect, updateIncentive(effectsString, 'all(' + effectsString + ')'));
+
+  var sagaMonitor = options.sagaMonitor,
+      logger = options.logger,
+      onError = options.onError;
+
+  var log$$1 = logger || log;
+  var logError = function logError(err) {
+    var message = err.sagaStack;
+
+    if (!message && err.stack) {
+      message = err.stack.split('\n')[0].indexOf(err.message) !== -1 ? err.stack : 'Error: ' + err.message + '\n' + err.stack;
+    }
+
+    log$$1('error', 'uncaught at ' + name, message || err.message || err);
+  };
+  var stdChannel$$1 = stdChannel(subscribe);
+  var taskContext = Object.create(parentContext);
+  /**
+    Tracks the current effect cancellation
+    Each time the generator progresses. calling runEffect will set a new value
+    on it. It allows propagating cancellation to child effects
+  **/
+  next.cancel = noop$2;
+
+  /**
+    Creates a new task descriptor for this generator, We'll also create a main task
+    to track the main flow (besides other forked tasks)
+  **/
+  var task = newTask(parentEffectId, name, iterator, cont);
+  var mainTask = { name: name, cancel: cancelMain, isRunning: true };
+  var taskQueue = forkQueue(name, mainTask, end);
+
+  /**
+    cancellation of the main task. We'll simply resume the Generator with a Cancel
+  **/
+  function cancelMain() {
+    if (mainTask.isRunning && !mainTask.isCancelled) {
+      mainTask.isCancelled = true;
+      next(TASK_CANCEL);
+    }
+  }
+
+  /**
+    This may be called by a parent generator to trigger/propagate cancellation
+    cancel all pending tasks (including the main task), then end the current task.
+     Cancellation propagates down to the whole execution tree holded by this Parent task
+    It's also propagated to all joiners of this task and their execution tree/joiners
+     Cancellation is noop for terminated/Cancelled tasks tasks
+  **/
+  function cancel$$1() {
+    /**
+      We need to check both Running and Cancelled status
+      Tasks can be Cancelled but still Running
+    **/
+    if (iterator._isRunning && !iterator._isCancelled) {
+      iterator._isCancelled = true;
+      taskQueue.cancelAll();
+      /**
+        Ending with a Never result will propagate the Cancellation to all joiners
+      **/
+      end(TASK_CANCEL);
+    }
+  }
+  /**
+    attaches cancellation logic to this task's continuation
+    this will permit cancellation to propagate down the call chain
+  **/
+  cont && (cont.cancel = cancel$$1);
+
+  // tracks the running status
+  iterator._isRunning = true;
+
+  // kicks up the generator
+  next();
+
+  // then return the task descriptor to the caller
+  return task;
+
+  /**
+    This is the generator driver
+    It's a recursive async/continuation function which calls itself
+    until the generator terminates or throws
+  **/
+  function next(arg, isErr) {
+    // Preventive measure. If we end up here, then there is really something wrong
+    if (!mainTask.isRunning) {
+      throw new Error('Trying to resume an already finished generator');
+    }
+
+    try {
+      var result = void 0;
+      if (isErr) {
+        result = iterator.throw(arg);
+      } else if (arg === TASK_CANCEL) {
+        /**
+          getting TASK_CANCEL automatically cancels the main task
+          We can get this value here
+           - By cancelling the parent task manually
+          - By joining a Cancelled task
+        **/
+        mainTask.isCancelled = true;
+        /**
+          Cancels the current effect; this will propagate the cancellation down to any called tasks
+        **/
+        next.cancel();
+        /**
+          If this Generator has a `return` method then invokes it
+          This will jump to the finally block
+        **/
+        result = is$1.func(iterator.return) ? iterator.return(TASK_CANCEL) : { done: true, value: TASK_CANCEL };
+      } else if (arg === CHANNEL_END) {
+        // We get CHANNEL_END by taking from a channel that ended using `take` (and not `takem` used to trap End of channels)
+        result = is$1.func(iterator.return) ? iterator.return() : { done: true };
+      } else {
+        result = iterator.next(arg);
+      }
+
+      if (!result.done) {
+        runEffect(result.value, parentEffectId, '', next);
+      } else {
+        /**
+          This Generator has ended, terminate the main task and notify the fork queue
+        **/
+        mainTask.isMainRunning = false;
+        mainTask.cont && mainTask.cont(result.value);
+      }
+    } catch (error) {
+      if (mainTask.isCancelled) {
+        logError(error);
+      }
+      mainTask.isMainRunning = false;
+      mainTask.cont(error, true);
+    }
+  }
+
+  function end(result, isErr) {
+    iterator._isRunning = false;
+    stdChannel$$1.close();
+    if (!isErr) {
+      iterator._result = result;
+      iterator._deferredEnd && iterator._deferredEnd.resolve(result);
+    } else {
+      if (result instanceof Error) {
+        Object.defineProperty(result, 'sagaStack', {
+          value: 'at ' + name + ' \n ' + (result.sagaStack || result.stack),
+          configurable: true
+        });
+      }
+      if (!task.cont) {
+        if (result instanceof Error && onError) {
+          onError(result);
+        } else {
+          logError(result);
+        }
+      }
+      iterator._error = result;
+      iterator._isAborted = true;
+      iterator._deferredEnd && iterator._deferredEnd.reject(result);
+    }
+    task.cont && task.cont(result, isErr);
+    task.joiners.forEach(function (j) {
+      return j.cb(result, isErr);
+    });
+    task.joiners = null;
+  }
+
+  function runEffect(effect, parentEffectId) {
+    var label = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+    var cb = arguments[3];
+
+    var effectId = uid();
+    sagaMonitor && sagaMonitor.effectTriggered({ effectId: effectId, parentEffectId: parentEffectId, label: label, effect: effect });
+
+    /**
+      completion callback and cancel callback are mutually exclusive
+      We can't cancel an already completed effect
+      And We can't complete an already cancelled effectId
+    **/
+    var effectSettled = void 0;
+
+    // Completion callback passed to the appropriate effect runner
+    function currCb(res, isErr) {
+      if (effectSettled) {
+        return;
+      }
+
+      effectSettled = true;
+      cb.cancel = noop$2; // defensive measure
+      if (sagaMonitor) {
+        isErr ? sagaMonitor.effectRejected(effectId, res) : sagaMonitor.effectResolved(effectId, res);
+      }
+      cb(res, isErr);
+    }
+    // tracks down the current cancel
+    currCb.cancel = noop$2;
+
+    // setup cancellation logic on the parent cb
+    cb.cancel = function () {
+      // prevents cancelling an already completed effect
+      if (effectSettled) {
+        return;
+      }
+
+      effectSettled = true;
+      /**
+        propagates cancel downward
+        catch uncaught cancellations errors; since we can no longer call the completion
+        callback, log errors raised during cancellations into the console
+      **/
+      try {
+        currCb.cancel();
+      } catch (err) {
+        logError(err);
+      }
+      currCb.cancel = noop$2; // defensive measure
+
+      sagaMonitor && sagaMonitor.effectCancelled(effectId);
+    };
+
+    /**
+      each effect runner must attach its own logic of cancellation to the provided callback
+      it allows this generator to propagate cancellation downward.
+       ATTENTION! effect runners must setup the cancel logic by setting cb.cancel = [cancelMethod]
+      And the setup must occur before calling the callback
+       This is a sort of inversion of control: called async functions are responsible
+      for completing the flow by calling the provided continuation; while caller functions
+      are responsible for aborting the current flow by calling the attached cancel function
+       Library users can attach their own cancellation logic to promises by defining a
+      promise[CANCEL] method in their returned promises
+      ATTENTION! calling cancel must have no effect on an already completed or cancelled effect
+    **/
+    var data = void 0;
+    // prettier-ignore
+    return (
+      // Non declarative effect
+      is$1.promise(effect) ? resolvePromise(effect, currCb) : is$1.helper(effect) ? runForkEffect(wrapHelper(effect), effectId, currCb) : is$1.iterator(effect) ? resolveIterator(effect, effectId, name, currCb)
+
+      // declarative effects
+      : is$1.array(effect) ? runParallelEffect(effect, effectId, currCb) : (data = asEffect.take(effect)) ? runTakeEffect(data, currCb) : (data = asEffect.put(effect)) ? runPutEffect(data, currCb) : (data = asEffect.all(effect)) ? runAllEffect(data, effectId, currCb) : (data = asEffect.race(effect)) ? runRaceEffect(data, effectId, currCb) : (data = asEffect.call(effect)) ? runCallEffect(data, effectId, currCb) : (data = asEffect.cps(effect)) ? runCPSEffect(data, currCb) : (data = asEffect.fork(effect)) ? runForkEffect(data, effectId, currCb) : (data = asEffect.join(effect)) ? runJoinEffect(data, currCb) : (data = asEffect.cancel(effect)) ? runCancelEffect(data, currCb) : (data = asEffect.select(effect)) ? runSelectEffect(data, currCb) : (data = asEffect.actionChannel(effect)) ? runChannelEffect(data, currCb) : (data = asEffect.flush(effect)) ? runFlushEffect(data, currCb) : (data = asEffect.cancelled(effect)) ? runCancelledEffect(data, currCb) : (data = asEffect.getContext(effect)) ? runGetContextEffect(data, currCb) : (data = asEffect.setContext(effect)) ? runSetContextEffect(data, currCb) : /* anything else returned as is */currCb(effect)
+    );
+  }
+
+  function resolvePromise(promise, cb) {
+    var cancelPromise = promise[CANCEL];
+    if (is$1.func(cancelPromise)) {
+      cb.cancel = cancelPromise;
+    } else if (is$1.func(promise.abort)) {
+      cb.cancel = function () {
+        return promise.abort();
+      };
+      // TODO: add support for the fetch API, whenever they get around to
+      // adding cancel support
+    }
+    promise.then(cb, function (error) {
+      return cb(error, true);
+    });
+  }
+
+  function resolveIterator(iterator, effectId, name, cb) {
+    proc(iterator, subscribe, dispatch, getState, taskContext, options, effectId, name, cb);
+  }
+
+  function runTakeEffect(_ref2, cb) {
+    var channel$$1 = _ref2.channel,
+        pattern = _ref2.pattern,
+        maybe = _ref2.maybe;
+
+    channel$$1 = channel$$1 || stdChannel$$1;
+    var takeCb = function takeCb(inp) {
+      return inp instanceof Error ? cb(inp, true) : isEnd(inp) && !maybe ? cb(CHANNEL_END) : cb(inp);
+    };
+    try {
+      channel$$1.take(takeCb, matcher(pattern));
+    } catch (err) {
+      return cb(err, true);
+    }
+    cb.cancel = takeCb.cancel;
+  }
+
+  function runPutEffect(_ref3, cb) {
+    var channel$$1 = _ref3.channel,
+        action = _ref3.action,
+        resolve = _ref3.resolve;
+
+    /**
+      Schedule the put in case another saga is holding a lock.
+      The put will be executed atomically. ie nested puts will execute after
+      this put has terminated.
+    **/
+    asap(function () {
+      var result = void 0;
+      try {
+        result = (channel$$1 ? channel$$1.put : dispatch)(action);
+      } catch (error) {
+        // If we have a channel or `put.resolve` was used then bubble up the error.
+        if (channel$$1 || resolve) return cb(error, true);
+        logError(error);
+      }
+
+      if (resolve && is$1.promise(result)) {
+        resolvePromise(result, cb);
+      } else {
+        return cb(result);
+      }
+    });
+    // Put effects are non cancellables
+  }
+
+  function runCallEffect(_ref4, effectId, cb) {
+    var context = _ref4.context,
+        fn = _ref4.fn,
+        args = _ref4.args;
+
+    var result = void 0;
+    // catch synchronous failures; see #152
+    try {
+      result = fn.apply(context, args);
+    } catch (error) {
+      return cb(error, true);
+    }
+    return is$1.promise(result) ? resolvePromise(result, cb) : is$1.iterator(result) ? resolveIterator(result, effectId, fn.name, cb) : cb(result);
+  }
+
+  function runCPSEffect(_ref5, cb) {
+    var context = _ref5.context,
+        fn = _ref5.fn,
+        args = _ref5.args;
+
+    // CPS (ie node style functions) can define their own cancellation logic
+    // by setting cancel field on the cb
+
+    // catch synchronous failures; see #152
+    try {
+      var cpsCb = function cpsCb(err, res) {
+        return is$1.undef(err) ? cb(res) : cb(err, true);
+      };
+      fn.apply(context, args.concat(cpsCb));
+      if (cpsCb.cancel) {
+        cb.cancel = function () {
+          return cpsCb.cancel();
+        };
+      }
+    } catch (error) {
+      return cb(error, true);
+    }
+  }
+
+  function runForkEffect(_ref6, effectId, cb) {
+    var context = _ref6.context,
+        fn = _ref6.fn,
+        args = _ref6.args,
+        detached = _ref6.detached;
+
+    var taskIterator = createTaskIterator({ context: context, fn: fn, args: args });
+
+    try {
+      suspend();
+      var _task = proc(taskIterator, subscribe, dispatch, getState, taskContext, options, effectId, fn.name, detached ? null : noop$2);
+
+      if (detached) {
+        cb(_task);
+      } else {
+        if (taskIterator._isRunning) {
+          taskQueue.addTask(_task);
+          cb(_task);
+        } else if (taskIterator._error) {
+          taskQueue.abort(taskIterator._error);
+        } else {
+          cb(_task);
+        }
+      }
+    } finally {
+      flush$1();
+    }
+    // Fork effects are non cancellables
+  }
+
+  function runJoinEffect(t, cb) {
+    if (t.isRunning()) {
+      var joiner = { task: task, cb: cb };
+      cb.cancel = function () {
+        return remove(t.joiners, joiner);
+      };
+      t.joiners.push(joiner);
+    } else {
+      t.isAborted() ? cb(t.error(), true) : cb(t.result());
+    }
+  }
+
+  function runCancelEffect(taskToCancel, cb) {
+    if (taskToCancel === SELF_CANCELLATION) {
+      taskToCancel = task;
+    }
+    if (taskToCancel.isRunning()) {
+      taskToCancel.cancel();
+    }
+    cb();
+    // cancel effects are non cancellables
+  }
+
+  function runAllEffect(effects, effectId, cb) {
+    var keys = Object.keys(effects);
+
+    if (!keys.length) {
+      return cb(is$1.array(effects) ? [] : {});
+    }
+
+    var completedCount = 0;
+    var completed = void 0;
+    var results = {};
+    var childCbs = {};
+
+    function checkEffectEnd() {
+      if (completedCount === keys.length) {
+        completed = true;
+        cb(is$1.array(effects) ? array.from(_extends$c({}, results, { length: keys.length })) : results);
+      }
+    }
+
+    keys.forEach(function (key) {
+      var chCbAtKey = function chCbAtKey(res, isErr) {
+        if (completed) {
+          return;
+        }
+        if (isErr || isEnd(res) || res === CHANNEL_END || res === TASK_CANCEL) {
+          cb.cancel();
+          cb(res, isErr);
+        } else {
+          results[key] = res;
+          completedCount++;
+          checkEffectEnd();
+        }
+      };
+      chCbAtKey.cancel = noop$2;
+      childCbs[key] = chCbAtKey;
+    });
+
+    cb.cancel = function () {
+      if (!completed) {
+        completed = true;
+        keys.forEach(function (key) {
+          return childCbs[key].cancel();
+        });
+      }
+    };
+
+    keys.forEach(function (key) {
+      return runEffect(effects[key], effectId, key, childCbs[key]);
+    });
+  }
+
+  function runRaceEffect(effects, effectId, cb) {
+    var completed = void 0;
+    var keys = Object.keys(effects);
+    var childCbs = {};
+
+    keys.forEach(function (key) {
+      var chCbAtKey = function chCbAtKey(res, isErr) {
+        if (completed) {
+          return;
+        }
+
+        if (isErr) {
+          // Race Auto cancellation
+          cb.cancel();
+          cb(res, true);
+        } else if (!isEnd(res) && res !== CHANNEL_END && res !== TASK_CANCEL) {
+          var _response;
+
+          cb.cancel();
+          completed = true;
+          var response = (_response = {}, _response[key] = res, _response);
+          cb(is$1.array(effects) ? [].slice.call(_extends$c({}, response, { length: keys.length })) : response);
+        }
+      };
+      chCbAtKey.cancel = noop$2;
+      childCbs[key] = chCbAtKey;
+    });
+
+    cb.cancel = function () {
+      // prevents unnecessary cancellation
+      if (!completed) {
+        completed = true;
+        keys.forEach(function (key) {
+          return childCbs[key].cancel();
+        });
+      }
+    };
+    keys.forEach(function (key) {
+      if (completed) {
+        return;
+      }
+      runEffect(effects[key], effectId, key, childCbs[key]);
+    });
+  }
+
+  function runSelectEffect(_ref7, cb) {
+    var selector = _ref7.selector,
+        args = _ref7.args;
+
+    try {
+      var state = selector.apply(undefined, [getState()].concat(args));
+      cb(state);
+    } catch (error) {
+      cb(error, true);
+    }
+  }
+
+  function runChannelEffect(_ref8, cb) {
+    var pattern = _ref8.pattern,
+        buffer = _ref8.buffer;
+
+    var match = matcher(pattern);
+    match.pattern = pattern;
+    cb(eventChannel(subscribe, buffer || buffers.fixed(), match));
+  }
+
+  function runCancelledEffect(data, cb) {
+    cb(!!mainTask.isCancelled);
+  }
+
+  function runFlushEffect(channel$$1, cb) {
+    channel$$1.flush(cb);
+  }
+
+  function runGetContextEffect(prop, cb) {
+    cb(taskContext[prop]);
+  }
+
+  function runSetContextEffect(props, cb) {
+    object.assign(taskContext, props);
+    cb();
+  }
+
+  function newTask(id, name, iterator, cont) {
+    var _done, _ref9, _mutatorMap;
+
+    iterator._deferredEnd = null;
+    return _ref9 = {}, _ref9[TASK] = true, _ref9.id = id, _ref9.name = name, _done = 'done', _mutatorMap = {}, _mutatorMap[_done] = _mutatorMap[_done] || {}, _mutatorMap[_done].get = function () {
+      if (iterator._deferredEnd) {
+        return iterator._deferredEnd.promise;
+      } else {
+        var def = deferred();
+        iterator._deferredEnd = def;
+        if (!iterator._isRunning) {
+          iterator._error ? def.reject(iterator._error) : def.resolve(iterator._result);
+        }
+        return def.promise;
+      }
+    }, _ref9.cont = cont, _ref9.joiners = [], _ref9.cancel = cancel$$1, _ref9.isRunning = function isRunning() {
+      return iterator._isRunning;
+    }, _ref9.isCancelled = function isCancelled() {
+      return iterator._isCancelled;
+    }, _ref9.isAborted = function isAborted() {
+      return iterator._isAborted;
+    }, _ref9.result = function result() {
+      return iterator._result;
+    }, _ref9.error = function error() {
+      return iterator._error;
+    }, _ref9.setContext = function setContext$$1(props) {
+      check(props, is$1.object, createSetContextWarning('task', props));
+      object.assign(taskContext, props);
+    }, _defineEnumerableProperties(_ref9, _mutatorMap), _ref9;
+  }
+}
+
+var RUN_SAGA_SIGNATURE = 'runSaga(storeInterface, saga, ...args)';
+var NON_GENERATOR_ERR = RUN_SAGA_SIGNATURE + ': saga argument must be a Generator function!';
+
+function runSaga(storeInterface, saga) {
+  for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    args[_key - 2] = arguments[_key];
+  }
+
+  var iterator = void 0;
+
+  if (is$1.iterator(storeInterface)) {
+    if (process.env.NODE_ENV === 'development') {
+      log('warn', 'runSaga(iterator, storeInterface) has been deprecated in favor of ' + RUN_SAGA_SIGNATURE);
+    }
+    iterator = storeInterface;
+    storeInterface = saga;
+  } else {
+    check(saga, is$1.func, NON_GENERATOR_ERR);
+    iterator = saga.apply(undefined, args);
+    check(iterator, is$1.iterator, NON_GENERATOR_ERR);
+  }
+
+  var _storeInterface = storeInterface,
+      subscribe = _storeInterface.subscribe,
+      dispatch = _storeInterface.dispatch,
+      getState = _storeInterface.getState,
+      context = _storeInterface.context,
+      sagaMonitor = _storeInterface.sagaMonitor,
+      logger = _storeInterface.logger,
+      onError = _storeInterface.onError;
+
+
+  var effectId = uid();
+
+  if (sagaMonitor) {
+    // monitors are expected to have a certain interface, let's fill-in any missing ones
+    sagaMonitor.effectTriggered = sagaMonitor.effectTriggered || noop$2;
+    sagaMonitor.effectResolved = sagaMonitor.effectResolved || noop$2;
+    sagaMonitor.effectRejected = sagaMonitor.effectRejected || noop$2;
+    sagaMonitor.effectCancelled = sagaMonitor.effectCancelled || noop$2;
+    sagaMonitor.actionDispatched = sagaMonitor.actionDispatched || noop$2;
+
+    sagaMonitor.effectTriggered({ effectId: effectId, root: true, parentEffectId: 0, effect: { root: true, saga: saga, args: args } });
+  }
+
+  var task = proc(iterator, subscribe, wrapSagaDispatch(dispatch), getState, context, { sagaMonitor: sagaMonitor, logger: logger, onError: onError }, effectId, saga.name);
+
+  if (sagaMonitor) {
+    sagaMonitor.effectResolved(effectId, task);
+  }
+
+  return task;
+}
+
+function _objectWithoutProperties$2(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+function sagaMiddlewareFactory() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  var _ref$context = _ref.context,
+      context = _ref$context === undefined ? {} : _ref$context,
+      options = _objectWithoutProperties$2(_ref, ['context']);
+
+  var sagaMonitor = options.sagaMonitor,
+      logger = options.logger,
+      onError = options.onError;
+
+
+  if (is$1.func(options)) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Saga middleware no longer accept Generator functions. Use sagaMiddleware.run instead');
+    } else {
+      throw new Error('You passed a function to the Saga middleware. You are likely trying to start a        Saga by directly passing it to the middleware. This is no longer possible starting from 0.10.0.        To run a Saga, you must do it dynamically AFTER mounting the middleware into the store.\n        Example:\n          import createSagaMiddleware from \'redux-saga\'\n          ... other imports\n\n          const sagaMiddleware = createSagaMiddleware()\n          const store = createStore(reducer, applyMiddleware(sagaMiddleware))\n          sagaMiddleware.run(saga, ...args)\n      ');
+    }
+  }
+
+  if (logger && !is$1.func(logger)) {
+    throw new Error('`options.logger` passed to the Saga middleware is not a function!');
+  }
+
+  if (process.env.NODE_ENV === 'development' && options.onerror) {
+    throw new Error('`options.onerror` was removed. Use `options.onError` instead.');
+  }
+
+  if (onError && !is$1.func(onError)) {
+    throw new Error('`options.onError` passed to the Saga middleware is not a function!');
+  }
+
+  if (options.emitter && !is$1.func(options.emitter)) {
+    throw new Error('`options.emitter` passed to the Saga middleware is not a function!');
+  }
+
+  function sagaMiddleware(_ref2) {
+    var getState = _ref2.getState,
+        dispatch = _ref2.dispatch;
+
+    var sagaEmitter = emitter();
+    sagaEmitter.emit = (options.emitter || ident)(sagaEmitter.emit);
+
+    sagaMiddleware.run = runSaga.bind(null, {
+      context: context,
+      subscribe: sagaEmitter.subscribe,
+      dispatch: dispatch,
+      getState: getState,
+      sagaMonitor: sagaMonitor,
+      logger: logger,
+      onError: onError
+    });
+
+    return function (next) {
+      return function (action) {
+        if (sagaMonitor && sagaMonitor.actionDispatched) {
+          sagaMonitor.actionDispatched(action);
+        }
+        var result = next(action); // hit reducers
+        sagaEmitter.emit(action);
+        return result;
+      };
+    };
+  }
+
+  sagaMiddleware.run = function () {
+    throw new Error('Before running a Saga, you must mount the Saga middleware on the Store using applyMiddleware');
+  };
+
+  sagaMiddleware.setContext = function (props) {
+    check(props, is$1.object, createSetContextWarning('sagaMiddleware', props));
+    object.assign(context, props);
+  };
+
+  return sagaMiddleware;
+}
+
+var EFFECT_TRIGGERED = 'EFFECT_TRIGGERED';
+var EFFECT_RESOLVED = 'EFFECT_RESOLVED';
+var EFFECT_REJECTED = 'EFFECT_REJECTED';
+var EFFECT_CANCELLED = 'EFFECT_CANCELLED';
+var ACTION_DISPATCHED = 'ACTION_DISPATCHED';
+var SET_SHARED_REF = 'SET_SHARED_REF';
+var STATUS_PENDING = 'STATUS_PENDING';
+var STATUS_RESOLVED = 'STATUS_RESOLVED';
+var STATUS_REJECTED = 'STATUS_REJECTED';
+var STATUS_CANCELLED = 'STATUS_CANCELLED';
+var CHILDREN = Symbol('CHILDREN');
+
+function getPathToEffect(effect, effectsById) {
+  var effectId = effect.effectId;
+  var path = [effectId];
+
+  while (effectId) {
+    effectId = effect.parentEffectId;
+
+    if (effectId) {
+      path.push(effectId);
+      effect = effectsById[effectId];
+    }
+  }
+
+  return path.reverse();
+}
+
+function rootEffectIds() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  if (action.type === EFFECT_TRIGGERED && action.effect.root) {
+    return toConsumableArray(state).concat([action.effect.effectId]);
+  }
+
+  return state;
+}
+function effectIds() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  switch (action.type) {
+    case EFFECT_TRIGGERED:
+      return state.concat(action.effect.effectId);
+
+    default:
+      return state;
+  }
+}
+function effectsById() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+  var effectId, effect, newState;
+
+  switch (action.type) {
+    case EFFECT_TRIGGERED:
+      effect = action.effect;
+      effectId = effect.effectId;
+      newState = objectSpread({}, state, defineProperty$2({}, effectId, objectSpread({}, effect, defineProperty$2({
+        status: STATUS_PENDING,
+        start: action.time,
+        path: effect.parentEffectId ? getPathToEffect(effect, state) : [effectId]
+      }, CHILDREN, []))));
+      /**
+        ugly  hack. store children along with the effects
+        this shouldn't be accessed by any other outside UI
+        it's only there so the maybeSetRaceWinner could access race's children
+      **/
+
+      var parent = state[effect.parentEffectId];
+
+      if (parent && asEffect.race(parent.effect)) {
+        parent[CHILDREN].push(effect);
+      }
+
+      return newState;
+
+    case EFFECT_RESOLVED:
+      effectId = action.effectId;
+      effect = state[effectId];
+      newState = objectSpread({}, state, defineProperty$2({}, effectId, settleEffect(effect, action)));
+      return maybeSetRaceWinner(effect, action.result, newState);
+
+    case EFFECT_REJECTED:
+      effectId = action.effectId;
+      return objectSpread({}, state, defineProperty$2({}, effectId, settleEffect(state[effectId], action, true)));
+
+    case EFFECT_CANCELLED:
+      effectId = action.effectId;
+      return objectSpread({}, state, defineProperty$2({}, effectId, cancelEffect(state[effectId], action)));
+
+    default:
+      return state;
+  }
+}
+
+function settleEffect(effect, action, isError) {
+  return objectSpread({}, effect, {
+    result: action.result,
+    error: action.error,
+    status: isError ? STATUS_REJECTED : STATUS_RESOLVED,
+    end: action.time,
+    time: action.time - effect.start
+  });
+}
+
+function cancelEffect(effect, action) {
+  return objectSpread({}, effect, {
+    status: STATUS_CANCELLED,
+    end: action.time,
+    time: action.time - effect.start
+  });
+}
+
+function effectsByParentId() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  if (action.type === EFFECT_TRIGGERED) {
+    var effect = action.effect;
+    var parentId = effect.parentEffectId;
+
+    if (parentId) {
+      var siblings = state[parentId];
+      return objectSpread({}, state, defineProperty$2({}, parentId, !siblings ? [effect.effectId] : toConsumableArray(siblings).concat([effect.effectId])));
+    }
+  }
+
+  return state;
+}
+
+function maybeSetRaceWinner(effect, result, state) {
+  if (asEffect.race(effect.effect)) {
+    var label = Object.keys(result)[0];
+    var children = effect[CHILDREN];
+
+    for (var i = 0; i < children.length; i++) {
+      var ch = children[i];
+
+      if (ch.label === label) {
+        // we mutate the state, b/c we know it's already a new generated state from effectsById
+        state[ch.effectId] = objectSpread({}, state[ch.effectId], {
+          winner: true
+        });
+        return state;
+      }
+    }
+  }
+
+  return state;
+}
+
+function dispatchedActions() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var monitorAction = arguments.length > 1 ? arguments[1] : undefined;
+
+  if (monitorAction.type === ACTION_DISPATCHED) {
+    var id = monitorAction.id,
+        action = monitorAction.action,
+        time = monitorAction.time,
+        isSagaAction = monitorAction.isSagaAction;
+    return state.concat({
+      id: id,
+      action: action,
+      time: time,
+      isSagaAction: isSagaAction
+    });
+  }
+
+  return state;
+}
+function sharedRef() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  if (action.type === SET_SHARED_REF) {
+    return objectSpread({}, state, defineProperty$2({}, action.key, action.sharedRef));
+  }
+
+  return state;
+}
+var reducers = combineReducers({
+  rootEffectIds: rootEffectIds,
+  effectIds: effectIds,
+  effectsById: effectsById,
+  effectsByParentId: effectsByParentId,
+  dispatchedActions: dispatchedActions,
+  sharedRef: sharedRef
+});
+
+function getTime() {
+  if (typeof performance !== 'undefined' && performance.now) return performance.now();else return Date.now();
+}
+
+function createSagaMonitor() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      rootReducer = _ref.rootReducer,
+      storeDispatch = _ref.storeDispatch,
+      _ref$time = _ref.time,
+      time = _ref$time === void 0 ? getTime : _ref$time,
+      customDispatch = _ref.dispatch;
+
+  var store;
+  var dispatch;
+  store = createStore(reducers);
+  dispatch = store.dispatch;
+
+  function effectTriggered(effect) {
+    // console.log(arguments)
+    dispatch({
+      type: EFFECT_TRIGGERED,
+      effect: effect,
+      time: time()
+    }); // console.log(effect)
+  }
+
+  function effectResolved(effectId, result) {
+    // console.log(effectId, result)
+    if (is$1.task(result)) {
+      result.done.then(function (taskResult) {
+        if (result.isCancelled()) effectCancelled(effectId);else effectResolved(effectId, taskResult); // console.log(store.getState().effectsById[effectId].effect.FORK.args[1])
+        // console.log(store.getState().effectsById[effectId].effect)
+
+        storeDispatch(defineProperty$2({
+          type: "@@MIDDLEWARE/FETCH_RES",
+          payload: store.getState().effectsById[effectId].effect.FORK.args[0]
+        }, SAGA_ACTION, true));
+      }, function (taskError) {
+        effectRejected(effectId, taskError);
+        storeDispatch(defineProperty$2({
+          type: "@@MIDDLEWARE/FETCH_RES",
+          payload: store.getState().effectsById[effectId].effect.FORK.args[0]
+        }, SAGA_ACTION, true));
+      });
+    } else {
+      var action = {
+        type: EFFECT_RESOLVED,
+        effectId: effectId,
+        result: result,
+        time: time()
+      };
+      dispatch(action);
+    }
+  }
+
+  function effectRejected(effectId, error) {
+    var action = {
+      type: EFFECT_REJECTED,
+      effectId: effectId,
+      error: error,
+      time: time()
+    };
+    dispatch(action);
+  }
+
+  function effectCancelled(effectId) {
+    var action = {
+      type: EFFECT_CANCELLED,
+      effectId: effectId,
+      time: time() // console.log("effectCancelled action",action)
+
+    };
+    dispatch(action);
+  }
+
+  function actionDispatched(action) {
+    var isSagaAction = action[SAGA_ACTION];
+    var now = time();
+    dispatch({
+      type: ACTION_DISPATCHED,
+      id: now,
+      action: action,
+      isSagaAction: isSagaAction,
+      time: now
+    });
+
+    if (!isSagaAction && action.meta && action.meta['sagaAction'] && storeDispatch) {
+      storeDispatch(defineProperty$2({
+        type: "@@MIDDLEWARE/FETCH_PARAMS",
+        payload: action
+      }, SAGA_ACTION, true));
+      storeDispatch(defineProperty$2({
+        type: "@@MIDDLEWARE/FETCH_REQ",
+        payload: action
+      }, SAGA_ACTION, true));
+    } // console.log("actionDispatched action",ACTION_DISPATCHED,now,isSagaAction,action,now)
+
+  }
+
+  return {
+    get store() {
+      return store;
+    },
+
+    effectTriggered: effectTriggered,
+    effectResolved: effectResolved,
+    effectRejected: effectRejected,
+    effectCancelled: effectCancelled,
+    actionDispatched: actionDispatched
+  };
+}
+function sagaMonitorMiddleware(_ref2) {
+  var getState = _ref2.getState,
+      dispatch = _ref2.dispatch;
+  return sagaMiddlewareFactory({
+    sagaMonitor: createSagaMonitor({
+      rootReducer: reducers,
+      storeDispatch: dispatch
+    })
+  });
+}
+
 
 
 var index$5 = /*#__PURE__*/Object.freeze({
@@ -8407,7 +10375,9 @@ var index$5 = /*#__PURE__*/Object.freeze({
 	showSuccess: showSuccess,
 	showError: showError,
 	createModule: createModule,
-	globalReducer: globalReducer
+	globalReducer: globalReducer,
+	sagaMonitorMiddleware: sagaMonitorMiddleware,
+	createSagaMonitor: createSagaMonitor
 });
 
 var _marked =
@@ -9843,7 +11813,7 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 };
 });
 
-var _typeof$4 = unwrapExports(_typeof_1);
+var _typeof$5 = unwrapExports(_typeof_1);
 
 // 19.1.2.1 Object.assign(target, source, ...)
 
@@ -13511,7 +15481,7 @@ module.exports = { "default": from_1, __esModule: true };
 
 unwrapExports(from_1$1);
 
-var toConsumableArray = createCommonjsModule(function (module, exports) {
+var toConsumableArray$1 = createCommonjsModule(function (module, exports) {
 
 exports.__esModule = true;
 
@@ -13534,7 +15504,7 @@ exports.default = function (arr) {
 };
 });
 
-var _toConsumableArray = unwrapExports(toConsumableArray);
+var _toConsumableArray$1 = unwrapExports(toConsumableArray$1);
 
 var _isPlaceholder = function _isPlaceholder(a) {
   return a != null &&
@@ -13771,7 +15741,7 @@ exports.ops = exports.getBatchToken = undefined;
 
 
 
-var _toConsumableArray3 = _interopRequireDefault(toConsumableArray);
+var _toConsumableArray3 = _interopRequireDefault(toConsumableArray$1);
 
 
 
@@ -14927,7 +16897,7 @@ function clauseFiltersByAttribute(_ref, attribute) {
 
     if (type !== FILTER) return false;
 
-    if ((typeof payload === 'undefined' ? 'undefined' : _typeof$4(payload)) !== 'object') {
+    if ((typeof payload === 'undefined' ? 'undefined' : _typeof$5(payload)) !== 'object') {
         /**
          * payload could also be a function in which case
          * we would have no way of knowing what it does,
@@ -15138,7 +17108,7 @@ var QuerySet = function () {
              * allow foreign keys to be specified as model instances,
              * transform model instances to their primary keys
              */
-            var normalizedLookupObj = (typeof lookupObj === 'undefined' ? 'undefined' : _typeof$4(lookupObj)) === 'object' ? mapValues_1(lookupObj, normalizeEntity) : lookupObj;
+            var normalizedLookupObj = (typeof lookupObj === 'undefined' ? 'undefined' : _typeof$5(lookupObj)) === 'object' ? mapValues_1(lookupObj, normalizeEntity) : lookupObj;
 
             var filterDescriptor = {
                 type: FILTER,
@@ -15166,7 +17136,7 @@ var QuerySet = function () {
              * allow foreign keys to be specified as model instances,
              * transform model instances to their primary keys
              */
-            var normalizedLookupObj = (typeof lookupObj === 'undefined' ? 'undefined' : _typeof$4(lookupObj)) === 'object' ? mapValues_1(lookupObj, normalizeEntity) : lookupObj;
+            var normalizedLookupObj = (typeof lookupObj === 'undefined' ? 'undefined' : _typeof$5(lookupObj)) === 'object' ? mapValues_1(lookupObj, normalizeEntity) : lookupObj;
             var excludeDescriptor = {
                 type: EXCLUDE,
                 payload: normalizedLookupObj
@@ -15353,7 +17323,7 @@ var QuerySet = function () {
 
 QuerySet.sharedMethods = ['count', 'at', 'all', 'last', 'first', 'filter', 'exclude', 'orderBy', 'update', 'delete'];
 
-var _extends$c = createCommonjsModule(function (module, exports) {
+var _extends$d = createCommonjsModule(function (module, exports) {
 
 exports.__esModule = true;
 
@@ -15378,7 +17348,7 @@ exports.default = _assign2.default || function (target) {
 };
 });
 
-var _extends$d = unwrapExports(_extends$c);
+var _extends$e = unwrapExports(_extends$d);
 
 var defineProperty$7 = createCommonjsModule(function (module, exports) {
 
@@ -16267,7 +18237,7 @@ var Session = function () {
                 return !!_this2.getDataForModel(modelName).accessedInstances;
             }).reduce(function (result, _ref2) {
                 var modelName = _ref2.modelName;
-                return _extends$d({}, result, _defineProperty$4({}, modelName, _this2.getDataForModel(modelName).accessedInstances));
+                return _extends$e({}, result, _defineProperty$4({}, modelName, _this2.getDataForModel(modelName).accessedInstances));
             }, {});
         }
     }, {
@@ -16747,7 +18717,7 @@ function manyToManyDescriptor(declaredFromModelName, declaredToModelName, throug
                         return through[otherReferencingField];
                     });
 
-                    var unexistingIds = [].concat(_toConsumableArray(idsToRemove)).filter(function (id) {
+                    var unexistingIds = [].concat(_toConsumableArray$1(idsToRemove)).filter(function (id) {
                         return !includes_1(entitiesToDeleteIds, id);
                     });
 
@@ -17010,7 +18980,7 @@ var RelationalField = function (_Field2) {
 
         var _this3 = _possibleConstructorReturn$7(this, (_ref = RelationalField.__proto__ || _Object$getPrototypeOf(RelationalField)).call.apply(_ref, [this].concat(args)));
 
-        if (args.length === 1 && _typeof$4(args[0]) === 'object') {
+        if (args.length === 1 && _typeof$5(args[0]) === 'object') {
             var opts = args[0];
             _this3.toModelName = opts.to;
             _this3.relatedName = opts.relatedName;
@@ -17334,7 +19304,7 @@ var Model = function () {
         value: function _initFields(props) {
             var _this = this;
 
-            this._fields = _extends$d({}, props);
+            this._fields = _extends$e({}, props);
 
             forOwn_1(props, function (fieldValue, fieldName) {
                 // In this case, we got a prop that wasn't defined as a field.
@@ -17470,7 +19440,7 @@ var Model = function () {
                 throw new Error(['Tried to update a ' + ThisModel.modelName + ' model instance without a session. ', 'You cannot call `.update` on an instance that you did not receive from the database.'].join(''));
             }
 
-            var mergeObj = _extends$d({}, userMergeObj);
+            var mergeObj = _extends$e({}, userMergeObj);
 
             var fields = ThisModel.fields,
                 virtualFields = ThisModel.virtualFields;
@@ -17506,7 +19476,7 @@ var Model = function () {
                 }
             }
 
-            var mergedFields = _extends$d({}, this._fields, mergeObj);
+            var mergedFields = _extends$e({}, this._fields, mergeObj);
 
             var updatedModel = new ThisModel(this._fields);
             updatedModel._initFields(mergedFields); // eslint-disable-line no-underscore-dangle
@@ -17637,12 +19607,12 @@ var Model = function () {
                     if (idsToDelete.length > 0) {
                         var _name;
 
-                        (_name = _this4[name]).remove.apply(_name, _toConsumableArray(idsToDelete));
+                        (_name = _this4[name]).remove.apply(_name, _toConsumableArray$1(idsToDelete));
                     }
                     if (idsToAdd.length > 0) {
                         var _name2;
 
-                        (_name2 = _this4[name]).add.apply(_name2, _toConsumableArray(idsToAdd));
+                        (_name2 = _this4[name]).add.apply(_name2, _toConsumableArray$1(idsToAdd));
                     }
                 }
             });
@@ -17870,7 +19840,7 @@ var Model = function () {
             if (typeof this._session === 'undefined') {
                 throw new Error(['Tried to create a ' + this.modelName + ' model instance without a session. ', 'Create a session using `session = orm.session()` and call ', '`session["' + this.modelName + '"].create` instead.'].join(''));
             }
-            var props = _extends$d({}, userProps);
+            var props = _extends$e({}, userProps);
 
             var m2mRelations = {};
 
@@ -19454,7 +21424,7 @@ function memoize$1(func) {
         previous.ormState = ormState;
 
         /* this is where we call the actual function */
-        var result = func.apply(undefined, [session].concat(_toConsumableArray(args)));
+        var result = func.apply(undefined, [session].concat(_toConsumableArray$1(args)));
         previous.result = result;
 
         /* rows retrieved during function call */

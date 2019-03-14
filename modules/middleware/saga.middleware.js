@@ -183,7 +183,7 @@ function getTime() {
 }
 
 
-export  function createSagaMonitor({rootReducer,storeDispatch,time = getTime, dispatch: customDispatch}={}) {
+export function createSagaMonitor({rootReducer,storeDispatch,time = getTime, dispatch: customDispatch}={}) {
 
   let store
   let dispatch
@@ -276,7 +276,6 @@ export  function createSagaMonitor({rootReducer,storeDispatch,time = getTime, di
     effectTriggered, effectResolved, effectRejected, effectCancelled, actionDispatched }
 }
 
-export default function sagaMonitorMiddleware({ getState, dispatch })=>{
-    sagaMiddleware = createSagaMiddleware({sagaMonitor: createSagaMonitor({rootReducer:reducers,storeDispatch:dispatch})})
-    return sagaMiddleware({ getState, dispatch })
+export default function sagaMonitorMiddleware({ getState, dispatch }){
+    return createSagaMiddleware({sagaMonitor: createSagaMonitor({rootReducer:reducers,storeDispatch:dispatch})})
 }

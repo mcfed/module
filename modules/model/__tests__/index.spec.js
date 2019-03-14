@@ -127,7 +127,7 @@ describe('ORM initial', () => {
       props1:"aa",
       props2:"bb"
     })
-    console.log(t1,t2)
+    // console.log(t1,t2)
 
     done()
   })
