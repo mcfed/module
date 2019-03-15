@@ -10440,7 +10440,7 @@ function defaultSaga(actions, Api, namespace) {
               _context2.next = 6;
               return put({
                 type: "@@MIDDLEWARE/FETCH_PARAMS",
-                payload: listAction,
+                payload: pageAction,
                 "@@redux-saga/SAGA_ACTION": true
               });
 
@@ -10448,7 +10448,7 @@ function defaultSaga(actions, Api, namespace) {
               _context2.next = 8;
               return put({
                 type: "@@MIDDLEWARE/FETCH_REQ",
-                payload: listAction,
+                payload: pageAction,
                 "@@redux-saga/SAGA_ACTION": true
               });
 

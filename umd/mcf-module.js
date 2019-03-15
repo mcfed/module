@@ -17,6 +17,10 @@
 		return module = { exports: {} }, fn(module, module.exports), module.exports;
 	}
 
+	function getCjsExportFromNamespace (n) {
+		return n && n.default || n;
+	}
+
 	var actions = createCommonjsModule(function (module, exports) {
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -4279,6 +4283,8 @@
 		withRouter: withRouter
 	});
 
+	var _reactRouter = getCjsExportFromNamespace(es$1);
+
 	var ConnectedRouter = createCommonjsModule(function (module, exports) {
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -4566,7 +4572,7 @@
 	      return _react2.default;
 
 	    case 'Router':
-	      return es$1.Router;
+	      return _reactRouter.Router;
 	  }
 
 	  return undefined;
@@ -5347,7 +5353,7 @@
 	function _get_original__(variableName) {
 	  switch (variableName) {
 	    case 'matchPath':
-	      return es$1.matchPath;
+	      return _reactRouter.matchPath;
 
 	    case 'createSelectors':
 	      return createSelectors;
@@ -10409,7 +10415,7 @@
 	              _context2.next = 6;
 	              return put({
 	                type: "@@MIDDLEWARE/FETCH_PARAMS",
-	                payload: listAction,
+	                payload: pageAction,
 	                "@@redux-saga/SAGA_ACTION": true
 	              });
 
@@ -10417,7 +10423,7 @@
 	              _context2.next = 8;
 	              return put({
 	                type: "@@MIDDLEWARE/FETCH_REQ",
-	                payload: listAction,
+	                payload: pageAction,
 	                "@@redux-saga/SAGA_ACTION": true
 	              });
 
@@ -11747,9 +11753,17 @@
 	// 24.3.3 JSON[@@toStringTag]
 	_setToStringTag(_global.JSON, 'JSON', true);
 
+
+
+	var es6_object_toString = /*#__PURE__*/Object.freeze({
+
+	});
+
 	_wksDefine('asyncIterator');
 
 	_wksDefine('observable');
+
+	getCjsExportFromNamespace(es6_object_toString);
 
 	var symbol = _core.Symbol;
 
