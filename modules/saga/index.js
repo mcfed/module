@@ -69,9 +69,9 @@ export function defaultSaga(actions,Api,namespace){
     fetchSaveUpdate: function* (action){
       let result
       if (action.payload.id) {
-        result = yield call(Api.fetchUpdate, action.payload)
+        result = yield effects.call(Api.fetchUpdate, action.payload)
       } else {
-        result = yield call(Api.fetchSave, action.payload)
+        result = yield effects.call(Api.fetchSave, action.payload)
       }
       if(result.code === 0){
         yield effects.put(actions.saveItem(result.data));

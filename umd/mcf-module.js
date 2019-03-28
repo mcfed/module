@@ -8234,7 +8234,7 @@
 	  return { context: context, fn: fn, args: args };
 	}
 
-	function call$1(fn) {
+	function call(fn) {
 	  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	    args[_key - 1] = arguments[_key];
 	  }
@@ -8859,7 +8859,7 @@
 	  var yFork = function yFork(ac) {
 	    return { done: false, value: fork.apply(undefined, [worker].concat(args, [ac])) };
 	  };
-	  var yDelay = { done: false, value: call$1(delay, delayLength) };
+	  var yDelay = { done: false, value: call(delay, delayLength) };
 
 	  var setAction = function setAction(ac) {
 	    return action = ac;
@@ -8916,7 +8916,7 @@
 		put: put,
 		all: all,
 		race: race,
-		call: call$1,
+		call: call,
 		apply: apply,
 		cps: cps,
 		fork: fork,
@@ -10373,7 +10373,7 @@
 
 	        case 2:
 	          _context.next = 4;
-	          return call$1(method, action.payload);
+	          return call(method, action.payload);
 
 	        case 4:
 	          result = _context.sent;
@@ -10447,7 +10447,7 @@
 	          switch (_context3.prev = _context3.next) {
 	            case 0:
 	              _context3.next = 2;
-	              return call$1(Api.fetchList, action.payload);
+	              return call(Api.fetchList, action.payload);
 
 	            case 2:
 	              result = _context3.sent;
@@ -10484,7 +10484,7 @@
 	          switch (_context4.prev = _context4.next) {
 	            case 0:
 	              _context4.next = 2;
-	              return call$1(Api.fetchItem, action.payload);
+	              return call(Api.fetchItem, action.payload);
 
 	            case 2:
 	              result = _context4.sent;
@@ -10521,7 +10521,7 @@
 	          switch (_context5.prev = _context5.next) {
 	            case 0:
 	              _context5.next = 2;
-	              return call$1(Api.fetchList, action.payload);
+	              return call(Api.fetchList, action.payload);
 
 	            case 2:
 	              result = _context5.sent;
@@ -10558,7 +10558,7 @@
 	          switch (_context6.prev = _context6.next) {
 	            case 0:
 	              _context6.next = 2;
-	              return call$1(Api.fetchSave, action.payload);
+	              return call(Api.fetchSave, action.payload);
 
 	            case 2:
 	              result = _context6.sent;
@@ -10667,7 +10667,7 @@
 	                ids: [].concat(action.payload)
 	              };
 	              _context8.next = 3;
-	              return call$1(Api.fetchDelete, payload);
+	              return call(Api.fetchDelete, payload);
 
 	            case 3:
 	              result = _context8.sent;
@@ -10682,7 +10682,7 @@
 
 	            case 7:
 	              _context8.next = 9;
-	              return call$1(saga.refreshPage);
+	              return call(saga.refreshPage);
 
 	            case 9:
 	              _context8.next = 13;
