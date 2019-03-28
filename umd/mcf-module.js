@@ -8234,7 +8234,7 @@
 	  return { context: context, fn: fn, args: args };
 	}
 
-	function call(fn) {
+	function call$1(fn) {
 	  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	    args[_key - 1] = arguments[_key];
 	  }
@@ -8859,7 +8859,7 @@
 	  var yFork = function yFork(ac) {
 	    return { done: false, value: fork.apply(undefined, [worker].concat(args, [ac])) };
 	  };
-	  var yDelay = { done: false, value: call(delay, delayLength) };
+	  var yDelay = { done: false, value: call$1(delay, delayLength) };
 
 	  var setAction = function setAction(ac) {
 	    return action = ac;
@@ -8916,7 +8916,7 @@
 		put: put,
 		all: all,
 		race: race,
-		call: call,
+		call: call$1,
 		apply: apply,
 		cps: cps,
 		fork: fork,
@@ -10373,7 +10373,7 @@
 
 	        case 2:
 	          _context.next = 4;
-	          return call(method, action.payload);
+	          return call$1(method, action.payload);
 
 	        case 4:
 	          result = _context.sent;
@@ -10447,7 +10447,7 @@
 	          switch (_context3.prev = _context3.next) {
 	            case 0:
 	              _context3.next = 2;
-	              return call(Api.fetchList, action.payload);
+	              return call$1(Api.fetchList, action.payload);
 
 	            case 2:
 	              result = _context3.sent;
@@ -10484,7 +10484,7 @@
 	          switch (_context4.prev = _context4.next) {
 	            case 0:
 	              _context4.next = 2;
-	              return call(Api.fetchItem, action.payload);
+	              return call$1(Api.fetchItem, action.payload);
 
 	            case 2:
 	              result = _context4.sent;
@@ -10521,7 +10521,7 @@
 	          switch (_context5.prev = _context5.next) {
 	            case 0:
 	              _context5.next = 2;
-	              return call(Api.fetchList, action.payload);
+	              return call$1(Api.fetchList, action.payload);
 
 	            case 2:
 	              result = _context5.sent;
@@ -10558,7 +10558,7 @@
 	          switch (_context6.prev = _context6.next) {
 	            case 0:
 	              _context6.next = 2;
-	              return call(Api.fetchSave, action.payload);
+	              return call$1(Api.fetchSave, action.payload);
 
 	            case 2:
 	              result = _context6.sent;
@@ -10594,47 +10594,107 @@
 	        }
 	      }, fetchSave, this);
 	    }),
+	    fetchSaveUpdate:
+	    /*#__PURE__*/
+	    regenerator.mark(function fetchSaveUpdate(action) {
+	      var result;
+	      return regenerator.wrap(function fetchSaveUpdate$(_context7) {
+	        while (1) {
+	          switch (_context7.prev = _context7.next) {
+	            case 0:
+	              if (!action.payload.id) {
+	                _context7.next = 6;
+	                break;
+	              }
+
+	              _context7.next = 3;
+	              return call(Api.fetchUpdate, action.payload);
+
+	            case 3:
+	              result = _context7.sent;
+	              _context7.next = 9;
+	              break;
+
+	            case 6:
+	              _context7.next = 8;
+	              return call(Api.fetchSave, action.payload);
+
+	            case 8:
+	              result = _context7.sent;
+
+	            case 9:
+	              if (!(result.code === 0)) {
+	                _context7.next = 18;
+	                break;
+	              }
+
+	              _context7.next = 12;
+	              return put(actions.saveItem(result.data));
+
+	            case 12:
+	              _context7.next = 14;
+	              return put(showSuccess());
+
+	            case 14:
+	              _context7.next = 16;
+	              return put(goBack());
+
+	            case 16:
+	              _context7.next = 20;
+	              break;
+
+	            case 18:
+	              _context7.next = 20;
+	              return put(showError(result.message));
+
+	            case 20:
+	            case "end":
+	              return _context7.stop();
+	          }
+	        }
+	      }, fetchSaveUpdate, this);
+	    }),
 	    fetchDelete:
 	    /*#__PURE__*/
 	    regenerator.mark(function fetchDelete(action) {
 	      var payload, result;
-	      return regenerator.wrap(function fetchDelete$(_context7) {
+	      return regenerator.wrap(function fetchDelete$(_context8) {
 	        while (1) {
-	          switch (_context7.prev = _context7.next) {
+	          switch (_context8.prev = _context8.next) {
 	            case 0:
 	              // console.log(action.payload)
 	              payload = {
 	                ids: [].concat(action.payload)
 	              };
-	              _context7.next = 3;
-	              return call(Api.fetchDelete, payload);
+	              _context8.next = 3;
+	              return call$1(Api.fetchDelete, payload);
 
 	            case 3:
-	              result = _context7.sent;
+	              result = _context8.sent;
 
 	              if (!(result.code === 0)) {
-	                _context7.next = 11;
+	                _context8.next = 11;
 	                break;
 	              }
 
-	              _context7.next = 7;
+	              _context8.next = 7;
 	              return put(showSuccess());
 
 	            case 7:
-	              _context7.next = 9;
-	              return call(saga.refreshPage);
+	              _context8.next = 9;
+	              return call$1(saga.refreshPage);
 
 	            case 9:
-	              _context7.next = 13;
+	              _context8.next = 13;
 	              break;
 
 	            case 11:
-	              _context7.next = 13;
+	              _context8.next = 13;
 	              return put(showError(result.message));
 
 	            case 13:
 	            case "end":
-	              return _context7.stop();
+	              return _context8.stop();
 	          }
 	        }
 	      }, fetchDelete, this);
@@ -10645,45 +10705,45 @@
 	function takeSagas(sagaTypes, saga) {
 	  var optimize,
 	      s,
-	      _args8 = arguments;
-	  return regenerator.wrap(function takeSagas$(_context8) {
+	      _args9 = arguments;
+	  return regenerator.wrap(function takeSagas$(_context9) {
 	    while (1) {
-	      switch (_context8.prev = _context8.next) {
+	      switch (_context9.prev = _context9.next) {
 	        case 0:
-	          optimize = _args8.length > 2 && _args8[2] !== undefined ? _args8[2] : {};
-	          _context8.t0 = regenerator.keys(saga);
+	          optimize = _args9.length > 2 && _args9[2] !== undefined ? _args9[2] : {};
+	          _context9.t0 = regenerator.keys(saga);
 
 	        case 2:
-	          if ((_context8.t1 = _context8.t0()).done) {
-	            _context8.next = 13;
+	          if ((_context9.t1 = _context9.t0()).done) {
+	            _context9.next = 13;
 	            break;
 	          }
 
-	          s = _context8.t1.value;
+	          s = _context9.t1.value;
 
 	          if (!optimize[s]) {
-	            _context8.next = 9;
+	            _context9.next = 9;
 	            break;
 	          }
 
-	          _context8.next = 7;
+	          _context9.next = 7;
 	          return optimize[s](sagaTypes[s].toString(), saga[s]);
 
 	        case 7:
-	          _context8.next = 11;
+	          _context9.next = 11;
 	          break;
 
 	        case 9:
-	          _context8.next = 11;
+	          _context9.next = 11;
 	          return takeEvery$2(sagaTypes[s].toString(), saga[s]);
 
 	        case 11:
-	          _context8.next = 2;
+	          _context9.next = 2;
 	          break;
 
 	        case 13:
 	        case "end":
-	          return _context8.stop();
+	          return _context9.stop();
 	      }
 	    }
 	  }, _marked2, this);
