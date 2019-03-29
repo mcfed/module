@@ -11,6 +11,7 @@ describe("测试sagaCreator", () => {
       fetchList:jest.fn(),
       fetchPage:jest.fn(),
       fetchSave:jest.fn(),
+      fetchUpdate:jest.fn(),
       fetchDelete:jest.fn()
     }
     const actions={
@@ -40,6 +41,7 @@ describe("测试sagaCreator", () => {
       expect(saga).toHaveProperty('fetchList')
       expect(saga).toHaveProperty('fetchSave')
       expect(saga).toHaveProperty('fetchDelete')
+      expect(saga).toHaveProperty('fetchSaveOrUpdate')
       done()
     });
     it.skip('saga refreshPage success',(done)=>{
@@ -126,9 +128,41 @@ describe("测试sagaCreator", () => {
     it('saga fetchDelete error',(done)=>{
       const gen = cloneableGenerator(saga.fetchDelete)({payload:[]})
       expect(gen.next().value).toEqual(call(Api.fetchDelete,{ids:[]}))
-      let clone =gen.clone()
-      expect(clone.next({code:500,message:undefined}).value).toEqual(put(showError()))
+      expect(gen.next({code:500,message:undefined}).value).toEqual(put(showError()))
       done()
     })
 
+
+    it('saga fetchSaveOrUpdate save success',(done)=>{
+      const gen = cloneableGenerator(saga.fetchSaveOrUpdate)({payload:{id:undefined}})
+      expect(gen.next().value).toEqual(call(Api.fetchSave,{}))
+      expect(gen.next({code:0,data:{}}).value).toEqual(put(actions.saveItem({})))
+      expect(gen.next().value).toEqual(put(showSuccess()))
+      expect(gen.next().value).toEqual(put(goBack()))
+      done()
+    })
+
+    it('saga fetchSaveOrUpdate save error',(done)=>{
+      const gen = cloneableGenerator(saga.fetchSaveOrUpdate)({payload:{id:undefined}})
+      expect(gen.next().value).toEqual(call(Api.fetchSave,{}))
+      expect(gen.next({code:500,data:{}}).value).toEqual(put(showError()))
+      done()
+    })
+
+    it('saga fetchSaveOrUpdate update success',(done)=>{
+      const gen = cloneableGenerator(saga.fetchSaveOrUpdate)({payload:{id:1}})
+      expect(gen.next().value).toEqual(call(Api.fetchUpdate,{id:1}))
+      expect(gen.next({code:0,data:{}}).value).toEqual(put(actions.saveItem({})))
+      expect(gen.next().value).toEqual(put(showSuccess()))
+      expect(gen.next().value).toEqual(put(goBack()))
+      done()
+    })
+
+    it('saga fetchSaveOrUpdate update error',(done)=>{
+      const gen = cloneableGenerator(saga.fetchSaveOrUpdate)({payload:{id:1}})
+      let clone =gen.clone()
+      expect(clone.next().value).toEqual(call(Api.fetchUpdate,{id:1}))
+      expect(clone.next({code:500,data:{}}).value).toEqual(put(showError()))
+      done()
+    })
 });

@@ -10594,11 +10594,11 @@
 	        }
 	      }, fetchSave, this);
 	    }),
-	    fetchSaveUpdate:
+	    fetchSaveOrUpdate:
 	    /*#__PURE__*/
-	    regenerator.mark(function fetchSaveUpdate(action) {
+	    regenerator.mark(function fetchSaveOrUpdate(action) {
 	      var result;
-	      return regenerator.wrap(function fetchSaveUpdate$(_context7) {
+	      return regenerator.wrap(function fetchSaveOrUpdate$(_context7) {
 	        while (1) {
 	          switch (_context7.prev = _context7.next) {
 	            case 0:
@@ -10652,7 +10652,7 @@
 	              return _context7.stop();
 	          }
 	        }
-	      }, fetchSaveUpdate, this);
+	      }, fetchSaveOrUpdate, this);
 	    }),
 	    fetchDelete:
 	    /*#__PURE__*/
