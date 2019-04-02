@@ -10271,19 +10271,22 @@ function createSagaMonitor() {
     // console.log(effectId, result)
     if (is$1.task(result)) {
       result.done.then(function (taskResult) {
-        if (result.isCancelled()) effectCancelled(effectId);else effectResolved(effectId, taskResult); // console.log(store.getState().effectsById[effectId].effect.FORK.args[1])
-        // console.log(store.getState().effectsById[effectId].effect)
-
+        if (result.isCancelled()) effectCancelled(effectId);else effectResolved(effectId, taskResult);
         storeDispatch(defineProperty$2({
           type: "@@MIDDLEWARE/FETCH_RES",
           payload: store.getState().effectsById[effectId].effect.FORK.args[0]
         }, SAGA_ACTION, true));
       }, function (taskError) {
         effectRejected(effectId, taskError);
-        storeDispatch(defineProperty$2({
-          type: "@@MIDDLEWARE/FETCH_RES",
-          payload: store.getState().effectsById[effectId].effect.FORK.args[0]
-        }, SAGA_ACTION, true));
+
+        if (!taskError) {
+          storeDispatch(defineProperty$2({
+            type: "@@MIDDLEWARE/FETCH_RES",
+            payload: store.getState().effectsById[effectId].effect.FORK.args[0]
+          }, SAGA_ACTION, true));
+        } else {
+          console.error(taskError);
+        }
       });
     } else {
       var action = {
@@ -11162,7 +11165,7 @@ var store = _global[SHARED] || (_global[SHARED] = {});
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
   version: _core.version,
-  mode: 'pure',
+  mode: _library ? 'pure' : 'global',
   copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
 });
 });

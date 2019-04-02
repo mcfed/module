@@ -10246,19 +10246,22 @@
 	    // console.log(effectId, result)
 	    if (is$1.task(result)) {
 	      result.done.then(function (taskResult) {
-	        if (result.isCancelled()) effectCancelled(effectId);else effectResolved(effectId, taskResult); // console.log(store.getState().effectsById[effectId].effect.FORK.args[1])
-	        // console.log(store.getState().effectsById[effectId].effect)
-
+	        if (result.isCancelled()) effectCancelled(effectId);else effectResolved(effectId, taskResult);
 	        storeDispatch(defineProperty$2({
 	          type: "@@MIDDLEWARE/FETCH_RES",
 	          payload: store.getState().effectsById[effectId].effect.FORK.args[0]
 	        }, SAGA_ACTION, true));
 	      }, function (taskError) {
 	        effectRejected(effectId, taskError);
-	        storeDispatch(defineProperty$2({
-	          type: "@@MIDDLEWARE/FETCH_RES",
-	          payload: store.getState().effectsById[effectId].effect.FORK.args[0]
-	        }, SAGA_ACTION, true));
+
+	        if (!taskError) {
+	          storeDispatch(defineProperty$2({
+	            type: "@@MIDDLEWARE/FETCH_RES",
+	            payload: store.getState().effectsById[effectId].effect.FORK.args[0]
+	          }, SAGA_ACTION, true));
+	        } else {
+	          console.error(taskError);
+	        }
 	      });
 	    } else {
 	      var action = {
