@@ -1,4 +1,5 @@
 export { default as createFetching,fetchingReducer,fetchReq,fetchRes,fetchParams } from './redux-fetching'
 export { default as createMessage,showSuccess,showError } from './redux-message'
-export { default as createModule,globalReducer } from './redux-module'
+export { default as createModule,globalReducer,upgradeDict,upgradeBizcode,upgradeConfig,upgradeUser,upgradeAuths } from './redux-module'
+export { default as createPassport,fetchLogining,fetchLogouting,fetchConfig } from './redux-passport'
 export { default as sagaMonitorMiddleware,createSagaMonitor } from './saga.middleware'

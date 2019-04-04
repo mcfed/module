@@ -1,34 +1,78 @@
+const UPGRADE_DICT = "@@MIDDLEWARE/UPGRADE_DICT"
+const UPGRADE_BIZCODE = "@@MIDDLEWARE/UPGRADE_BIZCODE"
+const UPGRADE_CONFIG = "@@MIDDLEWARE/UPGRADE_CONFIG"
+const UPGRADE_USER = "@@MIDDLEWARE/UPGRADE_USER"
+const UPGRADE_AUTHS = "@@MIDDLEWARE/UPGRADE_AUTHS"
+
+
+export function upgradeDict(payload){
+  return {
+    type:UPGRADE_DICT,
+    payload:payload
+  }
+}
+
+export function upgradeBizcode(payload){
+  return {
+    type:UPGRADE_BIZCODE,
+    payload:payload
+  }
+}
+
+export function upgradeConfig(payload){
+  return {
+    type:UPGRADE_CONFIG,
+    payload:payload
+  }
+}
+
+export function upgradeUser(payload){
+  return {
+    type:UPGRADE_USER,
+    payload:payload
+  }
+}
+export function upgradeAuths(payload){
+  return {
+    type:UPGRADE_AUTHS,
+    payload:payload
+  }
+}
+
+
  function globalReducer(state = {
    dicts: {},
    bizCodes: {},
-   config:{}
+   config:{},
+   user:{},
+   auths:{}
  }, { type, payload }) {
    const { fetching, params } = state
    switch (type) {
-     case '@@MIDDLEWARE/UPGRADE_DICT':
+     case UPGRADE_DICT:
        return {
          ...state,
          dicts: payload
        }
-     case '@@MIDDLEWARE/UPGRADE_BIZCODE':
+     case UPGRADE_BIZCODE:
        return {
          ...state,
          bizCodes: payload
        }
-     case '@@MIDDLEWARE/UPGRADE_CONFIG':
+     case UPGRADE_CONFIG:
        return {
          ...state,
          config:Object.assign({},state.config,payload)
        }
-     case '@@MIDDLEWARE/UPGRADE_USER':
+     case UPGRADE_USER:
        return {
          ...state,
-         // fetching: new Map(fetching.set(payload.type, payload.payload))
+         user:Object.assign({},state.config,payload)
        }
-     case '@@MIDDLEWARE/UPGRADE_AUTHS':
+     case UPGRADE_AUTHS:
        return {
          ...state,
-         // fetching: new Map(fetching.set(payload.type, payload.payload))
+         auths:Object.assign({},state.config,payload)
        }
      default:
        return state

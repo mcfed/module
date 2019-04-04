@@ -9077,11 +9077,49 @@ function createMessage(message) {
   };
 }
 
+var UPGRADE_DICT = "@@MIDDLEWARE/UPGRADE_DICT";
+var UPGRADE_BIZCODE = "@@MIDDLEWARE/UPGRADE_BIZCODE";
+var UPGRADE_CONFIG = "@@MIDDLEWARE/UPGRADE_CONFIG";
+var UPGRADE_USER = "@@MIDDLEWARE/UPGRADE_USER";
+var UPGRADE_AUTHS = "@@MIDDLEWARE/UPGRADE_AUTHS";
+function upgradeDict(payload) {
+  return {
+    type: UPGRADE_DICT,
+    payload: payload
+  };
+}
+function upgradeBizcode(payload) {
+  return {
+    type: UPGRADE_BIZCODE,
+    payload: payload
+  };
+}
+function upgradeConfig(payload) {
+  return {
+    type: UPGRADE_CONFIG,
+    payload: payload
+  };
+}
+function upgradeUser(payload) {
+  return {
+    type: UPGRADE_USER,
+    payload: payload
+  };
+}
+function upgradeAuths(payload) {
+  return {
+    type: UPGRADE_AUTHS,
+    payload: payload
+  };
+}
+
 function globalReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
     dicts: {},
     bizCodes: {},
-    config: {}
+    config: {},
+    user: {},
+    auths: {}
   };
 
   var _ref = arguments.length > 1 ? arguments[1] : undefined,
@@ -9092,26 +9130,30 @@ function globalReducer() {
       params = state.params;
 
   switch (type) {
-    case '@@MIDDLEWARE/UPGRADE_DICT':
+    case UPGRADE_DICT:
       return objectSpread({}, state, {
         dicts: payload
       });
 
-    case '@@MIDDLEWARE/UPGRADE_BIZCODE':
+    case UPGRADE_BIZCODE:
       return objectSpread({}, state, {
         bizCodes: payload
       });
 
-    case '@@MIDDLEWARE/UPGRADE_CONFIG':
+    case UPGRADE_CONFIG:
       return objectSpread({}, state, {
         config: Object.assign({}, state.config, payload)
       });
 
-    case '@@MIDDLEWARE/UPGRADE_USER':
-      return objectSpread({}, state);
+    case UPGRADE_USER:
+      return objectSpread({}, state, {
+        user: Object.assign({}, state.config, payload)
+      });
 
-    case '@@MIDDLEWARE/UPGRADE_AUTHS':
-      return objectSpread({}, state);
+    case UPGRADE_AUTHS:
+      return objectSpread({}, state, {
+        auths: Object.assign({}, state.config, payload)
+      });
 
     default:
       return state;
@@ -9126,6 +9168,53 @@ function createModule() {
     return function (next) {
       return function (action) {
         next(action);
+      };
+    };
+  };
+}
+
+var FETCH_LOGINING = "@@MIDDLEWARE/FETCH_LOGINING";
+var FETCH_LOGOUTING = "@@MIDDLEWARE/FETCH_LOGOUTING";
+var FETCH_CONFIG = "@@MIDDLEWARE/FETCH_CONFIG";
+function fetchLogining(payload) {
+  return {
+    type: FETCH_LOGINING,
+    payload: payload
+  };
+}
+function fetchLogouting(payload) {
+  return {
+    type: FETCH_LOGOUTING,
+    payload: payload
+  };
+}
+function fetchConfig(payload) {
+  return {
+    type: FETCH_CONFIG,
+    payload: payload
+  };
+}
+function createMessage$1(_ref) {
+  var _this = this;
+
+  var loginingProcess = _ref.loginingProcess,
+      logoutingProcess = _ref.logoutingProcess,
+      globalProcess = _ref.globalProcess;
+  return function (_ref2) {
+    var getState = _ref2.getState,
+        dispatch = _ref2.dispatch;
+    return function (next) {
+      return function (action) {
+        if (FETCH_LOGINING === action.type) {
+          loginingProcess && loginingProcess.call(_this, dispatch, action.payload);
+        } else if (FETCH_LOGOUTING === action.type) {
+          logoutingProcess && logoutingProcess.call(_this, dispatch, action.payload);
+        } else if (FETCH_CONFIG == action.type) {
+          // console.log("globalProcess",globalProcess)
+          globalProcess && globalProcess.call(_this, dispatch, action.payload);
+        }
+
+        return next(action);
       };
     };
   };
@@ -10379,6 +10468,15 @@ var index$5 = /*#__PURE__*/Object.freeze({
 	showError: showError,
 	createModule: createModule,
 	globalReducer: globalReducer,
+	upgradeDict: upgradeDict,
+	upgradeBizcode: upgradeBizcode,
+	upgradeConfig: upgradeConfig,
+	upgradeUser: upgradeUser,
+	upgradeAuths: upgradeAuths,
+	createPassport: createMessage$1,
+	fetchLogining: fetchLogining,
+	fetchLogouting: fetchLogouting,
+	fetchConfig: fetchConfig,
 	sagaMonitorMiddleware: sagaMonitorMiddleware,
 	createSagaMonitor: createSagaMonitor
 });
@@ -11165,7 +11263,7 @@ var store = _global[SHARED] || (_global[SHARED] = {});
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
   version: _core.version,
-  mode: _library ? 'pure' : 'global',
+  mode: 'pure',
   copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
 });
 });
