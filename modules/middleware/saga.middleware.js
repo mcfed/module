@@ -211,13 +211,15 @@ export function createSagaMonitor({rootReducer,storeDispatch,time = getTime, dis
             effectCancelled(effectId)
           else
             effectResolved(effectId, taskResult)
-            // console.log(store.getState().effectsById[effectId].effect.FORK.args[1])
-            // console.log(store.getState().effectsById[effectId].effect)
             storeDispatch({type:"@@MIDDLEWARE/FETCH_RES",payload:store.getState().effectsById[effectId].effect.FORK.args[0],[SAGA_ACTION]: true})
         },
         taskError => {
           effectRejected(effectId, taskError)
-          storeDispatch({type:"@@MIDDLEWARE/FETCH_RES",payload:store.getState().effectsById[effectId].effect.FORK.args[0],[SAGA_ACTION]: true})
+          if(!taskError){
+            storeDispatch({type:"@@MIDDLEWARE/FETCH_RES",payload:store.getState().effectsById[effectId].effect.FORK.args[0],[SAGA_ACTION]: true})
+          }else{
+            console.error(taskError)
+          }
         }
       )
     } else {

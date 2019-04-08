@@ -66,7 +66,7 @@ export function defaultSaga(actions,Api,namespace){
         yield effects.put(showError(result.message))
       }
     },
-    fetchSaveUpdate: function* (action){
+    fetchSaveOrUpdate: function* (action){
       let result
       if (action.payload.id) {
         result = yield effects.call(Api.fetchUpdate, action.payload)
