@@ -10891,9 +10891,9 @@
 	    },
 	    dicts: function dicts(type, value) {
 	      if (arguments.length > 1) {
-	        return getDictLabel(state.appReducer, type, value);
+	        return getDictLabel(state.appReducer.dicts, type, value);
 	      } else if (arguments.legnth == 1) {
-	        return getDictList(state.appReducer, type);
+	        return getDictList(state.appReducer.dicts, type);
 	      }
 
 	      return "";

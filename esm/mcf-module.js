@@ -10916,9 +10916,9 @@ var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) 
     },
     dicts: function dicts(type, value) {
       if (arguments.length > 1) {
-        return getDictLabel(state.appReducer, type, value);
+        return getDictLabel(state.appReducer.dicts, type, value);
       } else if (arguments.legnth == 1) {
-        return getDictList(state.appReducer, type);
+        return getDictList(state.appReducer.dicts, type);
       }
 
       return "";
@@ -11263,7 +11263,7 @@ var store = _global[SHARED] || (_global[SHARED] = {});
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
   version: _core.version,
-  mode: 'pure',
+  mode: _library ? 'pure' : 'global',
   copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
 });
 });
