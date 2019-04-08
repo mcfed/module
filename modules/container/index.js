@@ -16,7 +16,7 @@ export const defaultMergeProps=(state, dispatch, ownProps)=>{
     dicts:function(type,value){
       if(arguments.length>1){
         return DictUtils.getDictLabel(state.appReducer.dicts,type,value)
-      }else if(arguments.legnth == 1 ){
+      }else if(arguments.length == 1 ){
         return DictUtils.getDictList(state.appReducer.dicts,type)
       }
       return ""

@@ -10892,7 +10892,7 @@
 	    dicts: function dicts(type, value) {
 	      if (arguments.length > 1) {
 	        return getDictLabel(state.appReducer.dicts, type, value);
-	      } else if (arguments.legnth == 1) {
+	      } else if (arguments.length == 1) {
 	        return getDictList(state.appReducer.dicts, type);
 	      }
 
@@ -11238,7 +11238,7 @@
 	  return store[key] || (store[key] = value !== undefined ? value : {});
 	})('versions', []).push({
 	  version: _core.version,
-	  mode: 'pure',
+	  mode: _library ? 'pure' : 'global',
 	  copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
 	});
 	});
