@@ -22,13 +22,14 @@ export const defaultState={
 export function defaultReducer(){
   return {
     savePage:(state,{payload})=>{
+      const pageSize= payload.pageSize|| payload.end+1-payload.start
       return {
         ...state,
         // items:payload.items,
         page:{
-          total:payload.totalCount,
-          pageSize:payload.pageSize,
-          current:payload.currentPage
+          total:payload.totalCount ||payload.total,
+          pageSize,
+          current:payload.currentPage || Math.ceil(payload.start/pageSize)
         }
       }
     },

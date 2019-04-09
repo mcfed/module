@@ -7129,12 +7129,13 @@ function defaultReducer() {
   return {
     savePage: function savePage(state, _ref) {
       var payload = _ref.payload;
+      var pageSize = payload.pageSize || payload.end + 1 - payload.start;
       return objectSpread({}, state, {
         // items:payload.items,
         page: {
-          total: payload.totalCount,
-          pageSize: payload.pageSize,
-          current: payload.currentPage
+          total: payload.totalCount || payload.total,
+          pageSize: pageSize,
+          current: payload.currentPage || Math.ceil(payload.start / pageSize)
         }
       });
     },
