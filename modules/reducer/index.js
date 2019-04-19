@@ -29,7 +29,7 @@ export function defaultReducer(){
         page:{
           total:payload.totalCount ||payload.total,
           pageSize,
-          current:payload.currentPage || Math.ceil(payload.start/pageSize)
+          current:payload.currentPage || Math.ceil(payload.start+1/pageSize)
         }
       }
     },

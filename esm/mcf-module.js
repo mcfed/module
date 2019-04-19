@@ -7135,7 +7135,7 @@ function defaultReducer() {
         page: {
           total: payload.totalCount || payload.total,
           pageSize: pageSize,
-          current: payload.currentPage || Math.ceil(payload.start / pageSize)
+          current: payload.currentPage || Math.ceil(payload.start + 1 / pageSize)
         }
       });
     },
@@ -11264,7 +11264,7 @@ var store = _global[SHARED] || (_global[SHARED] = {});
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
   version: _core.version,
-  mode: 'pure',
+  mode: _library ? 'pure' : 'global',
   copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
 });
 });
