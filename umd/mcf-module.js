@@ -7112,7 +7112,7 @@
 	        page: {
 	          total: payload.totalCount || payload.total,
 	          pageSize: pageSize,
-	          current: payload.currentPage || Math.ceil(payload.start + 1 / pageSize)
+	          current: payload.currentPage || Math.ceil((payload.start + 1) / pageSize)
 	        }
 	      });
 	    },
