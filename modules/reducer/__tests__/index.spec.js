@@ -49,7 +49,7 @@ describe("reducerActionCreator", () => {
         page:{
           total:payload.total,
           pageSize:pageSize,
-          current:Math.ceil(payload.start/pageSize)
+          current:Math.ceil((payload.start+1)/pageSize)
         }
       })
       )
