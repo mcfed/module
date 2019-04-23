@@ -17,14 +17,15 @@ export function* fetch(method,action){
 export function defaultSaga(actions,Api,namespace){
   const saga= {
     refreshPage:function* (action){
+      const actionType=namespace,"fetchPage"].join("/")
       const params = yield effects.select((state)=>{
-       return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(saga.fetchPage.toString()))
+       return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(actionType))
         // return {}
       })
       // console.log(saga.fetchList,saga.fetchList())
       //临时方案后续处理
       const pageAction={
-        type:[namespace,"fetchPage"].join("/"),
+        type:actionType,
         payload:params,
         meta:{sagaAction:true}
       }
