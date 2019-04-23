@@ -10518,47 +10518,48 @@ function defaultSaga(actions, Api, namespace) {
     refreshPage:
     /*#__PURE__*/
     regenerator.mark(function refreshPage(action) {
-      var params, pageAction;
+      var actionType, params, pageAction;
       return regenerator.wrap(function refreshPage$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              _context2.next = 2;
+              actionType = [namespace, "fetchPage"].join("/");
+              _context2.next = 3;
               return select(function (state) {
-                return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(saga.fetchPage.toString())); // return {}
+                return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(actionType)); // return {}
               });
 
-            case 2:
+            case 3:
               params = _context2.sent;
               // console.log(saga.fetchList,saga.fetchList())
               //临时方案后续处理
               pageAction = {
-                type: [namespace, "fetchPage"].join("/"),
+                type: actionType,
                 payload: params,
                 meta: {
                   sagaAction: true
                 }
               };
-              _context2.next = 6;
+              _context2.next = 7;
               return put({
                 type: "@@MIDDLEWARE/FETCH_PARAMS",
                 payload: pageAction,
                 "@@redux-saga/SAGA_ACTION": true
               });
 
-            case 6:
-              _context2.next = 8;
+            case 7:
+              _context2.next = 9;
               return put({
                 type: "@@MIDDLEWARE/FETCH_REQ",
                 payload: pageAction,
                 "@@redux-saga/SAGA_ACTION": true
               });
 
-            case 8:
-              _context2.next = 10;
+            case 9:
+              _context2.next = 11;
               return fork(saga.fetchPage, pageAction);
 
-            case 10:
+            case 11:
             case "end":
               return _context2.stop();
           }
