@@ -7104,8 +7104,12 @@
 	};
 	function defaultReducer() {
 	  return {
-	    savePage: function savePage(state, _ref) {
+	    inital: function inital(state, _ref) {
 	      var payload = _ref.payload;
+	      return defaultState;
+	    },
+	    savePage: function savePage(state, _ref2) {
+	      var payload = _ref2.payload;
 	      var pageSize = payload.pageSize || payload.end + 1 - payload.start;
 	      return objectSpread({}, state, {
 	        // items:payload.items,
@@ -7116,8 +7120,8 @@
 	        }
 	      });
 	    },
-	    saveList: function saveList(state, _ref2) {
-	      var payload = _ref2.payload;
+	    saveList: function saveList(state, _ref3) {
+	      var payload = _ref3.payload;
 	      return objectSpread({}, state, {
 	        // items:payload.items,
 	        page: {
@@ -7126,14 +7130,14 @@
 	        }
 	      });
 	    },
-	    saveItem: function saveItem(state, _ref3) {
-	      var payload = _ref3.payload;
+	    saveItem: function saveItem(state, _ref4) {
+	      var payload = _ref4.payload;
 	      return objectSpread({}, state, {
 	        item: payload
 	      });
 	    },
-	    deleteItem: function deleteItem(state, _ref4) {
-	      var payload = _ref4.payload;
+	    deleteItem: function deleteItem(state, _ref5) {
+	      var payload = _ref5.payload;
 	      return objectSpread({}, state, {
 	        item: {}
 	      });
@@ -8938,6 +8942,7 @@
 	var FETCH_PARAMS = "@@MIDDLEWARE/FETCH_PARAMS";
 	var FETCH_REQ = "@@MIDDLEWARE/FETCH_REQ";
 	var FETCH_RES = "@@MIDDLEWARE/FETCH_RES";
+	var FETCH_RESET = "@@MIDDLEWARE/RESET";
 	function fetchReq(payload) {
 	  return {
 	    type: FETCH_REQ,
@@ -8956,12 +8961,18 @@
 	    payload: payload
 	  };
 	}
+	function fetchReset(payload) {
+	  return {
+	    type: FETCH_RESET
+	  };
+	}
+	var initalState = {
+	  fetching: new Map(),
+	  params: new Map()
+	};
 
 	function fetchingReducer() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-	    fetching: new Map(),
-	    params: new Map()
-	  };
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initalState;
 
 	  var _ref = arguments.length > 1 ? arguments[1] : undefined,
 	      type = _ref.type,
@@ -8971,6 +8982,12 @@
 	      params = state.params;
 
 	  switch (type) {
+	    case FETCH_RESET:
+	      return {
+	        fetching: new Map(),
+	        params: new Map()
+	      };
+
 	    case FETCH_PARAMS:
 	      return objectSpread({}, state, {
 	        params: params.set(payload.type, payload.payload)
@@ -10439,6 +10456,7 @@
 		fetchReq: fetchReq,
 		fetchRes: fetchRes,
 		fetchParams: fetchParams,
+		fetchReset: fetchReset,
 		createMessage: createMessage,
 		showSuccess: showSuccess,
 		showError: showError,

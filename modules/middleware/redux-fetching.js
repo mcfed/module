@@ -1,6 +1,7 @@
 const FETCH_PARAMS="@@MIDDLEWARE/FETCH_PARAMS"
 const FETCH_REQ="@@MIDDLEWARE/FETCH_REQ"
 const FETCH_RES="@@MIDDLEWARE/FETCH_RES"
+const FETCH_RESET="@@MIDDLEWARE/RESET"
 
 
 export function fetchReq(payload){
@@ -23,14 +24,25 @@ export function fetchParams(payload){
     payload
   }
 }
+export function fetchReset(payload){
+  return{
+    type:FETCH_RESET
+  }
+}
 
+const initalState={
+  fetching: new Map(),
+  params: new Map()
+}
 
- function fetchingReducer(state = {
-   fetching: new Map(),
-   params: new Map()
- }, { type, payload }) {
+ function fetchingReducer(state = initalState, { type, payload }) {
    const { fetching, params } = state
    switch (type) {
+     case FETCH_RESET:
+      return {
+        fetching: new Map(),
+        params: new Map()
+      }
      case FETCH_PARAMS:
        return {
          ...state,

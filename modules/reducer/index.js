@@ -21,6 +21,9 @@ export const defaultState={
 
 export function defaultReducer(){
   return {
+    inital:(state,{payload})=>{
+       return defaultState
+    },
     savePage:(state,{payload})=>{
       const pageSize= payload.pageSize|| payload.end+1-payload.start
       return {
