@@ -1,6 +1,6 @@
 {
   "name": "mcf-module",
-  "version": "1.0.0",
+  "version": "1.0.0-rc1",
   "description": "@mcf for module",
   "module": "esm/mcf-module.js",
   "main": "umd/mcf-module.js",
@@ -15,6 +15,10 @@
     "modules",
     "developer"
   ],
+  "repository": {
+    "type": "git",
+    "url": "http://git.mchz.com.cn/mcf/module.git"
+  },
   "author": "jaxchow",
   "license": "ISC",
   "devDependencies": {
