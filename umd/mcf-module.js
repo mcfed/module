@@ -7104,19 +7104,24 @@
 	};
 	function defaultReducer() {
 	  return {
-	    savePage: function savePage(state, _ref) {
+	    inital: function inital(state, _ref) {
 	      var payload = _ref.payload;
-	      return objectSpread({}, state, {
-	        // items:payload.items,
-	        page: {
-	          total: payload.totalCount,
-	          pageSize: payload.pageSize,
-	          current: payload.currentPage
-	        }
-	      });
+	      return defaultState;
 	    },
-	    saveList: function saveList(state, _ref2) {
+	    savePage: function savePage(state, _ref2) {
 	      var payload = _ref2.payload;
+	      var pageSize = payload.pageSize || payload.end + 1 - payload.start;
+	      return objectSpread({}, state, {
+	        // items:payload.items,
+	        page: {
+	          total: payload.totalCount || payload.total,
+	          pageSize: pageSize,
+	          current: payload.currentPage || Math.ceil((payload.start + 1) / pageSize)
+	        }
+	      });
+	    },
+	    saveList: function saveList(state, _ref3) {
+	      var payload = _ref3.payload;
 	      return objectSpread({}, state, {
 	        // items:payload.items,
 	        page: {
@@ -7125,14 +7130,14 @@
 	        }
 	      });
 	    },
-	    saveItem: function saveItem(state, _ref3) {
-	      var payload = _ref3.payload;
+	    saveItem: function saveItem(state, _ref4) {
+	      var payload = _ref4.payload;
 	      return objectSpread({}, state, {
 	        item: payload
 	      });
 	    },
-	    deleteItem: function deleteItem(state, _ref4) {
-	      var payload = _ref4.payload;
+	    deleteItem: function deleteItem(state, _ref5) {
+	      var payload = _ref5.payload;
 	      return objectSpread({}, state, {
 	        item: {}
 	      });
@@ -8937,6 +8942,7 @@
 	var FETCH_PARAMS = "@@MIDDLEWARE/FETCH_PARAMS";
 	var FETCH_REQ = "@@MIDDLEWARE/FETCH_REQ";
 	var FETCH_RES = "@@MIDDLEWARE/FETCH_RES";
+	var FETCH_RESET = "@@MIDDLEWARE/RESET";
 	function fetchReq(payload) {
 	  return {
 	    type: FETCH_REQ,
@@ -8955,12 +8961,18 @@
 	    payload: payload
 	  };
 	}
+	function fetchReset(payload) {
+	  return {
+	    type: FETCH_RESET
+	  };
+	}
+	var initalState = {
+	  fetching: new Map(),
+	  params: new Map()
+	};
 
 	function fetchingReducer() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-	    fetching: new Map(),
-	    params: new Map()
-	  };
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initalState;
 
 	  var _ref = arguments.length > 1 ? arguments[1] : undefined,
 	      type = _ref.type,
@@ -8970,6 +8982,12 @@
 	      params = state.params;
 
 	  switch (type) {
+	    case FETCH_RESET:
+	      return {
+	        fetching: new Map(),
+	        params: new Map()
+	      };
+
 	    case FETCH_PARAMS:
 	      return objectSpread({}, state, {
 	        params: params.set(payload.type, payload.payload)
@@ -9054,11 +9072,49 @@
 	  };
 	}
 
+	var UPGRADE_DICT = "@@MIDDLEWARE/UPGRADE_DICT";
+	var UPGRADE_BIZCODE = "@@MIDDLEWARE/UPGRADE_BIZCODE";
+	var UPGRADE_CONFIG = "@@MIDDLEWARE/UPGRADE_CONFIG";
+	var UPGRADE_USER = "@@MIDDLEWARE/UPGRADE_USER";
+	var UPGRADE_AUTHS = "@@MIDDLEWARE/UPGRADE_AUTHS";
+	function upgradeDict(payload) {
+	  return {
+	    type: UPGRADE_DICT,
+	    payload: payload
+	  };
+	}
+	function upgradeBizcode(payload) {
+	  return {
+	    type: UPGRADE_BIZCODE,
+	    payload: payload
+	  };
+	}
+	function upgradeConfig(payload) {
+	  return {
+	    type: UPGRADE_CONFIG,
+	    payload: payload
+	  };
+	}
+	function upgradeUser(payload) {
+	  return {
+	    type: UPGRADE_USER,
+	    payload: payload
+	  };
+	}
+	function upgradeAuths(payload) {
+	  return {
+	    type: UPGRADE_AUTHS,
+	    payload: payload
+	  };
+	}
+
 	function globalReducer() {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
 	    dicts: {},
 	    bizCodes: {},
-	    config: {}
+	    config: {},
+	    user: {},
+	    auths: {}
 	  };
 
 	  var _ref = arguments.length > 1 ? arguments[1] : undefined,
@@ -9069,26 +9125,30 @@
 	      params = state.params;
 
 	  switch (type) {
-	    case '@@MIDDLEWARE/UPGRADE_DICT':
+	    case UPGRADE_DICT:
 	      return objectSpread({}, state, {
 	        dicts: payload
 	      });
 
-	    case '@@MIDDLEWARE/UPGRADE_BIZCODE':
+	    case UPGRADE_BIZCODE:
 	      return objectSpread({}, state, {
 	        bizCodes: payload
 	      });
 
-	    case '@@MIDDLEWARE/UPGRADE_CONFIG':
+	    case UPGRADE_CONFIG:
 	      return objectSpread({}, state, {
 	        config: Object.assign({}, state.config, payload)
 	      });
 
-	    case '@@MIDDLEWARE/UPGRADE_USER':
-	      return objectSpread({}, state);
+	    case UPGRADE_USER:
+	      return objectSpread({}, state, {
+	        user: Object.assign({}, state.config, payload)
+	      });
 
-	    case '@@MIDDLEWARE/UPGRADE_AUTHS':
-	      return objectSpread({}, state);
+	    case UPGRADE_AUTHS:
+	      return objectSpread({}, state, {
+	        auths: Object.assign({}, state.config, payload)
+	      });
 
 	    default:
 	      return state;
@@ -9103,6 +9163,53 @@
 	    return function (next) {
 	      return function (action) {
 	        next(action);
+	      };
+	    };
+	  };
+	}
+
+	var FETCH_LOGINING = "@@MIDDLEWARE/FETCH_LOGINING";
+	var FETCH_LOGOUTING = "@@MIDDLEWARE/FETCH_LOGOUTING";
+	var FETCH_CONFIG = "@@MIDDLEWARE/FETCH_CONFIG";
+	function fetchLogining(payload) {
+	  return {
+	    type: FETCH_LOGINING,
+	    payload: payload
+	  };
+	}
+	function fetchLogouting(payload) {
+	  return {
+	    type: FETCH_LOGOUTING,
+	    payload: payload
+	  };
+	}
+	function fetchConfig(payload) {
+	  return {
+	    type: FETCH_CONFIG,
+	    payload: payload
+	  };
+	}
+	function createMessage$1(_ref) {
+	  var _this = this;
+
+	  var loginingProcess = _ref.loginingProcess,
+	      logoutingProcess = _ref.logoutingProcess,
+	      globalProcess = _ref.globalProcess;
+	  return function (_ref2) {
+	    var getState = _ref2.getState,
+	        dispatch = _ref2.dispatch;
+	    return function (next) {
+	      return function (action) {
+	        if (FETCH_LOGINING === action.type) {
+	          loginingProcess && loginingProcess.call(_this, dispatch, action.payload);
+	        } else if (FETCH_LOGOUTING === action.type) {
+	          logoutingProcess && logoutingProcess.call(_this, dispatch, action.payload);
+	        } else if (FETCH_CONFIG == action.type) {
+	          // console.log("globalProcess",globalProcess)
+	          globalProcess && globalProcess.call(_this, dispatch, action.payload);
+	        }
+
+	        return next(action);
 	      };
 	    };
 	  };
@@ -10246,19 +10353,22 @@
 	    // console.log(effectId, result)
 	    if (is$1.task(result)) {
 	      result.done.then(function (taskResult) {
-	        if (result.isCancelled()) effectCancelled(effectId);else effectResolved(effectId, taskResult); // console.log(store.getState().effectsById[effectId].effect.FORK.args[1])
-	        // console.log(store.getState().effectsById[effectId].effect)
-
+	        if (result.isCancelled()) effectCancelled(effectId);else effectResolved(effectId, taskResult);
 	        storeDispatch(defineProperty$2({
 	          type: "@@MIDDLEWARE/FETCH_RES",
 	          payload: store.getState().effectsById[effectId].effect.FORK.args[0]
 	        }, SAGA_ACTION, true));
 	      }, function (taskError) {
 	        effectRejected(effectId, taskError);
-	        storeDispatch(defineProperty$2({
-	          type: "@@MIDDLEWARE/FETCH_RES",
-	          payload: store.getState().effectsById[effectId].effect.FORK.args[0]
-	        }, SAGA_ACTION, true));
+
+	        if (!taskError) {
+	          storeDispatch(defineProperty$2({
+	            type: "@@MIDDLEWARE/FETCH_RES",
+	            payload: store.getState().effectsById[effectId].effect.FORK.args[0]
+	          }, SAGA_ACTION, true));
+	        } else {
+	          console.error(taskError);
+	        }
 	      });
 	    } else {
 	      var action = {
@@ -10346,11 +10456,21 @@
 		fetchReq: fetchReq,
 		fetchRes: fetchRes,
 		fetchParams: fetchParams,
+		fetchReset: fetchReset,
 		createMessage: createMessage,
 		showSuccess: showSuccess,
 		showError: showError,
 		createModule: createModule,
 		globalReducer: globalReducer,
+		upgradeDict: upgradeDict,
+		upgradeBizcode: upgradeBizcode,
+		upgradeConfig: upgradeConfig,
+		upgradeUser: upgradeUser,
+		upgradeAuths: upgradeAuths,
+		createPassport: createMessage$1,
+		fetchLogining: fetchLogining,
+		fetchLogouting: fetchLogouting,
+		fetchConfig: fetchConfig,
 		sagaMonitorMiddleware: sagaMonitorMiddleware,
 		createSagaMonitor: createSagaMonitor
 	});
@@ -10391,47 +10511,48 @@
 	    refreshPage:
 	    /*#__PURE__*/
 	    regenerator.mark(function refreshPage(action) {
-	      var params, pageAction;
+	      var actionType, params, pageAction;
 	      return regenerator.wrap(function refreshPage$(_context2) {
 	        while (1) {
 	          switch (_context2.prev = _context2.next) {
 	            case 0:
-	              _context2.next = 2;
+	              actionType = [namespace, "fetchPage"].join("/");
+	              _context2.next = 3;
 	              return select(function (state) {
-	                return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(saga.fetchPage.toString())); // return {}
+	                return Object.assign({}, state[namespace].page, state.fetchingReducer.params.get(actionType)); // return {}
 	              });
 
-	            case 2:
+	            case 3:
 	              params = _context2.sent;
 	              // console.log(saga.fetchList,saga.fetchList())
 	              //临时方案后续处理
 	              pageAction = {
-	                type: [namespace, "fetchPage"].join("/"),
+	                type: actionType,
 	                payload: params,
 	                meta: {
 	                  sagaAction: true
 	                }
 	              };
-	              _context2.next = 6;
+	              _context2.next = 7;
 	              return put({
 	                type: "@@MIDDLEWARE/FETCH_PARAMS",
 	                payload: pageAction,
 	                "@@redux-saga/SAGA_ACTION": true
 	              });
 
-	            case 6:
-	              _context2.next = 8;
+	            case 7:
+	              _context2.next = 9;
 	              return put({
 	                type: "@@MIDDLEWARE/FETCH_REQ",
 	                payload: pageAction,
 	                "@@redux-saga/SAGA_ACTION": true
 	              });
 
-	            case 8:
-	              _context2.next = 10;
+	            case 9:
+	              _context2.next = 11;
 	              return fork(saga.fetchPage, pageAction);
 
-	            case 10:
+	            case 11:
 	            case "end":
 	              return _context2.stop();
 	          }
@@ -10594,47 +10715,107 @@
 	        }
 	      }, fetchSave, this);
 	    }),
+	    fetchSaveOrUpdate:
+	    /*#__PURE__*/
+	    regenerator.mark(function fetchSaveOrUpdate(action) {
+	      var result;
+	      return regenerator.wrap(function fetchSaveOrUpdate$(_context7) {
+	        while (1) {
+	          switch (_context7.prev = _context7.next) {
+	            case 0:
+	              if (!action.payload.id) {
+	                _context7.next = 6;
+	                break;
+	              }
+
+	              _context7.next = 3;
+	              return call(Api.fetchUpdate, action.payload);
+
+	            case 3:
+	              result = _context7.sent;
+	              _context7.next = 9;
+	              break;
+
+	            case 6:
+	              _context7.next = 8;
+	              return call(Api.fetchSave, action.payload);
+
+	            case 8:
+	              result = _context7.sent;
+
+	            case 9:
+	              if (!(result.code === 0)) {
+	                _context7.next = 18;
+	                break;
+	              }
+
+	              _context7.next = 12;
+	              return put(actions.saveItem(result.data));
+
+	            case 12:
+	              _context7.next = 14;
+	              return put(showSuccess());
+
+	            case 14:
+	              _context7.next = 16;
+	              return put(goBack());
+
+	            case 16:
+	              _context7.next = 20;
+	              break;
+
+	            case 18:
+	              _context7.next = 20;
+	              return put(showError(result.message));
+
+	            case 20:
+	            case "end":
+	              return _context7.stop();
+	          }
+	        }
+	      }, fetchSaveOrUpdate, this);
+	    }),
 	    fetchDelete:
 	    /*#__PURE__*/
 	    regenerator.mark(function fetchDelete(action) {
 	      var payload, result;
-	      return regenerator.wrap(function fetchDelete$(_context7) {
+	      return regenerator.wrap(function fetchDelete$(_context8) {
 	        while (1) {
-	          switch (_context7.prev = _context7.next) {
+	          switch (_context8.prev = _context8.next) {
 	            case 0:
 	              // console.log(action.payload)
 	              payload = {
 	                ids: [].concat(action.payload)
 	              };
-	              _context7.next = 3;
+	              _context8.next = 3;
 	              return call(Api.fetchDelete, payload);
 
 	            case 3:
-	              result = _context7.sent;
+	              result = _context8.sent;
 
 	              if (!(result.code === 0)) {
-	                _context7.next = 11;
+	                _context8.next = 11;
 	                break;
 	              }
 
-	              _context7.next = 7;
+	              _context8.next = 7;
 	              return put(showSuccess());
 
 	            case 7:
-	              _context7.next = 9;
+	              _context8.next = 9;
 	              return call(saga.refreshPage);
 
 	            case 9:
-	              _context7.next = 13;
+	              _context8.next = 13;
 	              break;
 
 	            case 11:
-	              _context7.next = 13;
+	              _context8.next = 13;
 	              return put(showError(result.message));
 
 	            case 13:
 	            case "end":
-	              return _context7.stop();
+	              return _context8.stop();
 	          }
 	        }
 	      }, fetchDelete, this);
@@ -10645,45 +10826,45 @@
 	function takeSagas(sagaTypes, saga) {
 	  var optimize,
 	      s,
-	      _args8 = arguments;
-	  return regenerator.wrap(function takeSagas$(_context8) {
+	      _args9 = arguments;
+	  return regenerator.wrap(function takeSagas$(_context9) {
 	    while (1) {
-	      switch (_context8.prev = _context8.next) {
+	      switch (_context9.prev = _context9.next) {
 	        case 0:
-	          optimize = _args8.length > 2 && _args8[2] !== undefined ? _args8[2] : {};
-	          _context8.t0 = regenerator.keys(saga);
+	          optimize = _args9.length > 2 && _args9[2] !== undefined ? _args9[2] : {};
+	          _context9.t0 = regenerator.keys(saga);
 
 	        case 2:
-	          if ((_context8.t1 = _context8.t0()).done) {
-	            _context8.next = 13;
+	          if ((_context9.t1 = _context9.t0()).done) {
+	            _context9.next = 13;
 	            break;
 	          }
 
-	          s = _context8.t1.value;
+	          s = _context9.t1.value;
 
 	          if (!optimize[s]) {
-	            _context8.next = 9;
+	            _context9.next = 9;
 	            break;
 	          }
 
-	          _context8.next = 7;
+	          _context9.next = 7;
 	          return optimize[s](sagaTypes[s].toString(), saga[s]);
 
 	        case 7:
-	          _context8.next = 11;
+	          _context9.next = 11;
 	          break;
 
 	        case 9:
-	          _context8.next = 11;
+	          _context9.next = 11;
 	          return takeEvery$2(sagaTypes[s].toString(), saga[s]);
 
 	        case 11:
-	          _context8.next = 2;
+	          _context9.next = 2;
 	          break;
 
 	        case 13:
 	        case "end":
-	          return _context8.stop();
+	          return _context9.stop();
 	      }
 	    }
 	  }, _marked2, this);
@@ -10730,9 +10911,9 @@
 	    },
 	    dicts: function dicts(type, value) {
 	      if (arguments.length > 1) {
-	        return getDictLabel(state.appReducer, type, value);
-	      } else if (arguments.legnth == 1) {
-	        return getDictList(state.appReducer, type);
+	        return getDictLabel(state.appReducer.dicts, type, value);
+	      } else if (arguments.length == 1) {
+	        return getDictList(state.appReducer.dicts, type);
 	      }
 
 	      return "";

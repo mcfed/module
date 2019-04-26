@@ -17,14 +17,15 @@ export function* fetch(method,action){
 export function defaultSaga(actions,Api,namespace){
   const saga= {
     refreshPage:function* (action){
+      const actionType=[namespace,"fetchPage"].join("/")
       const params = yield effects.select((state)=>{
-       return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(saga.fetchPage.toString()))
+       return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(actionType))
         // return {}
       })
       // console.log(saga.fetchList,saga.fetchList())
       //临时方案后续处理
       const pageAction={
-        type:[namespace,"fetchPage"].join("/"),
+        type:actionType,
         payload:params,
         meta:{sagaAction:true}
       }
@@ -58,6 +59,21 @@ export function defaultSaga(actions,Api,namespace){
     },
     fetchSave: function* (action){
       const result = yield effects.call(Api.fetchSave, action.payload);
+      if(result.code === 0){
+        yield effects.put(actions.saveItem(result.data));
+        yield effects.put(showSuccess())
+        yield effects.put(goBack())
+      }else{
+        yield effects.put(showError(result.message))
+      }
+    },
+    fetchSaveOrUpdate: function* (action){
+      let result
+      if (action.payload.id) {
+        result = yield effects.call(Api.fetchUpdate, action.payload)
+      } else {
+        result = yield effects.call(Api.fetchSave, action.payload)
+      }
       if(result.code === 0){
         yield effects.put(actions.saveItem(result.data));
         yield effects.put(showSuccess())
