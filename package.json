@@ -1,13 +1,14 @@
 {
   "name": "mcf-module",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "@mcf for module",
   "module": "esm/mcf-module.js",
   "main": "umd/mcf-module.js",
   "scripts": {
     "test": "jest",
     "dev": "rollup -c --watch",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "jsdoc": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
   },
   "keywords": [
     "@mcf",
@@ -15,6 +16,10 @@
     "modules",
     "developer"
   ],
+  "repository": {
+    "type": "git",
+    "url": "http://git.mchz.com.cn/mcf/module.git"
+  },
   "author": "jaxchow",
   "license": "ISC",
   "devDependencies": {
@@ -35,6 +40,8 @@
     "enzyme-adapter-react-16": "^1.1.1",
     "enzyme-to-json": "^3.3.1",
     "jest": "^22.4.3",
+    "jsdoc": "3.5.5",
+    "minami": "^1.2.3",
     "rollup": "^0.66.6",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.2.0",
@@ -44,7 +51,6 @@
   },
   "dependencies": {
     "connected-react-router": "5.0.0",
-    "node-notifier": "^5.4.0",
     "prop-types": "^15.6.2",
     "react": "^16.0.0",
     "react-dom": "16.0.0",
@@ -54,7 +60,6 @@
     "redux": "^4.0.1",
     "redux-actions": "^2.6.4",
     "redux-orm": "^0.12.2",
-    "redux-saga": "^0.16.2",
-    "webpack": "^4.28.2"
+    "redux-saga": "^0.16.2"
   }
 }

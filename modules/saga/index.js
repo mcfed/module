@@ -1,3 +1,8 @@
+
+/**
+ * @module Saga
+ */
+
 import * as effects from 'redux-saga/effects'
 export * as effects from 'redux-saga/effects'
 import {fetchReq,fetchRes,fetchParams,showError,showSuccess} from '../middleware'
@@ -14,8 +19,23 @@ export function* fetch(method,action){
   return result
 }
 
+/**
+ * defaultSaga - 通用saga方法，扩充原有的actions
+ *
+ * @param  {object} actions   原有的actions
+ * @param  {object} Api       请求层
+ * @param  {string} namespace 命名空间
+ * @return {object}           扩充后的actions
+ */
 export function defaultSaga(actions,Api,namespace){
   const saga= {
+    /**
+     * refreshPage - 刷新页面方法
+     *
+     * @param  {object} action action对象
+     * @return {object}        ----
+     */
+
     refreshPage:function* (action){
       const actionType=[namespace,"fetchPage"].join("/")
       const params = yield effects.select((state)=>{
@@ -33,6 +53,13 @@ export function defaultSaga(actions,Api,namespace){
       yield effects.put({type:"@@MIDDLEWARE/FETCH_REQ",payload:pageAction,"@@redux-saga/SAGA_ACTION": true})
       yield effects.fork(saga.fetchPage,pageAction)
     },
+    /**
+     * fetchPage - 请求列表数据方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
+
     fetchPage: function* (action) {
       const result = yield effects.call(Api.fetchList, action.payload);
       if(result.code === 0){
@@ -41,6 +68,13 @@ export function defaultSaga(actions,Api,namespace){
         yield effects.put(showError(result.message))
       }
     },
+    /**
+     * fetchItem - 请求item数据方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
+
     fetchItem: function* (action){
       const result = yield effects.call(Api.fetchItem, action.payload);
       if(result.code === 0){
@@ -49,6 +83,13 @@ export function defaultSaga(actions,Api,namespace){
         yield effects.put(showError(result.message))
       }
     },
+    /**
+     * fetchList - 同fetchPage方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
+
     fetchList: function* (action) {
       const result = yield effects.call(Api.fetchList, action.payload);
       if(result.code === 0){
@@ -57,6 +98,13 @@ export function defaultSaga(actions,Api,namespace){
         yield effects.put(showError(result.message))
       }
     },
+    /**
+     * fetchSave - 表单提交保存方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
+
     fetchSave: function* (action){
       const result = yield effects.call(Api.fetchSave, action.payload);
       if(result.code === 0){
@@ -67,6 +115,13 @@ export function defaultSaga(actions,Api,namespace){
         yield effects.put(showError(result.message))
       }
     },
+    /**
+     * fetchSaveOrUpdate - 表单保存或更新方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
+
     fetchSaveOrUpdate: function* (action){
       let result
       if (action.payload.id) {
@@ -82,6 +137,13 @@ export function defaultSaga(actions,Api,namespace){
         yield effects.put(showError(result.message))
       }
     },
+    /**
+     * fetchDelete - 删除方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
+
     fetchDelete: function* (action){
       // console.log(action.payload)
       const payload = {ids:[].concat(action.payload)}
@@ -99,6 +161,14 @@ export function defaultSaga(actions,Api,namespace){
   return saga
 }
 
+/**
+ * anonymous function - 监听未来的actions
+ *
+ * @param  {object} sagaTypes   redux-actions创建后的actions（带命名空间）
+ * @param  {object} saga        actions对象（默认saga方法和页面个性化saga集合）
+ * @param  {type} optimize={} description
+ * @return {type}             ----
+ */
 export function *takeSagas(sagaTypes,saga,optimize={}){
   for(var s in saga){
     if(optimize[s]){
