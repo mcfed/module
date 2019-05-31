@@ -11,7 +11,7 @@ const metaFN=(payload)=>({sagaAction:true})
  * defineActions - 遍历actions集合json
  *
  * @param  {object} obj actions集合json
- * @return {object}       重新组合后的actions对象
+ * @return {object}       定义同名的actions集合
  */
 export function defineActions(obj){
   var defineObj={}
