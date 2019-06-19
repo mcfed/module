@@ -7064,6 +7064,13 @@ var metaFN = function metaFN(payload) {
     sagaAction: true
   };
 };
+/**
+ * defineActions - 遍历actions集合json
+ *
+ * @param  {object} obj actions集合json
+ * @return {object}       定义同名的actions集合
+ */
+
 
 function defineActions(obj) {
   var defineObj = {};
@@ -7077,6 +7084,14 @@ function defineActions(obj) {
 
   return defineObj;
 }
+/**
+ * createDefineActions - 创建actions
+ *
+ * @param  {object} actions   actions集合json
+ * @param  {string} namespace 模块命名空间
+ * @return {object}           redux-actions创建后的actions
+ */
+
 function createDefineActions(actions, namespace) {
   return createActions(defineProperty$2({}, namespace, defineActions(actions)))[namespace];
 }
@@ -7107,6 +7122,14 @@ function _objectSpread$2(target) {
 
 var objectSpread = _objectSpread$2;
 
+/**
+ * megerActionReducer - description
+ *
+ * @param  {type} reducers     description
+ * @param  {type} reducerTypes description
+ * @return {type}              description
+ */
+
 function megerActionReducer(reducers, reducerTypes) {
   var newReducer = {};
 
@@ -7116,6 +7139,10 @@ function megerActionReducer(reducers, reducerTypes) {
 
   return newReducer;
 }
+/**
+ *默认数据状态
+ */
+
 var defaultState = {
   items: [],
   item: {},
@@ -7124,13 +7151,26 @@ var defaultState = {
     total: 0,
     current: 1
   }
+  /**
+   * defaultReducer - 默认的reducer
+   *
+   * @return {type}  包含一些操作的reducer
+   */
+
 };
 function defaultReducer() {
   return {
+    /**
+     * 返回默认的statr
+     */
     inital: function inital(state, _ref) {
       var payload = _ref.payload;
       return defaultState;
     },
+
+    /**
+     * 保存list页面分页信息容错
+     */
     savePage: function savePage(state, _ref2) {
       var payload = _ref2.payload;
       var pageSize = payload.pageSize || payload.end + 1 - payload.start;
@@ -7143,6 +7183,10 @@ function defaultReducer() {
         }
       });
     },
+
+    /**
+     *  保存list页面分页信息
+     */
     saveList: function saveList(state, _ref3) {
       var payload = _ref3.payload;
       return objectSpread({}, state, {
@@ -7153,12 +7197,20 @@ function defaultReducer() {
         }
       });
     },
+
+    /**
+     * 保存item
+     */
     saveItem: function saveItem(state, _ref4) {
       var payload = _ref4.payload;
       return objectSpread({}, state, {
         item: payload
       });
     },
+
+    /**
+     * 删除item
+     */
     deleteItem: function deleteItem(state, _ref5) {
       var payload = _ref5.payload;
       return objectSpread({}, state, {
@@ -9065,6 +9117,8 @@ function createFetching(_ref2
 
 var SHOW_SUCCESS = "@@MIDDLEWARE/SHOW_SUCCESS";
 var SHOW_ERROR = "@@MIDDLEWARE/SHOW_ERROR";
+var SHOW_COMFIRM = "@@MIDDLEWARE/SHOW_COMFIRM";
+var SHOW_MESSAGE = "@@MIDDLEWARE/SHOW_MESSAGE";
 function showSuccess(payload) {
   return {
     type: SHOW_SUCCESS,
@@ -9074,6 +9128,18 @@ function showSuccess(payload) {
 function showError(payload) {
   return {
     type: SHOW_ERROR,
+    payload: payload
+  };
+}
+function showComfirm(payload) {
+  return {
+    type: SHOW_COMFIRM,
+    payload: payload
+  };
+}
+function showMessage(payload) {
+  return {
+    type: SHOW_MESSAGE,
     payload: payload
   };
 }
@@ -9087,6 +9153,10 @@ function createMessage(message) {
           message.success(action.payload || "操作成功");
         } else if (SHOW_ERROR === action.type) {
           message.error(action.payload);
+        } else if (SHOW_COMFIRM === action.type) {
+          message.comfirm(action.payload);
+        } else if (SHOW_MESSAGE === action.type) {
+          message.message(action.payload);
         }
 
         return next(action);
@@ -10485,6 +10555,8 @@ var index$5 = /*#__PURE__*/Object.freeze({
 	createMessage: createMessage,
 	showSuccess: showSuccess,
 	showError: showError,
+	showComfirm: showComfirm,
+	showMessage: showMessage,
 	createModule: createModule,
 	globalReducer: globalReducer,
 	upgradeDict: upgradeDict,
@@ -10531,8 +10603,23 @@ function fetch(method, action) {
     }
   }, _marked, this);
 }
+/**
+ * defaultSaga - 通用saga方法，扩充原有的actions
+ *
+ * @param  {object} actions   原有的actions
+ * @param  {object} Api       请求层
+ * @param  {string} namespace 命名空间
+ * @return {object}           扩充后的actions
+ */
+
 function defaultSaga(actions, Api, namespace) {
   var saga = {
+    /**
+     * refreshPage - 刷新页面方法
+     *
+     * @param  {object} action action对象
+     * @return {object}        ----
+     */
     refreshPage:
     /*#__PURE__*/
     regenerator.mark(function refreshPage(action) {
@@ -10584,6 +10671,13 @@ function defaultSaga(actions, Api, namespace) {
         }
       }, refreshPage, this);
     }),
+
+    /**
+     * fetchPage - 请求列表数据方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
     fetchPage:
     /*#__PURE__*/
     regenerator.mark(function fetchPage(action) {
@@ -10621,6 +10715,13 @@ function defaultSaga(actions, Api, namespace) {
         }
       }, fetchPage, this);
     }),
+
+    /**
+     * fetchItem - 请求item数据方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
     fetchItem:
     /*#__PURE__*/
     regenerator.mark(function fetchItem(action) {
@@ -10658,6 +10759,13 @@ function defaultSaga(actions, Api, namespace) {
         }
       }, fetchItem, this);
     }),
+
+    /**
+     * fetchList - 同fetchPage方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
     fetchList:
     /*#__PURE__*/
     regenerator.mark(function fetchList(action) {
@@ -10695,6 +10803,13 @@ function defaultSaga(actions, Api, namespace) {
         }
       }, fetchList, this);
     }),
+
+    /**
+     * fetchSave - 表单提交保存方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
     fetchSave:
     /*#__PURE__*/
     regenerator.mark(function fetchSave(action) {
@@ -10740,6 +10855,13 @@ function defaultSaga(actions, Api, namespace) {
         }
       }, fetchSave, this);
     }),
+
+    /**
+     * fetchSaveOrUpdate - 表单保存或更新方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
     fetchSaveOrUpdate:
     /*#__PURE__*/
     regenerator.mark(function fetchSaveOrUpdate(action) {
@@ -10800,6 +10922,13 @@ function defaultSaga(actions, Api, namespace) {
         }
       }, fetchSaveOrUpdate, this);
     }),
+
+    /**
+     * fetchDelete - 删除方法
+     *
+     * @param  {object} action action对象
+     * @return {type}        ----
+     */
     fetchDelete:
     /*#__PURE__*/
     regenerator.mark(function fetchDelete(action) {
@@ -10848,6 +10977,15 @@ function defaultSaga(actions, Api, namespace) {
   };
   return saga;
 }
+/**
+ * anonymous function - 监听未来的actions
+ *
+ * @param  {object} sagaTypes   redux-actions创建后的actions（带命名空间）
+ * @param  {object} saga        actions对象（默认saga方法和页面个性化saga集合）
+ * @param  {type} optimize={} description
+ * @return {type}             ----
+ */
+
 function takeSagas(sagaTypes, saga) {
   var optimize,
       s,
@@ -10902,10 +11040,30 @@ var index$6 = /*#__PURE__*/Object.freeze({
 	takeSagas: takeSagas
 });
 
+/**
+ * @module Utils
+ */
+
+/**
+ * getDictList - description
+ *
+ * @param  {object} dictData 字典表json
+ * @param  {string} dicName  对应字典键名
+ * @return {array}          对应字典值
+ */
 function getDictList(dictData, dicName) {
   // console.log(dictData)
   return dictData[dicName] || [];
 }
+/**
+ * getDictLabel - description
+ *
+ * @param  {object} dictData 字典表json
+ * @param  {string} dicName  对应字典键名
+ * @param  {string|number} value    需要翻译的值
+ * @return {type}          字典翻译后的值
+ */
+
 function getDictLabel(dictData, dicName, value) {
   var label = '';
 
@@ -10913,7 +11071,7 @@ function getDictLabel(dictData, dicName, value) {
     var map = getDictList(dictData, dicName);
     map.forEach(function (arr) {
       if (arr.value === value) {
-        label = arr.label; // throw 'Finish and value = ' + label 
+        label = arr.label; // throw 'Finish and value = ' + label
       }
     });
   } catch (e) {
@@ -10924,16 +11082,49 @@ function getDictLabel(dictData, dicName, value) {
   return label;
 }
 
+/**
+ * @module Container
+ */
 // export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"
+
+/**
+ * defaultMergeProps - 合并新增加的props(spins,querys,dicts,locale)
+ *
+ * @param  {object} state 状态仓库
+ * @param  {function} dispatch 原redux的dispatch方法
+ * @param  {object} ownProps 组件自身props
+ * @return {object}          组合后将注入组件的props对象
+ */
 
 var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) {
   return Object.assign({}, ownProps, state, dispatch, {
+    /**
+     * spins - 获取当前方法加载状态方法
+     *
+     * @param  {function|string} 对应action或action.type
+     * @return {boolean}      请求是否完成
+     */
     spins: function spins(type) {
       return state.fetchingReducer.fetching.get(type.toString ? type.toString() : type);
     },
+
+    /**
+     * querys - 保存查询参数方法
+     *
+     * @param  {object} type 对应action或action.type
+     * @return {object}       action.payload 或空json
+     */
     querys: function querys(type) {
       return state.fetchingReducer.params.get(type.toString ? type.toString() : type) || {};
     },
+
+    /**
+     * dicts - 查询字典方法
+     *
+     * @param  {string} type  对应字典名
+     * @param  {int} value 需要翻译的值
+     * @return {string}       翻译完成的值，若无则返回空
+     */
     dicts: function dicts(type, value) {
       if (arguments.length > 1) {
         return getDictLabel(state.appReducer.dicts, type, value);
@@ -10943,6 +11134,14 @@ var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) 
 
       return "";
     },
+
+    /**
+     * locale - 国际化方法
+     *
+     * @param  {string} type  国际化对应类型
+     * @param  {string} value 国际化语言
+     * @return {string}       国际化完成的值
+     */
     locale: function locale(type, value) {
       if (state.intl) {
         if (state.messages[type]) {
@@ -10958,6 +11157,14 @@ var defaultMergeProps$1 = function defaultMergeProps(state, dispatch, ownProps) 
     }
   });
 };
+/**
+ * bindActionCreators - description
+ *
+ * @param  {object} actions  actions 集合json
+ * @param  {function} dispatch redux提供的dispatch
+ * @return {object}          重新组合后的actions
+ */
+
 function bindActionCreators$1(actions, dispatch) {
   var newActions = bindActionCreators(actions, dispatch);
 
