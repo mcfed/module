@@ -2,9 +2,9 @@
  * @module Container
  */
 
-import { bindActionCreators as bindActions } from "redux";
-export { connect } from "react-redux";
-import { DictUtils } from "../utils";
+import {bindActionCreators as bindActions} from 'redux';
+export {connect} from 'react-redux';
+import {DictUtils} from '../utils';
 // import {injectIntl} from 'react-intl'
 // export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"
 
@@ -58,7 +58,7 @@ export const defaultMergeProps = (state, dispatch, ownProps) => {
       } else if (arguments.length == 1) {
         return DictUtils.getDictList(state.appReducer.dicts, type);
       }
-      return "";
+      return '';
     },
     /**
      * locale - 国际化方法
@@ -73,10 +73,10 @@ export const defaultMergeProps = (state, dispatch, ownProps) => {
         if (state.messages[type]) {
           return state.intl.formatMessage(state.messages[type], value);
         } else {
-          return state.intl.formatMessage({ id: type });
+          return state.intl.formatMessage({id: type}, value);
         }
       }
-      return "";
+      return '';
     }
   });
 };

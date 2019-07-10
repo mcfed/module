@@ -18,3 +18,8 @@
 # 1.3.0
 
 - 重新修改打包机制，master 上使用自动化发布 [@zhouhuan]
+
+# 1.3.1
+
+- 国际化支持全局变量替换 [@shibo]
+- 修正 ci 脚本 publish 前 build
