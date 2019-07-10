@@ -9117,6 +9117,8 @@ function createFetching(_ref2
 
 var SHOW_SUCCESS = "@@MIDDLEWARE/SHOW_SUCCESS";
 var SHOW_ERROR = "@@MIDDLEWARE/SHOW_ERROR";
+var SHOW_COMFIRM = "@@MIDDLEWARE/SHOW_COMFIRM";
+var SHOW_MESSAGE = "@@MIDDLEWARE/SHOW_MESSAGE";
 function showSuccess(payload) {
   return {
     type: SHOW_SUCCESS,
@@ -9126,6 +9128,18 @@ function showSuccess(payload) {
 function showError(payload) {
   return {
     type: SHOW_ERROR,
+    payload: payload
+  };
+}
+function showComfirm(payload) {
+  return {
+    type: SHOW_COMFIRM,
+    payload: payload
+  };
+}
+function showMessage(payload) {
+  return {
+    type: SHOW_MESSAGE,
     payload: payload
   };
 }
@@ -9139,6 +9153,10 @@ function createMessage(message) {
           message.success(action.payload || "操作成功");
         } else if (SHOW_ERROR === action.type) {
           message.error(action.payload);
+        } else if (SHOW_COMFIRM === action.type) {
+          message.comfirm(action.payload);
+        } else if (SHOW_MESSAGE === action.type) {
+          message.message(action.payload);
         }
 
         return next(action);
@@ -10537,6 +10555,8 @@ var index$5 = /*#__PURE__*/Object.freeze({
 	createMessage: createMessage,
 	showSuccess: showSuccess,
 	showError: showError,
+	showComfirm: showComfirm,
+	showMessage: showMessage,
 	createModule: createModule,
 	globalReducer: globalReducer,
 	upgradeDict: upgradeDict,
