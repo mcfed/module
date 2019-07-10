@@ -21,12 +21,20 @@ export const defaultMergeProps=(state, dispatch, ownProps)=>{
       }
       return ""
     },
-    locale:function(type,value){
-      if(state.intl){
-        if(state.messages[type]){
-          return state.intl.formatMessage(state.messages[type],value)
-        }else{
-          return state.intl.formatMessage({id:type})
+    /**
+     * locale - 国际化方法
+     *
+     * @param  {string} type  国际化对应类型
+     * @param  {string} value 国际化语言
+     * @return {string}       国际化完成的值
+     */
+
+    locale: function(type, value) {
+      if (state.intl) {
+        if (state.messages[type]) {
+          return state.intl.formatMessage(state.messages[type], value);
+        } else {
+          return state.intl.formatMessage({ id: type },value);
         }
       }
       return ""
