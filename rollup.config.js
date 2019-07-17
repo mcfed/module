@@ -14,7 +14,8 @@ const globals = {
   "prop-types":"PropTypes"
 };
 const babelOptionsCJS = {
-  exclude: /node_modules/
+  exclude: /node_modules/,
+  runtimeHelpers: true
 };
 const babelOptionsESM = {
   exclude: /node_modules/,
@@ -31,22 +32,21 @@ const external = id => !id.startsWith(".") && !id.startsWith("\/");
 
 export default [{
   input,
-  output: { file: `esm/${pkg.name}.js`, format: "esm" },
+  output: { file: `cjs/${pkg.name}.js`, format: "cjs" },
   external:Object.keys(globals),
-  plugins: [nodeResolve({
-  }),babel(babelOptionsESM),
-   commonjs(commonjsOptions),
-   // sizeSnapshot()
+  plugins: [
+    babel(babelOptionsCJS),
+    commonjs(commonjsOptions),
+    sizeSnapshot()
  ]
 },{
    input,
-   output: { file: `umd/${pkg.name}.js`, format: "umd", name },
+   output: { file: `es/${pkg.name}.js`, format: "es", name },
    external: Object.keys(globals),
    plugins: [
-     nodeResolve(),
      babel(babelOptionsESM),
      commonjs(commonjsOptions),
      replace({ "process.env.NODE_ENV": JSON.stringify("development") }),
-     sizeSnapshot()
+     // sizeSnapshot()
    ]
 }]
