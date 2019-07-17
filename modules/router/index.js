@@ -1,1 +1,1 @@
-export * from 'connected-react-router'
+export {LOCATION_CHANGE, CALL_HISTORY_METHOD, onLocationChanged, push, replace, go, goBack, goForward, routerActions,getLocation, getAction, getHash, getSearch, createMatchSelector,ConnectedRouter,connectRouter,routerMiddleware} from 'connected-react-router'

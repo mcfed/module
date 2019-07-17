@@ -22,4 +22,4 @@
 # 1.3.1
 
 - 国际化支持全局变量替换 [@shibo]
-- 修正 ci 脚本 publish 前 build
+- 去除umd打包改用cjs es方式
