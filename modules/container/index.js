@@ -5,6 +5,7 @@
 import {bindActionCreators as bindActions} from 'redux';
 export {connect} from 'react-redux';
 import {DictUtils} from '../utils';
+import {cancelTask} from '../middleware/redux-module'
 // import {injectIntl} from 'react-intl'
 // export {reducerListSelector,reducerItemSelector} from "../model/reducerSelector"
 
@@ -16,8 +17,9 @@ import {DictUtils} from '../utils';
  * @param  {object} ownProps 组件自身props
  * @return {object}          组合后将注入组件的props对象
  */
-export const defaultMergeProps = (state, dispatch, ownProps) => {
-  return Object.assign({}, ownProps, state, dispatch, {
+export const defaultMergeProps = (state, {dispatch,actions}, ownProps) => {
+  console.log(dispatch,actions)
+  return Object.assign({}, ownProps, state, {dispatch,actions}, {
     /**
      * spins - 获取当前方法加载状态方法
      *
@@ -77,6 +79,9 @@ export const defaultMergeProps = (state, dispatch, ownProps) => {
         }
       }
       return '';
+    },
+    cancelAction:function(action){
+      dispatch(cancelTask(`${action.toString()}`))
     }
   });
 };

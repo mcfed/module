@@ -3,6 +3,7 @@ const UPGRADE_BIZCODE = "@@MIDDLEWARE/UPGRADE_BIZCODE"
 const UPGRADE_CONFIG = "@@MIDDLEWARE/UPGRADE_CONFIG"
 const UPGRADE_USER = "@@MIDDLEWARE/UPGRADE_USER"
 const UPGRADE_AUTHS = "@@MIDDLEWARE/UPGRADE_AUTHS"
+export const CANCEL_TASK = "@@MIDDLEWARE/CANCEL_TASK"
 
 
 export function upgradeDict(payload){
@@ -36,6 +37,13 @@ export function upgradeAuths(payload){
   return {
     type:UPGRADE_AUTHS,
     payload:payload
+  }
+}
+
+export function cancelTask(payload){
+  return {
+    type:CANCEL_TASK,
+    payload:payload.toString()
   }
 }
 
@@ -79,6 +87,9 @@ export function upgradeAuths(payload){
    }
    //  return state
  }
+
+
+
 
  export default function createModule() {
    return ({ getState, dispatch }) => (next) =>

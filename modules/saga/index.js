@@ -7,6 +7,7 @@ import * as effects from 'redux-saga/effects'
 export * as effects from 'redux-saga/effects'
 import {fetchReq,fetchRes,fetchParams,showError,showSuccess} from '../middleware'
 import * as ModuleRouter from '../router'
+export {takePolling} from './effects'
 const { goBack } = ModuleRouter
 
 export function* fetch(method,action){

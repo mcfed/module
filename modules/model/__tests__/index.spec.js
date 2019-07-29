@@ -1,10 +1,65 @@
-import {fk,many} from 'redux-orm'
+import {fk,many,oneToOne} from 'redux-orm'
 import {orm,session,createReducer} from '../index'
 import BaseModel from '../BaseModel'
 import {attr} from '../Attr'
 
 describe('ORM initial', () => {
   //此处MOCK fetch  可以考虑与api  共用
+  //此处MOCK
+  //此处MOCK
+  //此处MOCK
+
+  class SqlWhiteListSetting extends BaseModel{
+    static modelName="SqlWhiteListSetting"
+    static fields={}
+    static reducer(state, action, model, session) {
+      switch (action.type) {
+      case 'CREATE_BOOK':
+          Book.create(action.payload);
+          break;
+      case 'UPDATE_BOOK':
+          Book.withId(action.payload.id).update(action.payload);
+          break;
+      case 'REMOVE_BOOK':
+          const book = Book.withId(action.payload);
+          book.delete();
+          break;
+      case 'ADD_AUTHOR_TO_BOOK':
+          Book.withId(action.payload.bookId).authors.add(action.payload.author);
+          break;
+      case 'REMOVE_AUTHOR_FROM_BOOK':
+          Book.withId(action.payload.bookId).authors.remove(action.payload.authorId);
+          break;
+      case 'ASSIGN_PUBLISHER':
+          Book.withId(action.payload.bookId).publisherId = action.payload.publisherId;
+          break;
+      }
+      // Return value is ignored.
+      return undefined;
+    }
+  }
+
+  Object.assign(SqlWhiteListSetting.fields,BaseModel.fields,{
+    id: attr(),
+    access:attr(),
+    applyScope:attr(),
+  })
+
+
+  class SqlWhiteListAccess extends BaseModel{
+    static modelName="SqlWhiteListAccess"
+    static fields={}
+  }
+
+  Object.assign(SqlWhiteListAccess.fields,BaseModel.fields,{
+    id: attr(),
+    action:attr(),
+    audit:attr()
+  })
+
+
+
+
   class TestModel extends BaseModel{
     static modelName="TestModel"
     static fields={}
@@ -48,10 +103,20 @@ describe('ORM initial', () => {
       props1:attr(),
   })
 
-  orm.register(TestModel,TestPropModel)
+  orm.register(TestModel,TestPropModel,SqlWhiteListSetting,SqlWhiteListAccess)
 
   let session = orm.session({
     TestModel:{
+      items:[],
+      itemsById:{},
+      meta:{}
+    },
+    SqlWhiteListSetting:{
+      items:[],
+      itemsById:{},
+      meta:{}
+    },
+    SqlWhiteListAccess:{
       items:[],
       itemsById:{},
       meta:{}
@@ -62,8 +127,11 @@ describe('ORM initial', () => {
       meta:{}
     }
   })
+  // console.log(session)
   const Test = session.TestModel
   const TestProp = session.TestModel
+  const WhiteListAccess = session.SqlWhiteListAccess
+  const WhiteListSetting = session.SqlWhiteListSetting
   var testModel=Test.create({
     id:"abc",
     serverName:"abd",
@@ -129,6 +197,24 @@ describe('ORM initial', () => {
     })
     // console.log(t1,t2)
 
+    done()
+  })
+
+  it('SqlWhiteListSetting create',(done)=>{
+    // console.log(WhiteListSetting)
+
+    const data = {
+      applyScope:1,
+      access: {action: 5, audit: 1, rate: 100, cycNum: 1, cyc: "s", riskLevel: 3, status: 0}
+    }
+    const setting = WhiteListSetting.create(data)
+    setting.update({access:WhiteListAccess.create(data.access)})
+    console.log(setting)
+    // setting.access.update({audit:2})
+    // WhiteListAccess.withId(0).update({audit:3})
+    // console.log(WhiteListAccess.withId(0))
+    console.log(setting)
+    // console.log(WhiteListAccess.all().toModelArray())
     done()
   })
 })

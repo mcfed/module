@@ -54,9 +54,14 @@ const initalState={
          fetching: new Map(fetching.set(payload.type, true))
        }
      case FETCH_RES:
-       return {
-         ...state,
-         fetching: new Map(fetching.set(payload.type, false))
+       // console.log("payload",payload)
+       if(payload){
+         return {
+           ...state,
+           fetching: new Map(fetching.set(payload.type, false))
+         }
+       }else{
+         return state
        }
      default:
        return state
