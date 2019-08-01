@@ -67,7 +67,9 @@ describe('ORM initial', () => {
 
   Object.assign(TestModel.fields,BaseModel.fields,{
       id: attr(),
-      serverName:attr(),
+      serverName:attr({
+        getDefault:()=>"unname"
+      }),
       serverStatus:attr(),
       serverIp:attr({
         get:function(val){
@@ -134,14 +136,14 @@ describe('ORM initial', () => {
   const WhiteListSetting = session.SqlWhiteListSetting
   var testModel=Test.create({
     id:"abc",
-    serverName:"abd",
+    // serverName:"abd",
     serverStatus:"1",
     serverIp:"127.0.0.1",
     serverPort:"8080",
     ip:"address",
   })
 
-  it('testModel createModel',(done)=>{
+  it.skip('testModel createModel',(done)=>{
 
     expect(testModel.serverName).toBe("abd")
     done()
@@ -149,6 +151,11 @@ describe('ORM initial', () => {
 
   it("testModel serverStatusStr",(done)=>{
     expect(testModel.serverStatusStr).toBe("启用")
+    done()
+  })
+
+  it("testModel  serverName default {unname}",(done)=>{
+    expect(testModel.serverName).toBe("unname")
     done()
   })
 

@@ -38,7 +38,7 @@ export default class BaseModel extends Model {
           }
       }
       // });
-  };
+  }
   toData(){
     return this._fields
   }

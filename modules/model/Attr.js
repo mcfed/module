@@ -8,6 +8,9 @@ export default class Attr extends Attribute{
       this.fieldName=this.opts
     }
 
+    if (this.opts.hasOwnProperty('getDefault')) {
+        this.getDefault = this.opts.getDefault;
+    }
     if (this.opts.hasOwnProperty('fieldName')) {
         this.fieldName = this.opts.fieldName;
     }
