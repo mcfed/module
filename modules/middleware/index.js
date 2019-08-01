@@ -20,7 +20,8 @@ export {
   upgradeBizcode,
   upgradeConfig,
   upgradeUser,
-  upgradeAuths
+  upgradeAuths,
+  cancelTask
 } from "./redux-module";
 export {
   default as createPassport,

@@ -18,7 +18,11 @@ import {cancelTask} from '../middleware/redux-module'
  * @return {object}          组合后将注入组件的props对象
  */
 export const defaultMergeProps = (state, {dispatch,actions}, ownProps) => {
-  console.log(dispatch,actions)
+   actions && Object.assign(actions,{
+    cancelAction:function(action){
+      dispatch(cancelTask(`${action.toString()}`))
+    }
+  })
   return Object.assign({}, ownProps, state, {dispatch,actions}, {
     /**
      * spins - 获取当前方法加载状态方法
@@ -79,9 +83,6 @@ export const defaultMergeProps = (state, {dispatch,actions}, ownProps) => {
         }
       }
       return '';
-    },
-    cancelAction:function(action){
-      dispatch(cancelTask(`${action.toString()}`))
     }
   });
 };
