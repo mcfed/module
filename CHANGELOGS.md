@@ -26,4 +26,4 @@
 
 # 1.3.2
 - 添加cancelAction方法和saga takePolling 方法解决轮询业务调用
-- Model attr({getDefault=>{}}) 增加 getDefault 对象属性默认值 支持
+- Model attr({getDefault=>{}}) 增加 getDefault 对象属性默认值支持
