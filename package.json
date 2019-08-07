@@ -54,6 +54,8 @@
     "rollup-plugin-size-snapshot": "^0.7.0"
   },
   "dependencies": {
+    "@redux-saga/symbols": "^1.0.0",
+    "@redux-saga/testing-utils": "^1.0.0",
     "connected-react-router": "5.0.0",
     "prop-types": "^15.6.2",
     "react": "^16.0.0",
@@ -64,6 +66,6 @@
     "redux": "^4.0.1",
     "redux-actions": "^2.6.4",
     "redux-orm": "^0.12.2",
-    "redux-saga": "^0.16.2"
+    "redux-saga": "^1.0.0"
   }
 }

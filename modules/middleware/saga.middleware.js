@@ -1,5 +1,7 @@
 import createSagaMiddleware from 'redux-saga'
-import { is, SAGA_ACTION,asEffect } from 'redux-saga/utils'
+import * as is from '@redux-saga/is'
+import { SAGA_ACTION } from '@redux-saga/symbols'
+import * as asEffect from 'redux-saga/effects'
 import { createStore,combineReducers } from 'redux'
 
 export const EFFECT_TRIGGERED = 'EFFECT_TRIGGERED'
@@ -18,14 +20,15 @@ const CHILDREN = Symbol('CHILDREN')
 function getPathToEffect(effect, effectsById) {
   let effectId = effect.effectId
   const path = [effectId]
-
-  while(effectId) {
-    effectId = effect.parentEffectId
+  // console.log("effectId",effect)
+  // while(effectId) {
+    // console.log(effectId)
+    effectId = effect?effect.parentEffectId:effectId
     if(effectId) {
       path.push(effectId)
       effect = effectsById[effectId]
     }
-  }
+  // }
   return path.reverse()
 }
 
@@ -78,7 +81,8 @@ export function effectsById(state = {}, action) {
         ...state,
         [effectId] : settleEffect(effect, action)
       }
-      return maybeSetRaceWinner(effect, action.result, newState)
+      // console.log(effect,action.result,newState)
+      return maybeSetRaceWinner(effect, action.result ||{}, newState)
     case EFFECT_REJECTED:
       effectId = action.effectId
       return {
@@ -205,19 +209,22 @@ export function createSagaMonitor({rootReducer,storeDispatch,time = getTime, dis
   function effectResolved(effectId, result) {
     // console.log(effectId, result)
     if(is.task(result)) {
-      result.done.then(
+      // console.log(store.getState().effectsById,effectId)
+      result.toPromise().then(
         taskResult => {
           if(result.isCancelled())
             effectCancelled(effectId)
           else
             effectResolved(effectId, taskResult)
-            storeDispatch({type:"@@MIDDLEWARE/FETCH_RES",payload:store.getState().effectsById[effectId].effect.FORK.args[0],[SAGA_ACTION]: true})
+            storeDispatch({type:"@@MIDDLEWARE/FETCH_RES",payload:store.getState().effectsById[effectId].effect.payload.args[0],[SAGA_ACTION]: true})
         },
         taskError => {
+          // console.log(effectId,taskError)
           effectRejected(effectId, taskError)
           if(!taskError){
-            storeDispatch({type:"@@MIDDLEWARE/FETCH_RES",payload:store.getState().effectsById[effectId].effect.FORK.args[0],[SAGA_ACTION]: true})
+            storeDispatch({type:"@@MIDDLEWARE/FETCH_RES",payload:store.getState().effectsById[effectId].effect.payload.args[0],[SAGA_ACTION]: true})
           }else{
+            storeDispatch({type:"@@MIDDLEWARE/FETCH_RES",payload:store.getState().effectsById[effectId].effect.payload.args[0],[SAGA_ACTION]: true})
             console.error(taskError)
           }
         }
@@ -266,6 +273,7 @@ export function createSagaMonitor({rootReducer,storeDispatch,time = getTime, dis
       isSagaAction,
       time: now
     })
+    // console.log(action,!isSagaAction , action.meta && action.meta['sagaAction'] ,storeDispatch)
     if(!isSagaAction && action.meta && action.meta['sagaAction'] && storeDispatch){
       storeDispatch({type:"@@MIDDLEWARE/FETCH_PARAMS",payload:action,[SAGA_ACTION]: true})
       storeDispatch({type:"@@MIDDLEWARE/FETCH_REQ",payload:action,[SAGA_ACTION]: true})

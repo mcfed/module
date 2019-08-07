@@ -4,10 +4,6 @@ import BaseModel from '../BaseModel'
 import {attr} from '../Attr'
 
 describe('ORM initial', () => {
-  //此处MOCK fetch  可以考虑与api  共用
-  //此处MOCK
-  //此处MOCK
-  //此处MOCK
 
   class SqlWhiteListSetting extends BaseModel{
     static modelName="SqlWhiteListSetting"
@@ -143,9 +139,20 @@ describe('ORM initial', () => {
     ip:"address",
   })
 
-  it.skip('testModel createModel',(done)=>{
-
-    expect(testModel.serverName).toBe("abd")
+  it('testModel constructor',(done)=>{
+    // console.log(Test)
+    const obj={
+      id:"aaa",
+      serverName:"abd",
+      serverStatus:"2",
+      serverIp:"localhost",
+      serverPort:"8888",
+      ip:"address"
+    }
+    expect(Test.parse(obj).toData()).toEqual(obj)
+    expect(Test.idExists("aaa")).toEqual(false)
+    //console.log(Test.all().toModelArray())
+    // expect(testModel.serverName).toBe("abd")
     done()
   })
 
@@ -216,11 +223,11 @@ describe('ORM initial', () => {
     }
     const setting = WhiteListSetting.create(data)
     setting.update({access:WhiteListAccess.create(data.access)})
-    console.log(setting)
+    // console.log(setting)
     // setting.access.update({audit:2})
     // WhiteListAccess.withId(0).update({audit:3})
     // console.log(WhiteListAccess.withId(0))
-    console.log(setting)
+    // console.log(setting)
     // console.log(WhiteListAccess.all().toModelArray())
     done()
   })

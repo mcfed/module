@@ -642,6 +642,51 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@redux-saga/core@^1.0.3":
+  version "1.0.3"
+  resolved "http://192.168.200.178:4873/@redux-saga%2fcore/-/core-1.0.3.tgz#c29ec7ae3d7dfcbcb8dc93177f2b3edc798c5d85"
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    "@redux-saga/deferred" "^1.0.1"
+    "@redux-saga/delay-p" "^1.0.1"
+    "@redux-saga/is" "^1.0.2"
+    "@redux-saga/symbols" "^1.0.1"
+    "@redux-saga/types" "^1.0.2"
+    redux ">=0.10 <5"
+    typescript-tuple "^2.1.0"
+
+"@redux-saga/deferred@^1.0.1":
+  version "1.0.1"
+  resolved "http://192.168.200.178:4873/@redux-saga%2fdeferred/-/deferred-1.0.1.tgz#c895445e486bded90acf0b873b4e978fbfe458c2"
+
+"@redux-saga/delay-p@^1.0.1":
+  version "1.0.1"
+  resolved "http://192.168.200.178:4873/@redux-saga%2fdelay-p/-/delay-p-1.0.1.tgz#d69fc6103c7509ae80faa144ea17bbc69e51e029"
+  dependencies:
+    "@redux-saga/symbols" "^1.0.1"
+
+"@redux-saga/is@^1.0.2":
+  version "1.0.2"
+  resolved "http://192.168.200.178:4873/@redux-saga%2fis/-/is-1.0.2.tgz#7f4be014c97061898d7efb11d6c9de31e943ed38"
+  dependencies:
+    "@redux-saga/symbols" "^1.0.1"
+    "@redux-saga/types" "^1.0.2"
+
+"@redux-saga/symbols@^1.0.0", "@redux-saga/symbols@^1.0.1":
+  version "1.0.1"
+  resolved "http://192.168.200.178:4873/@redux-saga%2fsymbols/-/symbols-1.0.1.tgz#46512ae1275f88df061c42168d0f600ddb170c1e"
+
+"@redux-saga/testing-utils@^1.0.0":
+  version "1.0.5"
+  resolved "http://192.168.200.178:4873/@redux-saga%2ftesting-utils/-/testing-utils-1.0.5.tgz#600493f5796f8cc7e630635f344a35c34fc91ca7"
+  dependencies:
+    "@redux-saga/symbols" "^1.0.1"
+    "@redux-saga/types" "^1.0.2"
+
+"@redux-saga/types@^1.0.2":
+  version "1.0.2"
+  resolved "http://192.168.200.178:4873/@redux-saga%2ftypes/-/types-1.0.2.tgz#1d94f02800b094753f9271c206a26c2a06ca14ee"
+
 "@samverschueren/stream-to-observable@^0.3.0":
   version "0.3.0"
   resolved "http://192.168.200.178:4873/@samverschueren%2fstream-to-observable/-/stream-to-observable-0.3.0.tgz#ecdf48d532c58ea477acfcab80348424f8d0662f"
@@ -5464,9 +5509,18 @@ redux-orm@^0.12.2:
     lodash "^4.17.10"
     reselect "^3.0.1"
 
-redux-saga@^0.16.2:
-  version "0.16.2"
-  resolved "https://registry.yarnpkg.com/redux-saga/-/redux-saga-0.16.2.tgz#993662e86bc945d8509ac2b8daba3a8c615cc971"
+redux-saga@^1.0.0:
+  version "1.0.5"
+  resolved "http://192.168.200.178:4873/redux-saga/-/redux-saga-1.0.5.tgz#03317261bc5fa7ee2ecb778f4e4848f573557bbb"
+  dependencies:
+    "@redux-saga/core" "^1.0.3"
+
+"redux@>=0.10 <5":
+  version "4.0.4"
+  resolved "http://192.168.200.178:4873/redux/-/redux-4.0.4.tgz#4ee1aeb164b63d6a1bcc57ae4aa0b6e6fa7a3796"
+  dependencies:
+    loose-envify "^1.4.0"
+    symbol-observable "^1.2.0"
 
 redux@^4.0.1:
   version "4.0.1"
@@ -6345,6 +6399,22 @@ type-fest@^0.6.0:
 typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
+
+typescript-compare@^0.0.2:
+  version "0.0.2"
+  resolved "http://192.168.200.178:4873/typescript-compare/-/typescript-compare-0.0.2.tgz#7ee40a400a406c2ea0a7e551efd3309021d5f425"
+  dependencies:
+    typescript-logic "^0.0.0"
+
+typescript-logic@^0.0.0:
+  version "0.0.0"
+  resolved "http://192.168.200.178:4873/typescript-logic/-/typescript-logic-0.0.0.tgz#66ebd82a2548f2b444a43667bec120b496890196"
+
+typescript-tuple@^2.1.0:
+  version "2.2.1"
+  resolved "http://192.168.200.178:4873/typescript-tuple/-/typescript-tuple-2.2.1.tgz#7d9813fb4b355f69ac55032e0363e8bb0f04dad2"
+  dependencies:
+    typescript-compare "^0.0.2"
 
 ua-parser-js@^0.7.18:
   version "0.7.19"

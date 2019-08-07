@@ -1,6 +1,6 @@
 import { actionChannel,take, put, call, fork, cancel, cancelled } from 'redux-saga/effects'
 import {CANCEL_TASK} from '../../middleware/redux-module'
-import { delay } from 'redux-saga'
+import  delay from '@redux-saga/delay-p'
 
 
 function* polling(action,saga,args,time){

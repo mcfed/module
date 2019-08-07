@@ -1,5 +1,5 @@
 import {defaultSaga as sagaCreator } from '../index'
-import { cloneableGenerator } from 'redux-saga/utils'
+import { cloneableGenerator } from '@redux-saga/testing-utils'
 import { call,put } from 'redux-saga/effects'
 import {fetchReq,fetchRes,fetchParams,showError,showSuccess} from '../../middleware'
 import * as ModuleRouter from '../../router'
