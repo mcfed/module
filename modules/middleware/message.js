@@ -41,6 +41,8 @@ export default function createMessage(message) {
       message.comfirm(action.payload);
     } else if (SHOW_MESSAGE === action.type) {
       message.message(action.payload);
+    }else{
+      return next(action)
     }
     return next(action);
   };
