@@ -7,7 +7,7 @@ import * as effects from 'redux-saga/effects'
 export * as effects from 'redux-saga/effects'
 import {fetchReq,fetchRes,fetchParams,showError,showSuccess} from '../middleware'
 import * as ModuleRouter from '../router'
-export {takePolling,takeLoading} from './effects'
+export { takePolling, takeLoading} from './effects'
 const { goBack } = ModuleRouter
 
 
@@ -165,7 +165,7 @@ export function *takeSagas(sagaTypes,saga,optimize={}){
     if(optimize[s]){
       yield optimize[s](sagaTypes[s].toString(),saga[s])
     }else{
-      yield takeLoading(sagaTypes[s].toString(),saga[s])
+      yield effects.takeEvery(sagaTypes[s].toString(),saga[s])
     }
   }
 }
