@@ -165,7 +165,7 @@ export function *takeSagas(sagaTypes,saga,optimize={}){
     if(optimize[s]){
       yield optimize[s](sagaTypes[s].toString(),saga[s])
     }else{
-      yield effects.takeLoading(sagaTypes[s].toString(),saga[s])
+      yield takeLoading(sagaTypes[s].toString(),saga[s])
     }
   }
 }
