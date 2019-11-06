@@ -7,18 +7,9 @@ import * as effects from 'redux-saga/effects'
 export * as effects from 'redux-saga/effects'
 import {fetchReq,fetchRes,fetchParams,showError,showSuccess} from '../middleware'
 import * as ModuleRouter from '../router'
-export {takePolling} from './effects'
+export {takePolling,takeLoading} from './effects'
 const { goBack } = ModuleRouter
 
-export function* fetch(method,action){
-  let result
-  yield effects.put(fetchParams(action))
-  // yield effects.put(fetchReq({type:action.type,payload:true}))
-  result = yield effects.call(method,action.payload)
-  // yield effects.put(fetchRes({type:action.type,payload:false}))
-
-  return result
-}
 
 /**
  * defaultSaga - 通用saga方法，扩充原有的actions
@@ -41,7 +32,6 @@ export function defaultSaga(actions,Api,namespace){
       const actionType=[namespace,"fetchPage"].join("/")
       const params = yield effects.select((state)=>{
        return Object.assign({},state[namespace].page,state.fetchingReducer.params.get(actionType))
-        // return {}
       })
       // console.log(saga.fetchList,saga.fetchList())
       //临时方案后续处理
@@ -50,8 +40,8 @@ export function defaultSaga(actions,Api,namespace){
         payload:params,
         meta:{sagaAction:true}
       }
-      yield effects.put({type:"@@MIDDLEWARE/FETCH_PARAMS",payload:pageAction,"@@redux-saga/SAGA_ACTION": true})
-      yield effects.put({type:"@@MIDDLEWARE/FETCH_REQ",payload:pageAction,"@@redux-saga/SAGA_ACTION": true})
+      yield effects.put(fetchParams(pageAction))
+      yield effects.put(fetchReq(pageAction))
       yield effects.fork(saga.fetchPage,pageAction)
     },
     /**
@@ -175,7 +165,7 @@ export function *takeSagas(sagaTypes,saga,optimize={}){
     if(optimize[s]){
       yield optimize[s](sagaTypes[s].toString(),saga[s])
     }else{
-      yield effects.takeEvery(sagaTypes[s].toString(),saga[s])
+      yield effects.takeLoading(sagaTypes[s].toString(),saga[s])
     }
   }
 }

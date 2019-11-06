@@ -1,9 +1,12 @@
-import {defaultSaga as sagaCreator } from '../index'
+import {defaultSaga as sagaCreator, takeSagas } from '../index'
 import { cloneableGenerator } from '@redux-saga/testing-utils'
-import { call,put } from 'redux-saga/effects'
+import { call, put, takeEvery, select,fork } from 'redux-saga/effects'
 import {fetchReq,fetchRes,fetchParams,showError,showSuccess} from '../../middleware'
+import * as ModuleAction from '../../action'
 import * as ModuleRouter from '../../router'
+import { takePolling } from '../effects'
 const { goBack } = ModuleRouter
+const { createDefineActions } = ModuleAction;
 
 describe("测试sagaCreator", () => {
     const Api={
@@ -34,7 +37,7 @@ describe("测试sagaCreator", () => {
         }
       }
     }
-    const saga =sagaCreator(actions,Api)
+    const saga =sagaCreator(actions,Api,"test")
     it("sagaCreator", (done) => {
       expect(saga).toHaveProperty('fetchItem')
       expect(saga).toHaveProperty('fetchPage')
@@ -44,8 +47,25 @@ describe("测试sagaCreator", () => {
       expect(saga).toHaveProperty('fetchSaveOrUpdate')
       done()
     });
-    it.skip('saga refreshPage success',(done)=>{
-
+    it('saga refreshPage success',()=>{
+      const pageAction={
+        type:'test/fetchPage',
+        payload:{a:1},
+        meta:{
+          sagaAction:true
+        }
+      }
+      const gen = cloneableGenerator(saga.refreshPage)({payload:{}})
+      gen.next().value.payload.selector({
+        test:{},
+        fetchingReducer:{
+          params:new Map()
+        }
+      })
+      expect(gen.next({ a: 1 }).value).toEqual(put(fetchParams(pageAction)))
+      expect(gen.next({ a: 1 }).value).toEqual(put(fetchReq(pageAction)))
+      expect(gen.next({ a: 1 }).value).toEqual(fork(saga.fetchPage,pageAction))
+      // expect(gen.next().value).toEqual(select())
     })
     it.skip('saga refreshPage error',(done)=>{
 
@@ -164,5 +184,19 @@ describe("测试sagaCreator", () => {
       expect(clone.next().value).toEqual(call(Api.fetchUpdate,{id:1}))
       expect(clone.next({code:500,data:{}}).value).toEqual(put(showError()))
       done()
+    })
+
+    it('takeSagas',()=>{
+      const sagaTypes=createDefineActions(saga,"test")
+      const gen = cloneableGenerator(takeSagas)(sagaTypes,saga)
+      expect(gen.next().value).toEqual(takeEvery('test/refreshPage',saga.refreshPage))
+      expect(gen.next().value).toEqual(takeEvery('test/fetchPage',saga.fetchPage))
+    })
+
+    it('takeSagas with optimize',()=>{
+      const sagaTypes=createDefineActions(saga,"test")
+      const gen = cloneableGenerator(takeSagas)(sagaTypes,saga,{fetchPage:takePolling})
+      expect(gen.next().value).toEqual(takeEvery('test/refreshPage',saga.refreshPage))
+      expect(gen.next().value).toEqual(takePolling('test/fetchPage',saga.fetchPage))
     })
 });

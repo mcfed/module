@@ -54,6 +54,7 @@
     "rollup-plugin-size-snapshot": "^0.7.0"
   },
   "dependencies": {
+    "@commitlint/config-conventional": "^8.2.0",
     "@redux-saga/symbols": "^1.0.0",
     "@redux-saga/testing-utils": "^1.0.0",
     "connected-react-router": "5.0.0",
@@ -66,6 +67,6 @@
     "redux": "^4.0.1",
     "redux-actions": "^2.6.4",
     "redux-orm": "^0.12.2",
-    "redux-saga": "^1.0.0"
+    "redux-saga": "^1.1.1"
   }
 }

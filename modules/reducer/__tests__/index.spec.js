@@ -19,6 +19,10 @@ describe("reducerActionCreator", () => {
     done()
   });
 
+  it('inital method',()=>{
+    expect(reducer(defaultReducer,reducerActions.inital())).toEqual(defaultState)
+  })
+
   it('savePage method 传统分页页码',(done)=>{
     const payload={
       pageSize:10,
