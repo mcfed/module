@@ -36,5 +36,10 @@
     "bundled": 712233,
     "minified": 225900,
     "gzipped": 62213
+  },
+  "cjs/mcf-module.js": {
+    "bundled": 23572,
+    "minified": 11011,
+    "gzipped": 2858
   }
 }

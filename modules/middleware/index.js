@@ -1,5 +1,4 @@
 export {
-  default as createFetching,
   fetchingReducer,
   fetchReq,
   fetchRes,
