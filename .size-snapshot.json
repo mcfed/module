@@ -41,5 +41,15 @@
     "bundled": 23572,
     "minified": 11011,
     "gzipped": 2858
+  },
+  "cjs/@mcf/module.js": {
+    "bundled": 25150,
+    "minified": 12082,
+    "gzipped": 3055
+  },
+  "cjs/index.js": {
+    "bundled": 25138,
+    "minified": 12070,
+    "gzipped": 3054
   }
 }

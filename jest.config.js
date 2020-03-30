@@ -11,13 +11,13 @@ module.exports = {
     },
   },
   notify: false,
-  setupTestFrameworkScriptFile: "<rootDir>/setupTests.js",
+  setupFilesAfterEnv: ["<rootDir>/setupTests.js"],
   coveragePathIgnorePatterns: [ //该路径下的测试，忽略在测试覆盖率上
     'build',
     '<rootDir>/src/shared/libs/url/',
   ],
   testURL: "http://localhost/",
-  testRegex: '__tests__/.*\\.js?$', //要测试的文件目录及后缀
+  testRegex: '__tests__/.*\\.(j|t)s?$', //要测试的文件目录及后缀
   testPathIgnorePatterns: [ //忽略该路径的文件测试
     '<rootDir>/node_modules/(?!lodash-es)',
     '<rootDir>/build/',
@@ -29,8 +29,12 @@ module.exports = {
     '__mocks__',
 
   ],
-  "snapshotSerializers": ["enzyme-to-json/serializer"],
-  moduleFileExtensions: ['', 'json', 'js', 'jsx', 'less'], //测试模块中用到的文件的后缀名配置
+  transform: {
+    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.jsx?$': 'babel-jest'
+  },
+  // "snapshotSerializers": ["enzyme-to-json/serializer"],
+  moduleFileExtensions: ['','ts', 'json', 'js', 'jsx', 'less'], //测试模块中用到的文件的后缀名配置
   modulePaths: ['<rootDir>/src'],
   moduleNameMapper: {  //与测试无关的资源文件同意mock 掉，这样在import 的时候就不会真的引入这些文件
     '^import?': '<rootDir>/build/jestImportMock.js',

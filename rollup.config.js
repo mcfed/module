@@ -10,8 +10,6 @@ const input = "./modules/index"
 
 
 const globals = {
-  react: "React",
-  "prop-types":"PropTypes"
 };
 const babelOptionsCJS = {
   exclude: /node_modules/,
@@ -32,7 +30,7 @@ const external = id => !id.startsWith(".") && !id.startsWith("\/");
 
 export default [{
   input,
-  output: { file: `cjs/${pkg.name}.js`, format: "cjs" },
+  output: { file: `cjs/index.js`, format: "cjs" },
   external:Object.keys(globals),
   plugins: [
     babel(babelOptionsCJS),
@@ -41,7 +39,7 @@ export default [{
  ]
 },{
    input,
-   output: { file: `es/${pkg.name}.js`, format: "es", name },
+   output: { file: `umd/index.js`, format: "umd", name },
    external: Object.keys(globals),
    plugins: [
      babel(babelOptionsESM),

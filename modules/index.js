@@ -1,7 +1,0 @@
-export * as ModuleRouter from './router'
-export * as ModuleAction from './action'
-export * as ModuleReducer from './reducer'
-export * as ModuleSaga from './saga'
-export * as ModuleMiddleware from './middleware'
-// export * as model from './model'
-// export * as router from './router'
